@@ -73,6 +73,15 @@ class Service
             return $this->getAccessToken($request);
         }
 
+        $this->tpl->addDefault(
+            [
+                'token_info' => [
+                    'scope' => $this->session->access_token->getScope(),
+                    'expires_at' => $this->session->access_token->getExpiresAt(),
+                ],
+            ]
+        );
+
         // get the instance list
         list($responseCode, $instanceData) = $this->httpClient->get($this->config->instanceListUri);
         if (200 !== $responseCode) {
