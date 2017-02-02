@@ -1,0 +1,32 @@
+{
+    "authors": [
+        {
+            "email": "fkooman@tuxed.net",
+            "name": "Fran\u00e7ois Kooman"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "SURFnet\\VPN\\ApiClient\\": "src/"
+        }
+    },
+    "description": "VPN API Client",
+    "license": "AGPL-3.0",
+    "name": "eduvpn/vpn-api-client",
+    "repositories": [
+        {
+            "no-api": true,
+            "type": "vcs",
+            "url": "https://github.com/fkooman/php-oauth2-client"
+        }
+    ],
+    "require": {
+        "ext-date": "*",
+        "ext-json": "*",
+        "ext-libsodium": "*",
+        "ext-pdo": "*",
+        "fkooman/oauth2-client": "dev-master",
+        "php": ">= 5.4.0",
+        "twig/twig": "^1.0"
+    }
+}

@@ -1,0 +1,17 @@
+<?php
+
+return [
+    // enable Twig template cache
+    'enableTemplateCache' => true,
+
+    // URL to list of instances supporting the VPN Token Service
+    'instanceList' => 'https://static.eduvpn.nl/instances.json',
+
+    // OAuth Client Configuration
+    'clientConfig' => [
+        'client_id' => 'vpn-api-client',
+        'client_secret' => 'XXX-secret-XXX',
+        'authorize_endpoint' => 'https://ets.tuxed.net/vpn-token-service/authorize.php',
+        'token_endpoint' => 'https://ets.tuxed.net/vpn-token-service/token.php',
+    ],
+];

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+
+<html lang="en">
+{% include 'head.twig' %}
+<body>
+    {% include 'header.twig' %}
+
+    <ul class="menu">
+        <li class="active"><a href="#">Profiles</a></li>
+    </ul>
+
+    <p class="plain">{{ motd }}</p>
+
+    <p>This is a list of profiles. Choose a profile to obtain a configuration.</p>
+
+
+    <ul>
+        {% for item in profiles %}
+            <li><span title="{{ item.profile_id }}"><a href="?instance_id={{ instance_id }}&profile_id={{ item.profile_id }}">{{ item.display_name }}</a></span></li>
+        {% endfor %}
+    </ul>
+
+    {% include 'footer.twig' %}
+</body>
+</html>
