@@ -21,10 +21,11 @@
         }
     ],
     "require": {
+        "ext-curl": "*",
         "ext-date": "*",
         "ext-json": "*",
-        "ext-libsodium": "*",
-        "ext-pdo": "*",
+        "ext-session": "*",
+        "ext-spl": "*",
         "fkooman/oauth2-client": "dev-master",
         "php": ">= 5.4.0",
         "twig/twig": "^1.0"
