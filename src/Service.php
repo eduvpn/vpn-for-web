@@ -67,7 +67,7 @@ class Service
         }
 
         // check if access_token is still valid
-        if (0 >= $this->session->access_token->getExpiresIn()) {
+        if ($this->dateTime->getTimestamp() >= $this->session->access_token->getExpiresAt()->getTimestamp()) {
             unset($this->session->access_token);
 
             return $this->getAccessToken($request);
@@ -117,12 +117,10 @@ class Service
     {
         $info = $this->getInfo($instanceData, $instanceId);
         $profileListUri = $info->profile_list;
+        $systemMessagesUri = $info->system_messages;
 
         $profileList = $this->getProfiles($profileListUri, $this->session->access_token->getToken());
-
-//        $systemMessagesUri = $infoData['api']['http://eduvpn.org/api#2']['system_messages'];
-//        $motdMessages = $httpClient->get($systemMessagesUri, ['message_type' => 'motd']);
-//        $motdMessage = $motdMessages[1]['system_messages']['data'][0]['message'];
+        $motd = $this->getMotd($systemMessagesUri, $this->session->access_token->getToken());
 
         return new Response(
             200,
@@ -130,7 +128,7 @@ class Service
             $this->tpl->render(
                 'profiles',
                 [
-                    'motd' => 'XXX',
+                    'motd' => $motd,
                     'instance_id' => $instanceId,
                     'profiles' => $profileList,
                 ]
@@ -169,11 +167,11 @@ class Service
         }
 
         if (!array_key_exists('api', $infoData)) {
-            throw new RuntimeException(sprintf('missing "api" key in data from "%s"', $infoUri));
+            throw new RuntimeException(sprintf('missing "api" key in response from "%s"', $infoUri));
         }
 
         if (!array_key_exists('http://eduvpn.org/api#2', $infoData['api'])) {
-            throw new RuntimeException(sprintf('missing "http://eduvpn.org/api#2" key in data from "%s"', $infoUri));
+            throw new RuntimeException(sprintf('missing "http://eduvpn.org/api#2" key in response from "%s"', $infoUri));
         }
 
         return new Config($infoData['api']['http://eduvpn.org/api#2']);
@@ -182,15 +180,27 @@ class Service
     private function getProfiles($profileListUri, $bearerToken)
     {
         list($responseCode, $responseData) = $this->httpClient->get($profileListUri, ['bearer' => $bearerToken]);
-
-//        $responseData = $this->httpClient->get($profileListUri, ['bearer' => $bearerToken]);
         if (!array_key_exists('profile_list', $responseData)) {
-            throw new RuntimeException(sprintf('missing "profile_list" key in data from "%s"', $profileListUri));
+            throw new RuntimeException(sprintf('missing "profile_list" key in response from "%s"', $profileListUri));
         }
         if (!array_key_exists('data', $responseData['profile_list'])) {
-            throw new RuntimeException(sprintf('missing "profile_list/data" key in data from "%s"', $profileListUri));
+            throw new RuntimeException(sprintf('missing "profile_list/data" key in response from "%s"', $profileListUri));
         }
 
         return $responseData['profile_list']['data'];
+    }
+
+    private function getMotd($systemMessagesUri, $bearerToken)
+    {
+        list($responseCode, $responseData) = $this->httpClient->get($systemMessagesUri, ['bearer' => $bearerToken]);
+        if (!array_key_exists('system_messages', $responseData)) {
+            throw new RuntimeException(sprintf('missing "system_messages" key in response from "%s"', $systemMessagesUri));
+        }
+        if (!array_key_exists('data', $responseData['system_messages'])) {
+            throw new RuntimeException(sprintf('missing "system_messages/data" key in response from "%s"', $systemMessagesUri));
+        }
+
+        // XXX this may not work, better checking! consolidate with the other functions, lots of duplication!
+        return $responseData['system_messages']['data'][0]['message'];
     }
 }
