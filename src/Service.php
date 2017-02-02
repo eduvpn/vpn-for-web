@@ -101,7 +101,7 @@ class Service
     {
         $authorizationRequestUri = $this->oauthClient->getAuthorizationRequestUri(
             'config',
-            $request->getAuthority().'/callback.php'  // XXX consider the root the app is running in!
+            sprintf('%scallback.php', $request->getRootUri())
         );
         $this->session->oauth2_session = $authorizationRequestUri;
 

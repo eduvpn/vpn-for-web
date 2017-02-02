@@ -51,7 +51,7 @@ try {
     $response = new Response(
         302,
         [
-            'Location' => $request->getAuthority().'/index.php', // XXX consider root
+            'Location' => sprintf('%sindex.php', $request->getRootUri()),
         ]
     );
     $response->send();

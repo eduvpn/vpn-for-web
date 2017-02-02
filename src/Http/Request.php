@@ -92,4 +92,25 @@ class Request
 
         return sprintf('%s://%s', $requestScheme, $serverName);
     }
+
+    /**
+     * @return string
+     */
+    public function getRoot()
+    {
+        $rootDir = dirname($this->serverData['SCRIPT_NAME']);
+        if ('/' !== $rootDir) {
+            return sprintf('%s/', $rootDir);
+        }
+
+        return $rootDir;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRootUri()
+    {
+        return sprintf('%s%s', $this->getAuthority(), $this->getRoot());
+    }
 }
