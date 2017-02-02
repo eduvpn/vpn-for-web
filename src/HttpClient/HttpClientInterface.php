@@ -20,7 +20,13 @@ namespace SURFnet\VPN\ApiClient\HttpClient;
 
 interface HttpClientInterface
 {
+    /**
+     * @return array
+     */
     public function get($requestUri, array $options = []);
 
+    /**
+     * @return array
+     */
     public function post($requestUri, array $postData = [], array $options = []);
 }
