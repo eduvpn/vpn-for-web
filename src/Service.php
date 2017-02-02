@@ -74,9 +74,9 @@ class Service
         }
 
         // get the instance list
-        list($responseCode, $instanceData) = $this->httpClient->get($this->config->instanceList);    // XXX rename config field to uri
+        list($responseCode, $instanceData) = $this->httpClient->get($this->config->instanceListUri);
         if (200 !== $responseCode) {
-            throw new RuntimeException('unable to fetch instanceList'); // XXX rename
+            throw new RuntimeException('unable to fetch instanceListUri');
         }
 
         // is an instance_id and profile_id specified?
