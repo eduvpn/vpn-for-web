@@ -27,12 +27,18 @@ use SURFnet\VPN\ApiClient\TwigTpl;
 try {
     $config = new Config(require sprintf('%s/config/config.php', dirname(__DIR__)));
 
-    // Template
+    // Templates
     $templateDirs = [
         sprintf('%s/views', dirname(__DIR__)),
         sprintf('%s/config/views', dirname(__DIR__)),
     ];
-    $tpl = new TwigTpl($templateDirs);
+
+    $dataDir = sprintf('%s/data', dirname(__DIR__));
+    $templateCache = null;
+    if ($config->enableTemplateCache) {
+        $templateCache = sprintf('%s/tpl', $dataDir);
+    }
+    $tpl = new TwigTpl($templateDirs, $templateCache);
 
     // OAuth
     $oauthProvider = new \fkooman\OAuth\Client\Provider(
