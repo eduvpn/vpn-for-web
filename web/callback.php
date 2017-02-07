@@ -24,8 +24,9 @@ use SURFnet\VPN\ApiClient\Http\Session;
 
 try {
     $config = new Config(require sprintf('%s/config/config.php', dirname(__DIR__)));
-    $session = new Session();
+
     $request = new Request($_SERVER, $_GET, $_POST);
+    $session = new Session($request->getServerName(), $request->getRoot(), $config->secureCookie);
 
     $oauthProvider = new \fkooman\OAuth\Client\Provider(
         $config->clientConfig->client_id,

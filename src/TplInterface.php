@@ -30,4 +30,8 @@ interface TplInterface
      * @return string the rendered template
      */
     public function render($templateName, array $templateVariables);
+
+    public function addDefault(array $templateVariables);
+
+    public function setDefault(array $templateVariables);
 }

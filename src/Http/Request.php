@@ -49,6 +49,11 @@ class Request
         return $this->serverData['REQUEST_METHOD'];
     }
 
+    public function getServerName()
+    {
+        return $this->serverData['SERVER_NAME'];
+    }
+
     /**
      * @return array
      */

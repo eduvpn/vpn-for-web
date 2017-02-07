@@ -1,6 +1,9 @@
 <?php
 
 return [
+    // set secureCookie flag, so browser only sends them over HTTPS
+    'secureCookie' => false,
+
     // enable Twig template cache
     'enableTemplateCache' => true,
 

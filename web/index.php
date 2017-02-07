@@ -53,16 +53,15 @@ try {
         new \fkooman\OAuth\Client\CurlHttpClient()
     );
 
+    $request = new Request($_SERVER, $_GET, $_POST);
     $service = new Service(
         $config,
         new CurlHttpClient(),
         $tpl,
-        new Session(),
+        new Session($request->getServerName(), $request->getRoot(), $config->secureCookie),
         $oauthClient,
         new DateTime()
     );
-
-    $request = new Request($_SERVER, $_GET, $_POST);
     $response = $service->run($request);
     $response->send();
 } catch (Exception $e) {

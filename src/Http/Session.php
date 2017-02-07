@@ -22,10 +22,21 @@ use SURFnet\VPN\ApiClient\Config;
 
 class Session extends Config
 {
-    public function __construct()
+    public function __construct($serverName, $requestRoot, $secureOnly)
     {
-        // XXX security stuff
+        session_set_cookie_params(0, $requestRoot, $serverName, $secureOnly, true);
         session_start();
+
+        if (!isset($_SESSION['canary'])) {
+            session_regenerate_id(true);
+            $_SESSION['canary'] = time();
+        }
+        // Regenerate session ID every five minutes:
+        if ($_SESSION['canary'] < time() - 300) {
+            session_regenerate_id(true);
+            $_SESSION['canary'] = time();
+        }
+
         parent::__construct($_SESSION);
     }
 
