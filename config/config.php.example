@@ -8,7 +8,7 @@ return [
     'enableTemplateCache' => true,
 
     // URL to list of instances supporting the VPN Token Service
-    'instanceListUri' => 'https://static.eduvpn.nl/instances.json',
+    'instanceListUri' => 'https://ets.tuxed.net/instances.json',
 
     // OAuth Client Configuration
     'clientConfig' => [
