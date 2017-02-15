@@ -75,10 +75,7 @@ class Service
 
         $this->tpl->addDefault(
             [
-                'token_info' => [
-                    'scope' => $this->session->access_token->getScope(),
-                    'expires_at' => $this->session->access_token->getExpiresAt(),
-                ],
+                'token_info' => (string) $this->session->access_token,
             ]
         );
 
