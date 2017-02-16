@@ -146,8 +146,11 @@ hr {
 }
 
 div.footer {
+    font-size: 85%;
+    background-color: #efefef;
+    border: 1px solid #555;    
     margin-top: 2em;
-    text-align: center;
+    overflow: auto;
 }
 
 div.footer form {
