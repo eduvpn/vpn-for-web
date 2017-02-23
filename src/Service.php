@@ -124,7 +124,9 @@ class Service
         $info = $this->getInfo($instanceData, $instanceId);
         $profileListUri = $info->profile_list;
         $systemMessagesUri = $info->system_messages;
+        $userInfoUri = $info->user_info;
 
+        $userInfo = $this->getUserInfo($userInfoUri, $this->session->access_token->getToken());
         $profileList = $this->getProfiles($profileListUri, $this->session->access_token->getToken());
         $motd = $this->getMotd($systemMessagesUri, $this->session->access_token->getToken());
 
@@ -137,6 +139,7 @@ class Service
                     'motd' => $motd,
                     'instance_id' => $instanceId,
                     'profiles' => $profileList,
+                    'user_info' => $userInfo,
                 ]
             )
         );
@@ -194,6 +197,19 @@ class Service
         }
 
         return $responseData['profile_list']['data'];
+    }
+
+    private function getUserInfo($userInfoUri, $bearerToken)
+    {
+        list($responseCode, $responseData) = $this->httpClient->get($userInfoUri, ['bearer' => $bearerToken]);
+        if (!array_key_exists('user_info', $responseData)) {
+            throw new RuntimeException(sprintf('missing "user_info" key in response from "%s"', $userInfoUri));
+        }
+        if (!array_key_exists('data', $responseData['user_info'])) {
+            throw new RuntimeException(sprintf('missing "user_info/data" key in response from "%s"', $userInfoUri));
+        }
+
+        return $responseData['user_info']['data'];
     }
 
     private function getMotd($systemMessagesUri, $bearerToken)
