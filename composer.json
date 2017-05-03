@@ -13,13 +13,6 @@
     "description": "VPN API Client",
     "license": "AGPL-3.0",
     "name": "eduvpn/vpn-api-client",
-    "repositories": [
-        {
-            "no-api": true,
-            "type": "vcs",
-            "url": "https://github.com/fkooman/php-oauth2-client"
-        }
-    ],
     "require": {
         "ext-curl": "*",
         "ext-date": "*",
@@ -29,5 +22,8 @@
         "fkooman/oauth2-client": "dev-master",
         "php": ">= 5.4.0",
         "twig/twig": "^1.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^4.8"
     }
 }

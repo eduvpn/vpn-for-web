@@ -18,39 +18,26 @@
 
 namespace SURFnet\VPN\ApiClient;
 
-use DateTime;
-use fkooman\OAuth\Client\OAuth2Client;
-use RuntimeException;
+use fkooman\OAuth\Client\OAuthClient;
 use SURFnet\VPN\ApiClient\Http\Request;
 use SURFnet\VPN\ApiClient\Http\Response;
-use SURFnet\VPN\ApiClient\Http\Session;
-use SURFnet\VPN\ApiClient\HttpClient\HttpClientInterface;
 
 class Service
 {
     /** @var Config */
     private $config;
 
-    /** @var \SURFnet\VPN\ApiClient\HttpClient\HttpClientInterface */
-    private $httpClient;
-
     /** @var TplInterface */
     private $tpl;
 
-    private $session;
-
+    /** @var \fkooman\OAuth\Client\OAuthClient */
     private $oauthClient;
 
-    private $dateTime;
-
-    public function __construct(Config $config, HttpClientInterface $httpClient, TplInterface $tpl, Session $session, OAuth2Client $oauthClient, DateTime $dateTime)
+    public function __construct(Config $config, TplInterface $tpl, OAuthClient $oauthClient)
     {
         $this->config = $config;
-        $this->httpClient = $httpClient;
         $this->tpl = $tpl;
-        $this->session = $session;
         $this->oauthClient = $oauthClient;
-        $this->dateTime = $dateTime;
     }
 
     public function run(Request $request)
@@ -60,169 +47,25 @@ class Service
             return new Response(405, ['Allow' => 'GET']);
         }
 
-        // check if access_token is available
-        if (!isset($this->session->access_token)) {
-            // no access_token available
+        if (false === $oauthResponse = $this->oauthClient->get('config', 'https://labrat.eduvpn.nl/portal/api.php/user_info')) {
             return $this->getAccessToken($request);
         }
 
-        // check if access_token is still valid
-        if ($this->dateTime->getTimestamp() >= $this->session->access_token->getExpiresAt()->getTimestamp()) {
-            unset($this->session->access_token);
+        return new Response(200, ['Content-Type' => 'application/json'], $oauthResponse->getBody());
 
-            return $this->getAccessToken($request);
-        }
+//        return $response;
 
-        $this->tpl->addDefault(
-            [
-                'token_info' => (string) $this->session->access_token,
-            ]
-        );
-
-        // get the instance list
-        list($responseCode, $instanceData) = $this->httpClient->get($this->config->instanceListUri);
-        if (200 !== $responseCode) {
-            throw new RuntimeException('unable to fetch instanceListUri');
-        }
-
-        // is an instance_id and profile_id specified?
-        $instanceId = $request->getQueryParameter('instance_id');
-        $profileId = $request->getQueryParameter('profile_id');
-
-        if (!is_null($instanceId) && !is_null($profileId)) {
-            // XXX it *DOES* have sideeffects, so this is NOT nice, maybe we
-            // need to use a POST for this?
-            return $this->showConfig($instanceData, $instanceId, $profileId);
-        }
-
-        if (!is_null($instanceId)) {
-            return $this->showProfiles($instanceData, $instanceId);
-        }
-
-        // show the instances
-        return $this->showInstances($instanceData);
+//        echo $response->getBody();
     }
 
     private function getAccessToken(Request $request)
     {
-        $authorizationRequestUri = $this->oauthClient->getAuthorizationRequestUri(
+        $authorizationRequestUri = $this->oauthClient->getAuthorizeUri(
             'config',
             sprintf('%scallback.php', $request->getRootUri())
         );
-        $this->session->oauth2_session = $authorizationRequestUri;
+        $_SESSION['_oauth2_session'] = $authorizationRequestUri;
 
         return new Response(302, ['Location' => $authorizationRequestUri]);
-    }
-
-    private function showInstances(array $instanceData)
-    {
-        return new Response(200, [], $this->tpl->render('instances', $instanceData));
-    }
-
-    private function showProfiles(array $instanceData, $instanceId)
-    {
-        $info = $this->getInfo($instanceData, $instanceId);
-        $profileListUri = $info->profile_list;
-        $systemMessagesUri = $info->system_messages;
-        $userInfoUri = $info->user_info;
-
-        $userInfo = $this->getUserInfo($userInfoUri, $this->session->access_token->getToken());
-        $profileList = $this->getProfiles($profileListUri, $this->session->access_token->getToken());
-        $motd = $this->getMotd($systemMessagesUri, $this->session->access_token->getToken());
-
-        return new Response(
-            200,
-            [],
-            $this->tpl->render(
-                'profiles',
-                [
-                    'motd' => $motd,
-                    'instance_id' => $instanceId,
-                    'profiles' => $profileList,
-                    'user_info' => $userInfo,
-                ]
-            )
-        );
-    }
-
-    private function showConfig(array $instanceData, $instanceId, $profileId)
-    {
-        // instanceId exists?
-        // profileId exits?
-        return new Response(400, [], 'not yet implemented');
-    }
-
-    private function getInfoUri(array $instanceData, $instanceId)
-    {
-        foreach ($instanceData['instances'] as $instanceConfig) {
-            if ($instanceConfig['base_uri'] === $instanceId) {
-                return sprintf('%sinfo.json', $instanceConfig['base_uri']);
-            }
-        }
-
-        return false;
-    }
-
-    private function getInfo(array $instanceData, $instanceId)
-    {
-        $infoUri = $this->getInfoUri($instanceData, $instanceId);
-        if (false === $infoUri) {
-            throw new RuntimeException(sprintf('instance "%s" does not exist', $instanceId));
-        }
-
-        list($responseCode, $infoData) = $this->httpClient->get($infoUri);
-        if (200 !== $responseCode) {
-            throw new RuntimeException(sprintf('unable to fetch "%s"', $infoUri));
-        }
-
-        if (!array_key_exists('api', $infoData)) {
-            throw new RuntimeException(sprintf('missing "api" key in response from "%s"', $infoUri));
-        }
-
-        if (!array_key_exists('http://eduvpn.org/api#2', $infoData['api'])) {
-            throw new RuntimeException(sprintf('missing "http://eduvpn.org/api#2" key in response from "%s"', $infoUri));
-        }
-
-        return new Config($infoData['api']['http://eduvpn.org/api#2']);
-    }
-
-    private function getProfiles($profileListUri, $bearerToken)
-    {
-        list($responseCode, $responseData) = $this->httpClient->get($profileListUri, ['bearer' => $bearerToken]);
-        if (!array_key_exists('profile_list', $responseData)) {
-            throw new RuntimeException(sprintf('missing "profile_list" key in response from "%s"', $profileListUri));
-        }
-        if (!array_key_exists('data', $responseData['profile_list'])) {
-            throw new RuntimeException(sprintf('missing "profile_list/data" key in response from "%s"', $profileListUri));
-        }
-
-        return $responseData['profile_list']['data'];
-    }
-
-    private function getUserInfo($userInfoUri, $bearerToken)
-    {
-        list($responseCode, $responseData) = $this->httpClient->get($userInfoUri, ['bearer' => $bearerToken]);
-        if (!array_key_exists('user_info', $responseData)) {
-            throw new RuntimeException(sprintf('missing "user_info" key in response from "%s"', $userInfoUri));
-        }
-        if (!array_key_exists('data', $responseData['user_info'])) {
-            throw new RuntimeException(sprintf('missing "user_info/data" key in response from "%s"', $userInfoUri));
-        }
-
-        return $responseData['user_info']['data'];
-    }
-
-    private function getMotd($systemMessagesUri, $bearerToken)
-    {
-        list($responseCode, $responseData) = $this->httpClient->get($systemMessagesUri, ['bearer' => $bearerToken]);
-        if (!array_key_exists('system_messages', $responseData)) {
-            throw new RuntimeException(sprintf('missing "system_messages" key in response from "%s"', $systemMessagesUri));
-        }
-        if (!array_key_exists('data', $responseData['system_messages'])) {
-            throw new RuntimeException(sprintf('missing "system_messages/data" key in response from "%s"', $systemMessagesUri));
-        }
-
-        // XXX this may not work, better checking! consolidate with the other functions, lots of duplication!
-        return $responseData['system_messages']['data'][0]['message'];
     }
 }

@@ -17,37 +17,43 @@
  */
 require_once sprintf('%s/vendor/autoload.php', dirname(__DIR__));
 
+use fkooman\OAuth\Client\Http\CurlHttpClient;
+use fkooman\OAuth\Client\OAuthClient;
+use fkooman\OAuth\Client\Provider;
+use fkooman\OAuth\Client\SessionTokenStorage;
 use SURFnet\VPN\ApiClient\Config;
 use SURFnet\VPN\ApiClient\Http\Request;
 use SURFnet\VPN\ApiClient\Http\Response;
-use SURFnet\VPN\ApiClient\Http\Session;
 
 try {
+    if ('' === session_id()) {
+        session_start();
+    }
+
     $config = new Config(require sprintf('%s/config/config.php', dirname(__DIR__)));
 
     $request = new Request($_SERVER, $_GET, $_POST);
-    $session = new Session($request->getServerName(), $request->getRoot(), $config->secureCookie);
 
-    $oauthProvider = new \fkooman\OAuth\Client\Provider(
+    $oauthProvider = new Provider(
         $config->clientConfig->client_id,
         $config->clientConfig->client_secret,
         $config->clientConfig->authorize_endpoint,
         $config->clientConfig->token_endpoint
     );
 
-    $oauthClient = new \fkooman\OAuth\Client\OAuth2Client(
+    $oauthClient = new OAuthClient(
         $oauthProvider,
-        new \fkooman\OAuth\Client\CurlHttpClient()
+        new SessionTokenStorage(),
+        new CurlHttpClient(['httpsOnly' => false])
     );
+    $oauthClient->setUserId('N/A');
 
-    $accessToken = $oauthClient->getAccessToken(
-        $session->oauth2_session,
+    $oauthClient->handleCallback(
+        $_SESSION['_oauth2_session'], // URI from session
         $request->getQueryParameter('code'),
         $request->getQueryParameter('state')
     );
-
-    unset($session->oauth2_session);
-    $session->access_token = $accessToken;
+    unset($_SESSION['_oauth2_session']);
 
     $response = new Response(
         302,

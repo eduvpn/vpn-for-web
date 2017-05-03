@@ -17,14 +17,20 @@
  */
 require_once sprintf('%s/vendor/autoload.php', dirname(__DIR__));
 
+use fkooman\OAuth\Client\Http\CurlHttpClient;
+use fkooman\OAuth\Client\OAuthClient;
+use fkooman\OAuth\Client\Provider;
+use fkooman\OAuth\Client\SessionTokenStorage;
 use SURFnet\VPN\ApiClient\Config;
 use SURFnet\VPN\ApiClient\Http\Request;
-use SURFnet\VPN\ApiClient\Http\Session;
-use SURFnet\VPN\ApiClient\HttpClient\CurlHttpClient;
 use SURFnet\VPN\ApiClient\Service;
 use SURFnet\VPN\ApiClient\TwigTpl;
 
 try {
+    if ('' === session_id()) {
+        session_start();
+    }
+
     $config = new Config(require sprintf('%s/config/config.php', dirname(__DIR__)));
 
     // Templates
@@ -41,26 +47,25 @@ try {
     $tpl = new TwigTpl($templateDirs, $templateCache);
 
     // OAuth
-    $oauthProvider = new \fkooman\OAuth\Client\Provider(
+    $oauthProvider = new Provider(
         $config->clientConfig->client_id,
         $config->clientConfig->client_secret,
         $config->clientConfig->authorize_endpoint,
         $config->clientConfig->token_endpoint
     );
 
-    $oauthClient = new \fkooman\OAuth\Client\OAuth2Client(
+    $oauthClient = new OAuthClient(
         $oauthProvider,
-        new \fkooman\OAuth\Client\CurlHttpClient()
+        new SessionTokenStorage(),
+        new CurlHttpClient(['httpsOnly' => false])
     );
+    $oauthClient->setUserId('N/A');
 
     $request = new Request($_SERVER, $_GET, $_POST);
     $service = new Service(
         $config,
-        new CurlHttpClient(),
         $tpl,
-        new Session($request->getServerName(), $request->getRoot(), $config->secureCookie),
-        $oauthClient,
-        new DateTime()
+        $oauthClient
     );
     $response = $service->run($request);
     $response->send();
