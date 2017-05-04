@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+
+<html lang="en">
+{% include 'head.twig' %}
+<body>
+    {% include 'header.twig' %}
+
+    <h3>Certificate</h3>
+    <blockquote><pre>{{ create_certificate.certificate }}</pre></blockquote>
+
+    <h3>Private Key</h3>
+    <blockquote><pre>{{ create_certificate.private_key }}</pre></blockquote>
+
+    {% include 'footer.twig' %}
+</body>
+</html>
