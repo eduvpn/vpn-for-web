@@ -19,6 +19,7 @@
 namespace SURFnet\VPN\ApiClient;
 
 use fkooman\OAuth\Client\OAuthClient;
+use SURFnet\VPN\ApiClient\Http\Exception\TokenException;
 use SURFnet\VPN\ApiClient\Http\Request;
 use SURFnet\VPN\ApiClient\Http\Response;
 use SURFnet\VPN\ApiClient\Http\Session;
@@ -34,6 +35,9 @@ class Service
     /** @var \fkooman\OAuth\Client\OAuthClient */
     private $oauthClient;
 
+    /** @var string */
+    private $callbackUri;
+
     public function __construct(TplInterface $tpl, Session $session, OAuthClient $oauthClient)
     {
         $this->tpl = $tpl;
@@ -43,17 +47,41 @@ class Service
 
     public function run(Request $request)
     {
+        $requestScope = 'config';
+        $callbackUri = sprintf('%scallback.php', $request->getRootUri());
+
         // only support GET requests
         if ('GET' !== $request->getMethod()) {
             return new Response(405, ['Allow' => 'GET']);
         }
 
-        return $this->getInstanceList();
-//        if (false === $oauthResponse = $this->oauthClient->get('config', 'https://labrat.eduvpn.nl/portal/api.php/user_info')) {
-//            return $this->getAccessToken($request);
-//        }
+        try {
+            if (null === $instanceId = $request->getQueryParameter('instance_id')) {
+                // no instance specified
+                return $this->getInstanceList();
+            }
 
-//        return new Response(200, ['Content-Type' => 'application/json'], $oauthResponse->getBody());
+            if (null === $profileId = $request->getQueryParameter('profile_id')) {
+                // no profile specified
+                return $this->getProfileList($requestScope, $instanceId);
+            }
+
+            // instance & profile specified, show all API call outputs
+            return new Response(
+                200,
+                [],
+                'Not Yet Implemented!'
+            );
+        } catch (TokenException $e) {
+            // no valid OAuth token available...
+            $authorizeUri = $this->oauthClient->getAuthorizeUri(
+                $requestScope,
+                $callbackUri
+            );
+            $this->session->set('_oauth2_session', $authorizeUri);
+
+            return new Response(302, ['Location' => $authorizeUri]);
+        }
     }
 
     private function getInstanceList()
@@ -63,7 +91,6 @@ class Service
             return new Response(500, [], 'unable to fetch instance list');
         }
 
-//        return new Response(200, ['Content-Type' => 'application/json'], $response->getBody());
         return new Response(
             200,
             [],
@@ -71,14 +98,36 @@ class Service
         );
     }
 
-    private function getAccessToken(Request $request)
+    private function getProfileList($requestScope, $instanceId)
     {
-        $authorizationRequestUri = $this->oauthClient->getAuthorizeUri(
-            'config',
-            sprintf('%scallback.php', $request->getRootUri())
-        );
-        $this->session->set('_oauth2_session', $authorizationRequestUri);
+        // instance specified, get user_info
+        $userInfo = $this->get($requestScope, 'https://labrat.eduvpn.nl/portal/api.php/user_info')->json();
+        $profileList = $this->get($requestScope, 'https://labrat.eduvpn.nl/portal/api.php/profile_list')->json();
+        $systemMessages = $this->get($requestScope, 'https://labrat.eduvpn.nl/portal/api.php/system_messages')->json();
+        $userMessages = $this->get($requestScope, 'https://labrat.eduvpn.nl/portal/api.php/user_messages')->json();
 
-        return new Response(302, ['Location' => $authorizationRequestUri]);
+        return new Response(
+            200,
+            [],
+            $this->tpl->render(
+                'profiles',
+                array_merge(
+                    ['instance_id' => $instanceId],
+                    ['user_info' => $userInfo['user_info']['data']],
+                    ['profile_list' => $profileList['profile_list']['data']],
+                    ['system_messages' => $systemMessages['system_messages']['data']],
+                    ['user_messages' => $userMessages['user_messages']['data']]
+                )
+            )
+        );
+    }
+
+    private function get($requestScope, $requestUri)
+    {
+        if (false === $response = $this->oauthClient->get($requestScope, $requestUri)) {
+            throw new TokenException('no token available');
+        }
+
+        return $response;
     }
 }

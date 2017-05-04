@@ -5,25 +5,33 @@
 <body>
     {% include 'header.twig' %}
 
-    <ul class="menu">
-        <li class="active"><a href="#">Profiles</a></li>
-    </ul>
+    {% if system_messages %}
+        <h3>System Messages</h3>
+        {% for system_message in system_messages %}
+            <p>{{ system_message.message }}</p>
+        {% endfor %}
+    {% endif %}
 
-    <p class="plain">{{ motd }}</p>
+    {% if user_messages %}
+        <h3>User Messages</h3>
+        {% for user_message in user_messages %}
+            <p>{{ user_message.message }}</p>
+        {% endfor %}
+    {% endif %}
 
     <h3>User Info</h3>
     <p>Some information about your user account.</p>
     
     <ul>
-        <li>Enrolled for 2FA: {% if user_info.two_factor_enrolled %}Yes{% else %}No{% endif %}</li>
-        <li>Account Disabled: {% if user_info.is_disabled %}Yes{% else %}No{% endif %}</li>
+        <li>2FA: {% if user_info.two_factor_enrolled %}Yes{% else %}No{% endif %}</li>
+        <li>Disabled: {% if user_info.is_disabled %}Yes{% else %}No{% endif %}</li>
     </ul>
 
     <h3>Profiles</h3>
     <p>This is a list of profiles. Choose a profile to obtain a configuration.</p>
 
     <ul>
-        {% for item in profiles %}
+        {% for item in profile_list %}
             <li><span title="{{ item.profile_id }}"><a href="?instance_id={{ instance_id }}&profile_id={{ item.profile_id }}">{{ item.display_name }}</a></span></li>
         {% endfor %}
     </ul>
