@@ -48,15 +48,27 @@ class Service
             return new Response(405, ['Allow' => 'GET']);
         }
 
-        if (false === $oauthResponse = $this->oauthClient->get('config', 'https://labrat.eduvpn.nl/portal/api.php/user_info')) {
-            return $this->getAccessToken($request);
+        return $this->getInstanceList();
+//        if (false === $oauthResponse = $this->oauthClient->get('config', 'https://labrat.eduvpn.nl/portal/api.php/user_info')) {
+//            return $this->getAccessToken($request);
+//        }
+
+//        return new Response(200, ['Content-Type' => 'application/json'], $oauthResponse->getBody());
+    }
+
+    private function getInstanceList()
+    {
+        $response = $this->oauthClient->get(null, 'https://static.eduvpn.nl/instances.json');
+        if (!$response->isOkay()) {
+            return new Response(500, [], 'unable to fetch instance list');
         }
 
-        return new Response(200, ['Content-Type' => 'application/json'], $oauthResponse->getBody());
-
-//        return $response;
-
-//        echo $response->getBody();
+//        return new Response(200, ['Content-Type' => 'application/json'], $response->getBody());
+        return new Response(
+            200,
+            [],
+            $this->tpl->render('instances', $response->json())
+        );
     }
 
     private function getAccessToken(Request $request)
