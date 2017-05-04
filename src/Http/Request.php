@@ -75,6 +75,11 @@ class Request
         return $this->postData;
     }
 
+    public function getPostParameter($key)
+    {
+        return array_key_exists($key, $this->postData) ? $this->postData[$key] : null;
+    }
+
     /**
      * @return string|null
      */

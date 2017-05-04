@@ -5,14 +5,11 @@
 <body>
     {% include 'header.twig' %}
 
-    <ul class="menu">
-        <li class="active"><a href="#">Config</a></li>
-    </ul>
+    <h3>Profile Config</h3>
+    <p>This is the client configuration <em>without</em> the keypair.</p>
 
-    <p>This is your OpenVPN configuration file.</p>
+    <blockquote><pre>{{ profile_config }}</pre></blockquote>
 
-    <pre>{{ config }}</pre>
-    
     {% include 'footer.twig' %}
 </body>
 </html>

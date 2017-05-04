@@ -28,13 +28,21 @@
     </ul>
 
     <h3>Profiles</h3>
-    <p>This is a list of profiles. Choose a profile to obtain a configuration.</p>
+    <p>This is a list of profiles for this instance. Choose a profile to see the client configuration.</p>
 
     <ul>
         {% for item in profile_list %}
             <li><span title="{{ item.profile_id }}"><a href="?instance_id={{ instance_id }}&profile_id={{ item.profile_id }}">{{ item.display_name }}</a> ({% if item.two_factor %}2FA{% else %}no 2FA{% endif %})</span></li>
         {% endfor %}
     </ul>
+
+    <h3>Keypair</h3>
+    <p>Generate a new keypair for this <em>instance</em>.</p>
+
+    <form method="post">
+        <label>Name <input type="text" name="display_name"></label>
+        <input type="submit" value="Create">
+    </form>
 
     {% include 'footer.twig' %}
 </body>

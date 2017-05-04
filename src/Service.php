@@ -50,28 +50,43 @@ class Service
         $requestScope = 'config';
         $callbackUri = sprintf('%scallback.php', $request->getRootUri());
 
-        // only support GET requests
-        if ('GET' !== $request->getMethod()) {
-            return new Response(405, ['Allow' => 'GET']);
-        }
-
         try {
-            if (null === $instanceId = $request->getQueryParameter('instance_id')) {
-                // no instance specified
-                return $this->getInstanceList();
-            }
+            switch ($request->getMethod()) {
+                case 'GET':
+                    if (null === $instanceId = $request->getQueryParameter('instance_id')) {
+                        // no instance specified
+                        return $this->getInstanceList();
+                    }
 
-            if (null === $profileId = $request->getQueryParameter('profile_id')) {
-                // no profile specified
-                return $this->getProfileList($requestScope, $instanceId);
-            }
+                    if (null === $profileId = $request->getQueryParameter('profile_id')) {
+                        // no profile specified
+                        return $this->getProfileList($requestScope, $instanceId);
+                    }
 
-            // instance & profile specified, show all API call outputs
-            return new Response(
-                200,
-                [],
-                'Not Yet Implemented!'
-            );
+                    // instance & profile specified, show all API call outputs
+                    return $this->getConfig($requestScope, $instanceId, $profileId);
+                case 'POST':
+                    if (null === $instanceId = $request->getQueryParameter('instance_id')) {
+                        // no instance specified, we cannot generate a keypair
+                        return new Response(
+                            400,
+                            [],
+                            'no instance_id specified'
+                        );
+                    }
+
+                    if (null === $displayName = $request->getPostParameter('display_name')) {
+                        return new Response(
+                            400,
+                            [],
+                            'no display_name specified'
+                        );
+                    }
+
+                    return $this->getKeypair($requestScope, $instanceId, $displayName);
+                default:
+                    return new Response(405, ['Allow' => 'GET,POST']);
+            }
         } catch (TokenException $e) {
             // no valid OAuth token available...
             $authorizeUri = $this->oauthClient->getAuthorizeUri(
@@ -95,6 +110,29 @@ class Service
             200,
             [],
             $this->tpl->render('instances', $response->json())
+        );
+    }
+
+    private function getKeypair($requestScope, $instanceId, $displayName)
+    {
+        $createCertificate = $this->post(
+            $requestScope,
+            'https://labrat.eduvpn.nl/portal/api.php/create_certificate',
+            [
+                'display_name' => $displayName,
+            ]
+        )->json();
+
+        return new Response(
+            200,
+            [],
+            $this->tpl->render(
+                'keypair',
+                array_merge(
+                    ['instance_id' => $instanceId],
+                    ['create_certificate' => $createCertificate['create_certificate']['data']]
+                )
+            )
         );
     }
 
@@ -122,9 +160,39 @@ class Service
         );
     }
 
+    private function getConfig($requestScope, $instanceId, $profileId)
+    {
+        $profileConfig = $this->get(
+            $requestScope,
+            sprintf('https://labrat.eduvpn.nl/portal/api.php/profile_config?profile_id=%s', $profileId)
+        )->getBody();
+
+        return new Response(
+            200,
+            [],
+            $this->tpl->render(
+                'config',
+                array_merge(
+                    ['instance_id' => $instanceId],
+                    ['profile_id' => $profileId],
+                    ['profile_config' => $profileConfig]
+                )
+            )
+        );
+    }
+
     private function get($requestScope, $requestUri)
     {
         if (false === $response = $this->oauthClient->get($requestScope, $requestUri)) {
+            throw new TokenException('no token available');
+        }
+
+        return $response;
+    }
+
+    private function post($requestScope, $requestUri, array $postBody)
+    {
+        if (false === $response = $this->oauthClient->post($requestScope, $requestUri, $postBody)) {
             throw new TokenException('no token available');
         }
 
