@@ -23,6 +23,7 @@ use fkooman\OAuth\Client\Provider;
 use fkooman\OAuth\Client\SessionTokenStorage;
 use SURFnet\VPN\ApiClient\Config;
 use SURFnet\VPN\ApiClient\Http\Request;
+use SURFnet\VPN\ApiClient\Http\Session;
 use SURFnet\VPN\ApiClient\Service;
 use SURFnet\VPN\ApiClient\TwigTpl;
 
@@ -41,17 +42,17 @@ try {
 
     $dataDir = sprintf('%s/data', dirname(__DIR__));
     $templateCache = null;
-    if ($config->enableTemplateCache) {
+    if ($config->get('enableTemplateCache')) {
         $templateCache = sprintf('%s/tpl', $dataDir);
     }
     $tpl = new TwigTpl($templateDirs, $templateCache);
 
     // OAuth
     $oauthProvider = new Provider(
-        $config->clientConfig->client_id,
-        $config->clientConfig->client_secret,
-        $config->clientConfig->authorize_endpoint,
-        $config->clientConfig->token_endpoint
+        $config->get('clientConfig')->get('client_id'),
+        $config->get('clientConfig')->get('client_secret'),
+        $config->get('clientConfig')->get('authorize_endpoint'),
+        $config->get('clientConfig')->get('token_endpoint')
     );
 
     $oauthClient = new OAuthClient(
@@ -61,10 +62,11 @@ try {
     );
     $oauthClient->setUserId('N/A');
 
+    $session = new Session();
     $request = new Request($_SERVER, $_GET, $_POST);
     $service = new Service(
-        $config,
         $tpl,
+        $session,
         $oauthClient
     );
     $response = $service->run($request);

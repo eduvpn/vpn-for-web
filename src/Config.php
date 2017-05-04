@@ -36,7 +36,7 @@ class Config
     /**
      * @param string $key
      */
-    public function __isset($key)
+    public function has($key)
     {
         return array_key_exists($key, $this->data);
     }
@@ -46,7 +46,7 @@ class Config
      *
      * @return object|string|array
      */
-    public function __get($key)
+    public function get($key)
     {
         if (!array_key_exists($key, $this->data)) {
             // consumers MUST check first if a field is available before

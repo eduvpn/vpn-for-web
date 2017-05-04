@@ -21,22 +21,23 @@ namespace SURFnet\VPN\ApiClient;
 use fkooman\OAuth\Client\OAuthClient;
 use SURFnet\VPN\ApiClient\Http\Request;
 use SURFnet\VPN\ApiClient\Http\Response;
+use SURFnet\VPN\ApiClient\Http\Session;
 
 class Service
 {
-    /** @var Config */
-    private $config;
-
     /** @var TplInterface */
     private $tpl;
+
+    /** @var Http\Session */
+    private $session;
 
     /** @var \fkooman\OAuth\Client\OAuthClient */
     private $oauthClient;
 
-    public function __construct(Config $config, TplInterface $tpl, OAuthClient $oauthClient)
+    public function __construct(TplInterface $tpl, Session $session, OAuthClient $oauthClient)
     {
-        $this->config = $config;
         $this->tpl = $tpl;
+        $this->session = $session;
         $this->oauthClient = $oauthClient;
     }
 
@@ -64,7 +65,7 @@ class Service
             'config',
             sprintf('%scallback.php', $request->getRootUri())
         );
-        $_SESSION['_oauth2_session'] = $authorizationRequestUri;
+        $this->session->set('_oauth2_session', $authorizationRequestUri);
 
         return new Response(302, ['Location' => $authorizationRequestUri]);
     }

@@ -24,21 +24,17 @@ use fkooman\OAuth\Client\SessionTokenStorage;
 use SURFnet\VPN\ApiClient\Config;
 use SURFnet\VPN\ApiClient\Http\Request;
 use SURFnet\VPN\ApiClient\Http\Response;
+use SURFnet\VPN\ApiClient\Http\Session;
 
 try {
-    if ('' === session_id()) {
-        session_start();
-    }
-
     $config = new Config(require sprintf('%s/config/config.php', dirname(__DIR__)));
-
     $request = new Request($_SERVER, $_GET, $_POST);
-
+    $session = new Session();
     $oauthProvider = new Provider(
-        $config->clientConfig->client_id,
-        $config->clientConfig->client_secret,
-        $config->clientConfig->authorize_endpoint,
-        $config->clientConfig->token_endpoint
+        $config->get('clientConfig')->get('client_id'),
+        $config->get('clientConfig')->get('client_secret'),
+        $config->get('clientConfig')->get('authorize_endpoint'),
+        $config->get('clientConfig')->get('token_endpoint')
     );
 
     $oauthClient = new OAuthClient(
@@ -49,11 +45,11 @@ try {
     $oauthClient->setUserId('N/A');
 
     $oauthClient->handleCallback(
-        $_SESSION['_oauth2_session'], // URI from session
+        $session->get('_oauth2_session'),
         $request->getQueryParameter('code'),
         $request->getQueryParameter('state')
     );
-    unset($_SESSION['_oauth2_session']);
+    $session->del('_oauth2_session');
 
     $response = new Response(
         302,
