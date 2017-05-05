@@ -5,10 +5,17 @@
 <body>
     {% include 'header.twig' %}
 
-    <h3>Profile Config</h3>
-    <p>This is the client configuration <em>without</em> the keypair.</p>
+    <div class="content">
+        <ul class="crumbs">
+            <li><a href="index.php">Index</a></li>
+            <li><a href="index.php?instance_id={{ instance_id }}">{{ instance_id }}</a></li>
+        </ul>
 
-    <blockquote><pre>{{ profile_config }}</pre></blockquote>
+        <h3>Profile Config</h3>
+        <p>This is the client configuration <em>without</em> the keypair.</p>
+
+        <pre>{{ profile_config }}</pre>
+    </div>
 
     {% include 'footer.twig' %}
 </body>

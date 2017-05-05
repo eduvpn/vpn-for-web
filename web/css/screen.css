@@ -1,9 +1,62 @@
 body {
     font-family: "Helvetica Neue", "Calibri Light", Roboto, sans-serif;
+    line-height: 1.4;
+    margin: 0;
+    padding: 0;
+}
+
+div.header {
+    background-color: #00b3d0;
+    color: #fff;
+    padding: 1em;
+}
+
+div.header h1 {
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+ul.chooser {
+    padding: 0;
+}
+
+ul.chooser li {
+    border-bottom: 2px solid #00b3d0;
+    list-style: none;
+    padding: 0.5em 0;
+}
+
+ul.chooser li a {
+    text-decoration: none;
+}
+
+ul.crumbs {
+    padding: 0;
+}
+
+ul.crumbs li {
+    display: inline-block;
+    padding: 0 1em 0 0;
+}
+
+ul.crumbs li a {
+    text-decoration: none;
+    font-weight: bold;
+    color: #00b3d0;
+}
+
+pre {
+    border: 1px solid #555;
+    background-color: #eee;
+    padding: 1em;
+    overflow: auto;
+}
+
+div.content {
     max-width: 55em;
     margin: 0 auto;
     color: #555;
-    line-height: 1.4;
     padding: 0.3em;
     text-align: justify;
 }

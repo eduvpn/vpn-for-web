@@ -5,11 +5,18 @@
 <body>
     {% include 'header.twig' %}
 
-    <h3>Certificate</h3>
-    <blockquote><pre>{{ create_certificate.certificate }}</pre></blockquote>
+    <div class="content">
+        <ul class="crumbs">
+            <li><a href="index.php">Index</a></li>
+            <li><a href="index.php?instance_id={{ instance_id }}">{{ instance_id }}</a></li>
+        </ul>
 
-    <h3>Private Key</h3>
-    <blockquote><pre>{{ create_certificate.private_key }}</pre></blockquote>
+        <h3>Certificate</h3>
+        <pre>{{ create_keypair.certificate }}</pre>
+
+        <h3>Private Key</h3>
+        <pre>{{ create_keypair.private_key }}</pre>
+    </div>
 
     {% include 'footer.twig' %}
 </body>

@@ -4,17 +4,20 @@
 {% include 'head.twig' %}
 <body>
     {% include 'header.twig' %}
+    <div class="content">
+        <ul class="crumbs">
+            <li><a href="index.php">Index</a></li>
+        </ul>
+        <p>
+            Choose your Provider.
+        </p>
 
-    <p>
-        Choose your VPN provider.
-    </p>
-
-    <ul>
-        {% for item in instances %}
-            <li><a href="?instance_id={{ item.base_uri }}">{{ item.display_name }}</a></li>
-        {% endfor %}
-    </ul>
-
+        <ul class="chooser">
+            {% for item in instances %}
+                <li><a href="?instance_id={{ item.base_uri }}">{{ item.display_name }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
     {% include 'footer.twig' %}
 </body>
 </html>

@@ -115,9 +115,9 @@ class Service
 
     private function getKeypair($requestScope, $instanceId, $displayName)
     {
-        $createCertificate = $this->post(
+        $createKeypair = $this->post(
             $requestScope,
-            'https://labrat.eduvpn.nl/portal/api.php/create_certificate',
+            'https://labrat.eduvpn.nl/portal/api.php/create_keypair',
             [
                 'display_name' => $displayName,
             ]
@@ -130,7 +130,7 @@ class Service
                 'keypair',
                 array_merge(
                     ['instance_id' => $instanceId],
-                    ['create_certificate' => $createCertificate['create_certificate']['data']]
+                    ['create_keypair' => $createKeypair['create_keypair']['data']]
                 )
             )
         );
