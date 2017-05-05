@@ -61,10 +61,24 @@ div.content {
     text-align: justify;
 }
 
+p.msg {
+    border: 1px solid #555;
+    background-color: #eee;
+    padding: 1em;
+    overflow: auto;
+}
+
 a {
     color: #555;
 }
 
 hr {
     display: none;
+}
+
+div.footer {
+    margin: 2em;
+    font-size: 85%;
+    color: #888;
+    text-align: center;
 }

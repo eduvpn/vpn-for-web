@@ -13,14 +13,14 @@
         {% if system_messages %}
             <h3>System Messages</h3>
             {% for system_message in system_messages %}
-                <p>{{ system_message.message }}</p>
+                <p class="msg">{{ system_message.message }}</p>
             {% endfor %}
         {% endif %}
 
         {% if user_messages %}
             <h3>User Messages</h3>
             {% for user_message in user_messages %}
-                <p>{{ user_message.message }}</p>
+                <p class="msg">{{ user_message.message }}</p>
             {% endfor %}
         {% endif %}
 
