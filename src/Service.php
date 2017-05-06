@@ -155,7 +155,7 @@ class Service
 
         $createKeypair = $this->post(
             $requestScope,
-            sprintf('%s/create_keypair', $apiInfo['apiBaseUri']),
+            sprintf('%s/create_keypair', $apiInfo['api_base_uri']),
             [
                 'display_name' => $displayName,
             ]
