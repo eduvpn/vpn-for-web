@@ -2,19 +2,17 @@
 
 return [
     // set secureCookie flag, so browser only sends them over HTTPS
-    'secureCookie' => true,
+    'secureCookie' => false,
 
     // enable Twig template cache
     'enableTemplateCache' => true,
 
     // URL to list of instances supporting the VPN Token Service
-    'instanceListUri' => 'https://ets.tuxed.net/instances.json',
+    'instanceListUri' => 'https://static.eduvpn.nl/instances.json',
 
     // OAuth Client Configuration
     'clientConfig' => [
         'client_id' => 'vpn-api-client',
         'client_secret' => 'XXX-secret-XXX',
-        'authorize_endpoint' => 'https://ets.tuxed.net/vpn-token-service/authorize.php',
-        'token_endpoint' => 'https://ets.tuxed.net/vpn-token-service/token.php',
     ],
 ];

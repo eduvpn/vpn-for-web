@@ -18,37 +18,38 @@
 
 namespace SURFnet\VPN\ApiClient;
 
+use fkooman\OAuth\Client\Http\HttpClientInterface;
+use fkooman\OAuth\Client\Http\Request as HttpRequest;
 use fkooman\OAuth\Client\OAuthClient;
+use fkooman\OAuth\Client\Provider;
+use fkooman\OAuth\Client\SessionTokenStorage;
+use RuntimeException;
 use SURFnet\VPN\ApiClient\Http\Exception\TokenException;
 use SURFnet\VPN\ApiClient\Http\Request;
 use SURFnet\VPN\ApiClient\Http\Response;
-use SURFnet\VPN\ApiClient\Http\Session;
 
 class Service
 {
     /** @var TplInterface */
     private $tpl;
 
-    /** @var Http\Session */
-    private $session;
+    /** @var \fkooman\OAuth\Client\Http\HttpClientInterface */
+    private $httpClient;
 
-    /** @var \fkooman\OAuth\Client\OAuthClient */
-    private $oauthClient;
+    /** @var \fkooman\OAuth\Client\OAuthClient|null */
+    private $oauthClient = null;
 
-    /** @var string */
-    private $callbackUri;
-
-    public function __construct(TplInterface $tpl, Session $session, OAuthClient $oauthClient)
+    public function __construct(TplInterface $tpl, HttpClientInterface $httpClient)
     {
         $this->tpl = $tpl;
-        $this->session = $session;
-        $this->oauthClient = $oauthClient;
+        $this->httpClient = $httpClient;
     }
 
     public function run(Request $request)
     {
         $requestScope = 'config';
         $callbackUri = sprintf('%scallback.php', $request->getRootUri());
+        $instanceId = null;
 
         try {
             switch ($request->getMethod()) {
@@ -93,7 +94,6 @@ class Service
                 $requestScope,
                 $callbackUri
             );
-            $this->session->set('_oauth2_session', $authorizeUri);
 
             return new Response(302, ['Location' => $authorizeUri]);
         }
@@ -101,9 +101,10 @@ class Service
 
     private function getInstanceList()
     {
-        $response = $this->oauthClient->get(null, 'https://static.eduvpn.nl/instances.json');
+        $instancesUrl = 'https://static.eduvpn.nl/instances.json';
+        $response = $this->httpClient->send(HttpRequest::get($instancesUrl));
         if (!$response->isOkay()) {
-            return new Response(500, [], 'unable to fetch instance list');
+            throw new RuntimeException(sprintf('unable to fetch "%s"', $instancesUrl));
         }
 
         return new Response(
@@ -113,11 +114,48 @@ class Service
         );
     }
 
+    /**
+     * @return Response|array
+     */
+    private function apiDisco($instanceId)
+    {
+        $infoUrl = sprintf('%s/info.json', $instanceId);
+        $response = $this->httpClient->send(HttpRequest::get($infoUrl));
+        if (!$response->isOkay()) {
+            throw new RuntimeException(sprintf('unable to fetch "%s"', $infoUrl));
+        }
+
+        $apiInfo = $response->json()['api']['http://eduvpn.org/api#2'];
+
+        // every endpoint has their own OAuth server, so we need to connect
+        // to that one!
+        $this->oauthClient = new OAuthClient(
+            new SessionTokenStorage(),
+            $this->httpClient
+        );
+        $this->oauthClient->addProvider(
+            $instanceId,
+            new Provider(
+                'eduvpn-for-web',
+                '03Y4q834psuY5ZmE',
+                $apiInfo['authorization_endpoint'],
+                $apiInfo['token_endpoint']
+            )
+        );
+
+        $this->oauthClient->setUserId('session_user');
+
+        return $apiInfo;
+    }
+
     private function getKeypair($requestScope, $instanceId, $displayName)
     {
+        $apiInfo = $this->apiDisco($instanceId);
+        $apiBaseUri = $apiInfo['api_base_uri'];
+
         $createKeypair = $this->post(
             $requestScope,
-            'https://labrat.eduvpn.nl/portal/api.php/create_keypair',
+            sprintf('%s/create_keypair', $apiInfo['apiBaseUri']),
             [
                 'display_name' => $displayName,
             ]
@@ -138,11 +176,14 @@ class Service
 
     private function getProfileList($requestScope, $instanceId)
     {
+        $apiInfo = $this->apiDisco($instanceId);
+        $apiBaseUri = $apiInfo['api_base_uri'];
+
         // instance specified, get user_info
-        $userInfo = $this->get($requestScope, 'https://labrat.eduvpn.nl/portal/api.php/user_info')->json();
-        $profileList = $this->get($requestScope, 'https://labrat.eduvpn.nl/portal/api.php/profile_list')->json();
-        $systemMessages = $this->get($requestScope, 'https://labrat.eduvpn.nl/portal/api.php/system_messages')->json();
-        $userMessages = $this->get($requestScope, 'https://labrat.eduvpn.nl/portal/api.php/user_messages')->json();
+        $userInfo = $this->get($requestScope, sprintf('%s/user_info', $apiBaseUri))->json();
+        $profileList = $this->get($requestScope, sprintf('%s/profile_list', $apiBaseUri))->json();
+        $systemMessages = $this->get($requestScope, sprintf('%s/system_messages', $apiBaseUri))->json();
+        $userMessages = $this->get($requestScope, sprintf('%s/user_messages', $apiBaseUri))->json();
 
         return new Response(
             200,
@@ -162,9 +203,12 @@ class Service
 
     private function getConfig($requestScope, $instanceId, $profileId)
     {
+        $apiInfo = $this->apiDisco($instanceId);
+        $apiBaseUri = $apiInfo['api_base_uri'];
+
         $profileConfig = $this->get(
             $requestScope,
-            sprintf('https://labrat.eduvpn.nl/portal/api.php/profile_config?profile_id=%s', $profileId)
+            sprintf('%s/profile_config?profile_id=%s', $apiBaseUri, $profileId)
         )->getBody();
 
         return new Response(

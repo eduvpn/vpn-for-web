@@ -24,32 +24,40 @@ use fkooman\OAuth\Client\SessionTokenStorage;
 use SURFnet\VPN\ApiClient\Config;
 use SURFnet\VPN\ApiClient\Http\Request;
 use SURFnet\VPN\ApiClient\Http\Response;
-use SURFnet\VPN\ApiClient\Http\Session;
 
 try {
     $config = new Config(require sprintf('%s/config/config.php', dirname(__DIR__)));
     $request = new Request($_SERVER, $_GET, $_POST);
-    $session = new Session();
-    $oauthProvider = new Provider(
-        $config->get('clientConfig')->get('client_id'),
-        $config->get('clientConfig')->get('client_secret'),
-        $config->get('clientConfig')->get('authorize_endpoint'),
-        $config->get('clientConfig')->get('token_endpoint')
-    );
 
     $oauthClient = new OAuthClient(
-        $oauthProvider,
         new SessionTokenStorage(),
         new CurlHttpClient(['httpsOnly' => false])
     );
-    $oauthClient->setUserId('N/A');
 
+    if ('' === session_id()) {
+        session_start();
+    }
+    $providerId = $_SESSION['_oauth2_session_provider_id'];
+
+    $oauthClient->addProvider(
+        $providerId,
+        // XXX do discovery!
+        new Provider(
+            'eduvpn-for-web',
+            '03Y4q834psuY5ZmE',
+            sprintf('%sportal/_oauth/authorize', $providerId),
+            sprintf('%sportal/oauth.php/token', $providerId)
+        )
+    );
+
+//    var_dump($_SESSION['_oauth2_session_provider_id']);
+//    die();
+
+    $oauthClient->setUserId('session_user');
     $oauthClient->handleCallback(
-        $session->get('_oauth2_session'),
         $request->getQueryParameter('code'),
         $request->getQueryParameter('state')
     );
-    $session->del('_oauth2_session');
 
     $response = new Response(
         302,
