@@ -26,7 +26,6 @@ use SURFnet\VPN\ApiClient\TwigTpl;
 
 try {
     $config = new Config(require sprintf('%s/config/config.php', dirname(__DIR__)));
-
     $session = new Session();
 
     // Templates

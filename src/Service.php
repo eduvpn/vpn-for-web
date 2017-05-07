@@ -58,12 +58,28 @@ class Service
     public function run(Request $request)
     {
         $requestScope = 'config';
-        $callbackUri = sprintf('%scallback.php', $request->getRootUri());
+        $callbackUri = sprintf('%sindex.php?callback=yes', $request->getRootUri());
         $instanceId = null;
 
         try {
             switch ($request->getMethod()) {
                 case 'GET':
+                    if ('yes' === $request->getQueryParameter('callback')) {
+                        $providerId = $this->session->get('_oauth2_session_provider_id');
+                        $apiInfo = $this->apiDisco($providerId);
+                        $this->oauthClient->handleCallback(
+                            $request->getQueryParameter('code'),
+                            $request->getQueryParameter('state')
+                        );
+
+                        return new Response(
+                            302,
+                            [
+                                'Location' => sprintf('%sindex.php?instance_id=%s', $request->getRootUri(), $this->session->get('instance_id')),
+                            ]
+                        );
+                    }
+
                     if (null === $instanceId = $request->getQueryParameter('instance_id')) {
                         // no instance specified
                         return $this->getInstanceList();
