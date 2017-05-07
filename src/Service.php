@@ -22,6 +22,7 @@ use fkooman\OAuth\Client\Http\HttpClientInterface;
 use fkooman\OAuth\Client\Http\Request as HttpRequest;
 use fkooman\OAuth\Client\OAuthClient;
 use fkooman\OAuth\Client\Provider;
+use fkooman\OAuth\Client\Session;
 use fkooman\OAuth\Client\SessionTokenStorage;
 use ParagonIE\ConstantTime\Base64;
 use RuntimeException;
@@ -31,6 +32,9 @@ use SURFnet\VPN\ApiClient\Http\Response;
 
 class Service
 {
+    /** @var \fkooman\OAuth\Client\Session */
+    private $session;
+
     /** @var TplInterface */
     private $tpl;
 
@@ -43,8 +47,9 @@ class Service
     /** @var \fkooman\OAuth\Client\OAuthClient|null */
     private $oauthClient = null;
 
-    public function __construct(TplInterface $tpl, HttpClientInterface $httpClient, array $publicKeys)
+    public function __construct(Session $session, TplInterface $tpl, HttpClientInterface $httpClient, array $publicKeys)
     {
+        $this->session = $session;
         $this->tpl = $tpl;
         $this->httpClient = $httpClient;
         $this->publicKeys = $publicKeys;
@@ -146,6 +151,7 @@ class Service
             new SessionTokenStorage(),
             $this->httpClient
         );
+        $this->oauthClient->setSession($this->session);
         $this->oauthClient->addProvider(
             $instanceId,
             new Provider(
@@ -191,6 +197,8 @@ class Service
     {
         $apiInfo = $this->apiDisco($instanceId);
         $apiBaseUri = $apiInfo['api_base_uri'];
+
+        $this->session->set('instance_id', $instanceId);
 
         // instance specified, get user_info
         $userInfo = $this->get($requestScope, sprintf('%s/user_info', $apiBaseUri))->json();

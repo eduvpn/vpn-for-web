@@ -20,6 +20,7 @@ require_once sprintf('%s/vendor/autoload.php', dirname(__DIR__));
 use fkooman\OAuth\Client\Http\CurlHttpClient;
 use fkooman\OAuth\Client\OAuthClient;
 use fkooman\OAuth\Client\Provider;
+use fkooman\OAuth\Client\Session;
 use fkooman\OAuth\Client\SessionTokenStorage;
 use SURFnet\VPN\ApiClient\Config;
 use SURFnet\VPN\ApiClient\Http\Request;
@@ -28,17 +29,15 @@ use SURFnet\VPN\ApiClient\Http\Response;
 try {
     $config = new Config(require sprintf('%s/config/config.php', dirname(__DIR__)));
     $request = new Request($_SERVER, $_GET, $_POST);
+    $session = new Session();
 
     $oauthClient = new OAuthClient(
         new SessionTokenStorage(),
         new CurlHttpClient(['httpsOnly' => false])
     );
+    $oauthClient->setSession($session);
 
-    if ('' === session_id()) {
-        session_start();
-    }
-    $providerId = $_SESSION['_oauth2_session_provider_id'];
-
+    $providerId = $session->get('_oauth2_session_provider_id');
     $oauthClient->addProvider(
         $providerId,
         // XXX do discovery!
@@ -50,9 +49,6 @@ try {
         )
     );
 
-//    var_dump($_SESSION['_oauth2_session_provider_id']);
-//    die();
-
     $oauthClient->setUserId('session_user');
     $oauthClient->handleCallback(
         $request->getQueryParameter('code'),
@@ -62,7 +58,7 @@ try {
     $response = new Response(
         302,
         [
-            'Location' => sprintf('%sindex.php', $request->getRootUri()),
+            'Location' => sprintf('%sindex.php?instance_id=%s', $request->getRootUri(), $session->get('instance_id')),
         ]
     );
     $response->send();

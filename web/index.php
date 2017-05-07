@@ -18,6 +18,7 @@
 require_once sprintf('%s/vendor/autoload.php', dirname(__DIR__));
 
 use fkooman\OAuth\Client\Http\CurlHttpClient;
+use fkooman\OAuth\Client\Session;
 use SURFnet\VPN\ApiClient\Config;
 use SURFnet\VPN\ApiClient\Http\Request;
 use SURFnet\VPN\ApiClient\Service;
@@ -25,6 +26,8 @@ use SURFnet\VPN\ApiClient\TwigTpl;
 
 try {
     $config = new Config(require sprintf('%s/config/config.php', dirname(__DIR__)));
+
+    $session = new Session();
 
     // Templates
     $templateDirs = [
@@ -41,6 +44,7 @@ try {
 
     $request = new Request($_SERVER, $_GET, $_POST);
     $service = new Service(
+        $session,
         $tpl,
         new CurlHttpClient(['httpsOnly' => false]),
         $config->get('publicKeys')
