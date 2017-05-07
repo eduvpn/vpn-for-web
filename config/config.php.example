@@ -15,4 +15,9 @@ return [
         'client_id' => 'vpn-api-client',
         'client_secret' => 'XXX-secret-XXX',
     ],
+
+    // the public key(s) to verify "instances.json" for instance discovery
+    'publicKeys' => [
+        'E5On0JTtyUVZmcWd+I/FXRm32nSq8R2ioyW7dcu/U88=',
+    ],
 ];

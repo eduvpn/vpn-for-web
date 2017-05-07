@@ -42,7 +42,8 @@ try {
     $request = new Request($_SERVER, $_GET, $_POST);
     $service = new Service(
         $tpl,
-        new CurlHttpClient(['httpsOnly' => false])
+        new CurlHttpClient(['httpsOnly' => false]),
+        $config->get('publicKeys')
     );
     $response = $service->run($request);
     $response->send();

@@ -23,6 +23,7 @@ use fkooman\OAuth\Client\Http\Request as HttpRequest;
 use fkooman\OAuth\Client\OAuthClient;
 use fkooman\OAuth\Client\Provider;
 use fkooman\OAuth\Client\SessionTokenStorage;
+use ParagonIE\ConstantTime\Base64;
 use RuntimeException;
 use SURFnet\VPN\ApiClient\Http\Exception\TokenException;
 use SURFnet\VPN\ApiClient\Http\Request;
@@ -36,13 +37,17 @@ class Service
     /** @var \fkooman\OAuth\Client\Http\HttpClientInterface */
     private $httpClient;
 
+    /** @var array */
+    private $publicKeys;
+
     /** @var \fkooman\OAuth\Client\OAuthClient|null */
     private $oauthClient = null;
 
-    public function __construct(TplInterface $tpl, HttpClientInterface $httpClient)
+    public function __construct(TplInterface $tpl, HttpClientInterface $httpClient, array $publicKeys)
     {
         $this->tpl = $tpl;
         $this->httpClient = $httpClient;
+        $this->publicKeys = $publicKeys;
     }
 
     public function run(Request $request)
@@ -106,6 +111,14 @@ class Service
         if (!$response->isOkay()) {
             throw new RuntimeException(sprintf('unable to fetch "%s"', $instancesUrl));
         }
+
+        $instancesSignatureUrl = 'https://static.eduvpn.nl/instances.json.sig';
+        $signatureResponse = $this->httpClient->send(HttpRequest::get($instancesSignatureUrl));
+        if (!$signatureResponse->isOkay()) {
+            throw new RuntimeException(sprintf('unable to fetch "%s"', $instancesSignatureUrl));
+        }
+
+        $this->verifySignature($response->getBody(), $signatureResponse->getBody());
 
         return new Response(
             200,
@@ -241,5 +254,18 @@ class Service
         }
 
         return $response;
+    }
+
+    private function verifySignature($jsonText, $instanceSignature)
+    {
+        $rawSignature = Base64::decode($instanceSignature);
+        foreach ($this->publicKeys as $encodedPublicKey) {
+            $publicKey = Base64::decode($encodedPublicKey);
+            if (\Sodium\crypto_sign_verify_detached($rawSignature, $jsonText, $publicKey)) {
+                return;
+            }
+        }
+
+        throw new RuntimeException('unable to verify discovery file signature');
     }
 }

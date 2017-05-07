@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "ad8fa00d7945aefeabb574c855e66494",
+    "content-hash": "0a502a48fe3d4cf995e1702b7cc1b765",
     "packages": [
         {
             "name": "fkooman/oauth2-client",
@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fkooman/php-oauth2-client.git",
-                "reference": "b76473d36eff2d730549e1a5b43f90e098eb78c6"
+                "reference": "a62ea870dfdf52efea413a6859cb06cd52c1b89a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fkooman/php-oauth2-client/zipball/b76473d36eff2d730549e1a5b43f90e098eb78c6",
-                "reference": "b76473d36eff2d730549e1a5b43f90e098eb78c6",
+                "url": "https://api.github.com/repos/fkooman/php-oauth2-client/zipball/a62ea870dfdf52efea413a6859cb06cd52c1b89a",
+                "reference": "a62ea870dfdf52efea413a6859cb06cd52c1b89a",
                 "shasum": ""
             },
             "require": {
@@ -52,26 +52,27 @@
                 }
             ],
             "description": "Very simple OAuth 2.0 client",
-            "time": "2017-05-06 19:11:42"
+            "time": "2017-05-06 19:49:26"
         },
         {
             "name": "paragonie/constant_time_encoding",
-            "version": "v2.0.3",
+            "version": "v1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/paragonie/constant_time_encoding.git",
-                "reference": "e085e08c939de49707dbf64315d178d90fbc708d"
+                "reference": "d96e63b79a7135a65659ba5b1cb02826172bfedd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/paragonie/constant_time_encoding/zipball/e085e08c939de49707dbf64315d178d90fbc708d",
-                "reference": "e085e08c939de49707dbf64315d178d90fbc708d",
+                "url": "https://api.github.com/repos/paragonie/constant_time_encoding/zipball/d96e63b79a7135a65659ba5b1cb02826172bfedd",
+                "reference": "d96e63b79a7135a65659ba5b1cb02826172bfedd",
                 "shasum": ""
             },
             "require": {
-                "php": "^7"
+                "php": "^5.3|^7"
             },
             "require-dev": {
+                "paragonie/random_compat": "^1.4|^2.0",
                 "phpunit/phpunit": "4.*|5.*"
             },
             "type": "library",
@@ -113,7 +114,7 @@
                 "hex2bin",
                 "rfc4648"
             ],
-            "time": "2016-07-11T20:32:06+00:00"
+            "time": "2016-06-13T01:00:24+00:00"
         },
         {
             "name": "paragonie/random_compat",
@@ -1402,6 +1403,7 @@
         "ext-curl": "*",
         "ext-date": "*",
         "ext-json": "*",
+        "ext-libsodium": "*",
         "ext-session": "*",
         "ext-spl": "*",
         "php": ">= 5.4.0"

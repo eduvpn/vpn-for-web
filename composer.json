@@ -17,9 +17,11 @@
         "ext-curl": "*",
         "ext-date": "*",
         "ext-json": "*",
+        "ext-libsodium": "*",
         "ext-session": "*",
         "ext-spl": "*",
         "fkooman/oauth2-client": "dev-master",
+        "paragonie/constant_time_encoding": "^1",
         "php": ">= 5.4.0",
         "twig/twig": "^1.0"
     },
