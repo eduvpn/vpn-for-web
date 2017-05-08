@@ -63,6 +63,7 @@ class Service
 
         try {
             switch ($request->getMethod()) {
+                case 'HEAD':
                 case 'GET':
                     if ('yes' === $request->getQueryParameter('callback')) {
                         $providerId = $this->session->get('_oauth2_session_provider_id');
