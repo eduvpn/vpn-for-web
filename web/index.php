@@ -45,7 +45,7 @@ try {
     $service = new Service(
         $session,
         $tpl,
-        new CurlHttpClient(['httpsOnly' => false]),
+        new CurlHttpClient(),
         $config->get('publicKeys')
     );
     $response = $service->run($request);
