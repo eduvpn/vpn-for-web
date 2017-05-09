@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fkooman/php-oauth2-client.git",
-                "reference": "edbb76b2278cdeecaaa77e820c6b9fee09452d9e"
+                "reference": "2e7e87df17ffdfc7f55c28a765b755d67bfd9a4f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fkooman/php-oauth2-client/zipball/edbb76b2278cdeecaaa77e820c6b9fee09452d9e",
-                "reference": "edbb76b2278cdeecaaa77e820c6b9fee09452d9e",
+                "url": "https://api.github.com/repos/fkooman/php-oauth2-client/zipball/2e7e87df17ffdfc7f55c28a765b755d67bfd9a4f",
+                "reference": "2e7e87df17ffdfc7f55c28a765b755d67bfd9a4f",
                 "shasum": ""
             },
             "require": {
@@ -29,7 +29,7 @@
                 "paragonie/constant_time_encoding": "^1|^2",
                 "paragonie/random_compat": "^1|^2",
                 "php": ">=5.4.0",
-                "psr/log": "^1.0"
+                "symfony/polyfill-php56": "^1.3"
             },
             "require-dev": {
                 "phpunit/phpunit": "^4.8"
@@ -52,7 +52,7 @@
                 }
             ],
             "description": "Very simple OAuth 2.0 client",
-            "time": "2017-05-08 11:06:22"
+            "time": "2017-05-09 18:29:55"
         },
         {
             "name": "paragonie/constant_time_encoding",
@@ -165,31 +165,87 @@
             "time": "2017-03-13T16:27:32+00:00"
         },
         {
-            "name": "psr/log",
-            "version": "1.0.2",
+            "name": "symfony/polyfill-php56",
+            "version": "v1.3.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/php-fig/log.git",
-                "reference": "4ebe3a8bf773a19edfe0a84b6585ba3d401b724d"
+                "url": "https://github.com/symfony/polyfill-php56.git",
+                "reference": "1dd42b9b89556f18092f3d1ada22cb05ac85383c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/log/zipball/4ebe3a8bf773a19edfe0a84b6585ba3d401b724d",
-                "reference": "4ebe3a8bf773a19edfe0a84b6585ba3d401b724d",
+                "url": "https://api.github.com/repos/symfony/polyfill-php56/zipball/1dd42b9b89556f18092f3d1ada22cb05ac85383c",
+                "reference": "1dd42b9b89556f18092f3d1ada22cb05ac85383c",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.0"
+                "php": ">=5.3.3",
+                "symfony/polyfill-util": "~1.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-master": "1.3-dev"
                 }
             },
             "autoload": {
                 "psr-4": {
-                    "Psr\\Log\\": "Psr/Log/"
+                    "Symfony\\Polyfill\\Php56\\": ""
+                },
+                "files": [
+                    "bootstrap.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony polyfill backporting some PHP 5.6+ features to lower PHP versions",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "compatibility",
+                "polyfill",
+                "portable",
+                "shim"
+            ],
+            "time": "2016-11-14T01:06:16+00:00"
+        },
+        {
+            "name": "symfony/polyfill-util",
+            "version": "v1.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-util.git",
+                "reference": "746bce0fca664ac0a575e465f65c6643faddf7fb"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-util/zipball/746bce0fca664ac0a575e465f65c6643faddf7fb",
+                "reference": "746bce0fca664ac0a575e465f65c6643faddf7fb",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.3-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Polyfill\\Util\\": ""
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -198,18 +254,23 @@
             ],
             "authors": [
                 {
-                    "name": "PHP-FIG",
-                    "homepage": "http://www.php-fig.org/"
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
                 }
             ],
-            "description": "Common interface for logging libraries",
-            "homepage": "https://github.com/php-fig/log",
+            "description": "Symfony utilities for portability of PHP codes",
+            "homepage": "https://symfony.com",
             "keywords": [
-                "log",
-                "psr",
-                "psr-3"
+                "compat",
+                "compatibility",
+                "polyfill",
+                "shim"
             ],
-            "time": "2016-10-10T12:19:37+00:00"
+            "time": "2016-11-14T01:06:16+00:00"
         },
         {
             "name": "twig/twig",
