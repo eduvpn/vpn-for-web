@@ -44,15 +44,19 @@ class Service
     /** @var array */
     private $publicKeys;
 
+    /** @var array */
+    private $clientConfig;
+
     /** @var \fkooman\OAuth\Client\OAuthClient|null */
     private $oauthClient = null;
 
-    public function __construct(Session $session, TplInterface $tpl, HttpClientInterface $httpClient, array $publicKeys)
+    public function __construct(Session $session, TplInterface $tpl, HttpClientInterface $httpClient, array $clientConfig, array $publicKeys)
     {
         $this->session = $session;
         $this->tpl = $tpl;
         $this->httpClient = $httpClient;
         $this->publicKeys = $publicKeys;
+        $this->clientConfig = $clientConfig;
     }
 
     public function run(Request $request)
@@ -171,8 +175,8 @@ class Service
         $this->oauthClient->setSession($this->session);
         $this->oauthClient->setProvider(
             new Provider(
-                'eduvpn-for-web',
-                '03Y4q834psuY5ZmE',
+                $this->clientConfig['client_id'],
+                $this->clientConfig['client_secret'],
                 $apiInfo['authorization_endpoint'],
                 $apiInfo['token_endpoint']
             )
