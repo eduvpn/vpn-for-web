@@ -9,23 +9,28 @@
             <li><a href="index.php">Index</a></li>
         </ul>
 
-        <h3>Secure Internet</h3>
-        <p>N/A</p>
-<!--
+        <h2>Secure Internet</h2>
+        <p>Go online using a secure VPN service in any of the listed countries!</p>
+
+        <p><strong>NOT YET IMPLEMENTED!</strong></p>
+        
         <ul class="chooser">
             <li><a href="#">The Netherlands</a></li>
             <li><a href="#">Norway</a></li>
             <li><a href="#">Australia</a></li>
         </ul>
--->
-        <h3>Secure Access</h3>
+
+        <h2>Secure Access</h2>
+        <p>Use these to get access to the network of your institute. You need
+            an account at the chosen institute!</p>
         <ul class="chooser">
             {% for item in instances %}
                 <li><a href="?instance_id={{ item.base_uri }}">{{ item.display_name }}</a></li>
             {% endfor %}
         </ul>
 
-        <h4>Other</h4>
+        <h3>Other</h3>
+        <p>If your organization is not (yet) listed here, provide the URL below.</p>
         <form method="get">
             <label>URL <input type="text" name="instance_id" placeholder="https://vpn.example.org/"></label>
             <input type="submit" value="Go">
