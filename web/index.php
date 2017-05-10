@@ -46,7 +46,7 @@ try {
         $session,
         $tpl,
         new CurlHttpClient(),
-        $config->get('clientConfig'),
+        $config->get('clientConfig')->asArray(),
         $config->get('publicKeys')
     );
     $response = $service->run($request);
