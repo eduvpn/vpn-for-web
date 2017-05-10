@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fkooman/php-oauth2-client.git",
-                "reference": "2e7e87df17ffdfc7f55c28a765b755d67bfd9a4f"
+                "reference": "525d0975e0ab3fafb582d60c9339e891b6973372"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fkooman/php-oauth2-client/zipball/2e7e87df17ffdfc7f55c28a765b755d67bfd9a4f",
-                "reference": "2e7e87df17ffdfc7f55c28a765b755d67bfd9a4f",
+                "url": "https://api.github.com/repos/fkooman/php-oauth2-client/zipball/525d0975e0ab3fafb582d60c9339e891b6973372",
+                "reference": "525d0975e0ab3fafb582d60c9339e891b6973372",
                 "shasum": ""
             },
             "require": {
@@ -52,7 +52,7 @@
                 }
             ],
             "description": "Very simple OAuth 2.0 client",
-            "time": "2017-05-09 18:29:55"
+            "time": "2017-05-10 08:36:35"
         },
         {
             "name": "paragonie/constant_time_encoding",

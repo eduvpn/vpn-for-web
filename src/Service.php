@@ -66,8 +66,8 @@ class Service
                 case 'HEAD':
                 case 'GET':
                     if ('yes' === $request->getQueryParameter('callback')) {
-                        $providerId = $this->session->get('_oauth2_session_provider_id');
-                        $apiInfo = $this->apiDisco($providerId);
+                        $instanceId = $this->session->get('instance_id');
+                        $apiInfo = $this->apiDisco($instanceId);
                         $this->oauthClient->handleCallback(
                             $request->getQueryParameter('code'),
                             $request->getQueryParameter('state')
@@ -169,8 +169,7 @@ class Service
             $this->httpClient
         );
         $this->oauthClient->setSession($this->session);
-        $this->oauthClient->addProvider(
-            $instanceId,
+        $this->oauthClient->setProvider(
             new Provider(
                 'eduvpn-for-web',
                 '03Y4q834psuY5ZmE',
