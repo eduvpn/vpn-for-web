@@ -9,8 +9,8 @@ return [
 
     // OAuth Client Configuration
     'clientConfig' => [
-        'client_id' => 'net.tuxed.eduvpn',
-        'client_secret' => '03Y4q834psuY5ZmE',
+        'client_id' => 'eduvpn-for-web',
+        'client_secret' => 'foo_bar_baz',
     ],
 
     // the public key(s) to verify "instances.json" for instance discovery
