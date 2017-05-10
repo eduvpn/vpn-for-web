@@ -14,6 +14,7 @@
     "license": "AGPL-3.0",
     "name": "eduvpn/vpn-api-client",
     "require": {
+        "ext-libsodium": "*",
         "ext-spl": "*",
         "fkooman/oauth2-client": "dev-master",
         "paragonie/constant_time_encoding": "^1",
