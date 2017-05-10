@@ -1,9 +1,6 @@
 <?php
 
 return [
-    // set secureCookie flag, so browser only sends them over HTTPS
-    'secureCookie' => false,
-
     // enable Twig template cache
     'enableTemplateCache' => true,
 
@@ -12,8 +9,8 @@ return [
 
     // OAuth Client Configuration
     'clientConfig' => [
-        'client_id' => 'vpn-api-client',
-        'client_secret' => 'XXX-secret-XXX',
+        'client_id' => 'net.tuxed.eduvpn',
+        'client_secret' => '03Y4q834psuY5ZmE',
     ],
 
     // the public key(s) to verify "instances.json" for instance discovery
