@@ -168,8 +168,10 @@ class Service
 
         // every endpoint has their own OAuth server, so we need to connect
         // to that one!
+        $sessionTokenStorage = new SessionTokenStorage();
+        $sessionTokenStorage->setSession($this->session);
         $this->oauthClient = new OAuthClient(
-            new SessionTokenStorage(),
+            $sessionTokenStorage,
             $this->httpClient
         );
         $this->oauthClient->setSession($this->session);
