@@ -77,6 +77,11 @@ class Service
                             $request->getQueryParameter('state')
                         );
 
+                        if ($this->session->has('federation_attempt')) {
+                            $this->session->del('federation_attempt');
+                            $this->session->set('federation_provider', $instanceId);
+                        }
+
                         return new Response(
                             302,
                             [
@@ -132,13 +137,31 @@ class Service
 
     private function getInstanceList()
     {
-        $instancesUrl = 'https://static.eduvpn.nl/instances.json';
-        $response = $this->httpClient->send(HttpRequest::get($instancesUrl));
+        // we get both the "secure internet" and "secure access" lists
+        $secureInternetList = $this->getAndVerifyList('https://static.eduvpn.nl/federation.json');
+        $secureAccessList = $this->getAndVerifyList('https://static.eduvpn.nl/instances.json');
+
+        return new Response(
+            200,
+            [],
+            $this->tpl->render(
+                'instances',
+                [
+                    'secureInternet' => $secureInternetList,
+                    'secureAccess' => $secureAccessList,
+                ]
+            )
+        );
+    }
+
+    private function getAndVerifyList($instanceListUrl)
+    {
+        $response = $this->httpClient->send(HttpRequest::get($instanceListUrl));
         if (!$response->isOkay()) {
-            throw new RuntimeException(sprintf('unable to fetch "%s"', $instancesUrl));
+            throw new RuntimeException(sprintf('unable to fetch "%s"', $instanceListUrl));
         }
 
-        $instancesSignatureUrl = 'https://static.eduvpn.nl/instances.json.sig';
+        $instancesSignatureUrl = sprintf('%s.sig', $instanceListUrl);
         $signatureResponse = $this->httpClient->send(HttpRequest::get($instancesSignatureUrl));
         if (!$signatureResponse->isOkay()) {
             throw new RuntimeException(sprintf('unable to fetch "%s"', $instancesSignatureUrl));
@@ -146,11 +169,7 @@ class Service
 
         $this->verifySignature($response->getBody(), $signatureResponse->getBody());
 
-        return new Response(
-            200,
-            [],
-            $this->tpl->render('instances', $response->json())
-        );
+        return $response->json();
     }
 
     /**

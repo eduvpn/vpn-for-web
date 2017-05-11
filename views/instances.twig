@@ -12,19 +12,17 @@
         <h2>Secure Internet</h2>
         <p>Go online using a secure VPN service in any of the listed countries!</p>
 
-        <p><strong>NOT YET IMPLEMENTED!</strong></p>
-        
         <ul class="chooser">
-            <li><a href="#">The Netherlands</a></li>
-            <li><a href="#">Norway</a></li>
-            <li><a href="#">Australia</a></li>
+            {% for item in secureInternet.instances %}
+                <li><a href="?federation=yes&instance_id={{ item.base_uri }}">{{ item.display_name }}</a></li>
+            {% endfor %}
         </ul>
 
         <h2>Secure Access</h2>
         <p>Use these to get access to the network of your institute. You need
             an account at the chosen institute!</p>
         <ul class="chooser">
-            {% for item in instances %}
+            {% for item in secureAccess.instances %}
                 <li><a href="?instance_id={{ item.base_uri }}">{{ item.display_name }}</a></li>
             {% endfor %}
         </ul>
