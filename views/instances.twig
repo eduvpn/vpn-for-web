@@ -10,6 +10,9 @@
         </ul>
 
         <h2>Secure Internet</h2>
+        {% if federationProvider %}
+            <p>Your federation provider is: {{ federationProvider }}.</p>
+        {% endif %}
         <p>Go online using a secure VPN service in any of the listed countries!</p>
 
         <ul class="chooser">

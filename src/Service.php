@@ -53,6 +53,9 @@ class Service
     public function __construct(Session $session, TplInterface $tpl, HttpClientInterface $httpClient, array $clientConfig, array $publicKeys)
     {
         $this->session = $session;
+        $this->session->set('foo', 'bar');
+        $this->session->del('foo');
+
         $this->tpl = $tpl;
         $this->httpClient = $httpClient;
         $this->publicKeys = $publicKeys;
@@ -97,6 +100,10 @@ class Service
 
                     if (null === $profileId = $request->getQueryParameter('profile_id')) {
                         // no profile specified
+                        if ('yes' === $request->getQueryParameter('federation')) {
+                            $this->session->set('federation_attempt', true);
+                        }
+
                         return $this->getProfileList($requestScope, $instanceId);
                     }
 
@@ -141,12 +148,17 @@ class Service
         $secureInternetList = $this->getAndVerifyList('https://static.eduvpn.nl/federation.json');
         $secureAccessList = $this->getAndVerifyList('https://static.eduvpn.nl/instances.json');
 
+//        echo '<pre>';
+//        var_dump($_SESSION);
+//        echo '</pre>';
+
         return new Response(
             200,
             [],
             $this->tpl->render(
                 'instances',
                 [
+                    'federationProvider' => $this->session->has('federation_provider') ? $this->session->get('federation_provider') : false,
                     'secureInternet' => $secureInternetList,
                     'secureAccess' => $secureAccessList,
                 ]
@@ -172,10 +184,7 @@ class Service
         return $response->json();
     }
 
-    /**
-     * @return Response|array
-     */
-    private function apiDisco($instanceId)
+    private function apiInfo($instanceId)
     {
         $infoUrl = sprintf('%s/info.json', $instanceId);
         $response = $this->httpClient->send(HttpRequest::get($infoUrl));
@@ -183,7 +192,15 @@ class Service
             throw new RuntimeException(sprintf('unable to fetch "%s"', $infoUrl));
         }
 
-        $apiInfo = $response->json()['api']['http://eduvpn.org/api#2'];
+        return $response->json()['api']['http://eduvpn.org/api#2'];
+    }
+
+    /**
+     * @return Response|array
+     */
+    private function apiDisco($instanceId)
+    {
+        $apiInfo = $this->apiInfo($instanceId);
 
         // every endpoint has their own OAuth server, so we need to connect
         // to that one!
@@ -194,15 +211,26 @@ class Service
             $this->httpClient
         );
         $this->oauthClient->setSession($this->session);
-        $this->oauthClient->setProvider(
-            new Provider(
+
+        if ($this->session->has('federation_provider')) {
+            // we need to set the federation provider client info!
+            $federationProviderInfo = $this->apiInfo($this->session->get('federation_provider'));
+            $provider = new Provider(
+                $this->clientConfig['client_id'],
+                $this->clientConfig['client_secret'],
+                $federationProviderInfo['authorization_endpoint'],
+                $federationProviderInfo['token_endpoint']
+            );
+        } else {
+            $provider = new Provider(
                 $this->clientConfig['client_id'],
                 $this->clientConfig['client_secret'],
                 $apiInfo['authorization_endpoint'],
                 $apiInfo['token_endpoint']
-            )
-        );
+            );
+        }
 
+        $this->oauthClient->setProvider($provider);
         $this->oauthClient->setUserId('session_user');
 
         return $apiInfo;
