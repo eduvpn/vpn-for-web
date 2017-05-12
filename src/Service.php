@@ -22,7 +22,6 @@ use fkooman\OAuth\Client\Http\HttpClientInterface;
 use fkooman\OAuth\Client\Http\Request as HttpRequest;
 use fkooman\OAuth\Client\OAuthClient;
 use fkooman\OAuth\Client\Provider;
-use fkooman\OAuth\Client\Session;
 use fkooman\OAuth\Client\SessionTokenStorage;
 use ParagonIE\ConstantTime\Base64;
 use RuntimeException;
@@ -32,9 +31,6 @@ use SURFnet\VPN\ApiClient\Http\Response;
 
 class Service
 {
-    /** @var \fkooman\OAuth\Client\Session */
-    private $session;
-
     /** @var TplInterface */
     private $tpl;
 
@@ -50,11 +46,11 @@ class Service
     /** @var \fkooman\OAuth\Client\OAuthClient|null */
     private $oauthClient = null;
 
-    public function __construct(Session $session, TplInterface $tpl, HttpClientInterface $httpClient, array $clientConfig, array $publicKeys)
+    public function __construct(TplInterface $tpl, HttpClientInterface $httpClient, array $clientConfig, array $publicKeys)
     {
-        $this->session = $session;
-        $this->session->set('foo', 'bar');
-        $this->session->del('foo');
+        if ('' === session_id()) {
+            session_start();
+        }
 
         $this->tpl = $tpl;
         $this->httpClient = $httpClient;
@@ -73,22 +69,22 @@ class Service
                 case 'HEAD':
                 case 'GET':
                     if ('yes' === $request->getQueryParameter('callback')) {
-                        $instanceId = $this->session->get('instance_id');
+                        $instanceId = $_SESSION['instance_id'];
                         $apiInfo = $this->apiDisco($instanceId);
                         $this->oauthClient->handleCallback(
                             $request->getQueryParameter('code'),
                             $request->getQueryParameter('state')
                         );
 
-                        if ($this->session->has('federation_attempt')) {
-                            $this->session->del('federation_attempt');
-                            $this->session->set('federation_provider', $instanceId);
+                        if (array_key_exists('federation_attempt', $_SESSION)) {
+                            unset($_SESSION['federation_attempt']);
+                            $_SESSION['federation_provider'] = $instanceId;
                         }
 
                         return new Response(
                             302,
                             [
-                                'Location' => sprintf('%sindex.php?instance_id=%s', $request->getRootUri(), $this->session->get('instance_id')),
+                                'Location' => sprintf('%sindex.php?instance_id=%s', $request->getRootUri(), $instanceId),
                             ]
                         );
                     }
@@ -101,7 +97,9 @@ class Service
                     if (null === $profileId = $request->getQueryParameter('profile_id')) {
                         // no profile specified
                         if ('yes' === $request->getQueryParameter('federation')) {
-                            $this->session->set('federation_attempt', true);
+                            if (!array_key_exists('federation_attempt', $_SESSION)) {
+                                $_SESSION['federation_attempt'] = true;
+                            }
                         }
 
                         return $this->getProfileList($requestScope, $instanceId);
@@ -158,7 +156,7 @@ class Service
             $this->tpl->render(
                 'instances',
                 [
-                    'federationProvider' => $this->session->has('federation_provider') ? $this->session->get('federation_provider') : false,
+                    'federationProvider' => array_key_exists('federation_provider', $_SESSION) ? $_SESSION['federation_provider'] : false,
                     'secureInternet' => $secureInternetList,
                     'secureAccess' => $secureAccessList,
                 ]
@@ -205,16 +203,14 @@ class Service
         // every endpoint has their own OAuth server, so we need to connect
         // to that one!
         $sessionTokenStorage = new SessionTokenStorage();
-        $sessionTokenStorage->setSession($this->session);
         $this->oauthClient = new OAuthClient(
             $sessionTokenStorage,
             $this->httpClient
         );
-        $this->oauthClient->setSession($this->session);
 
-        if ($this->session->has('federation_provider')) {
+        if (array_key_exists('federation_provider', $_SESSION)) {
             // we need to set the federation provider client info!
-            $federationProviderInfo = $this->apiInfo($this->session->get('federation_provider'));
+            $federationProviderInfo = $this->apiInfo($_SESSION['federation_provider']);
             $provider = new Provider(
                 $this->clientConfig['client_id'],
                 $this->clientConfig['client_secret'],
@@ -267,7 +263,14 @@ class Service
         $apiInfo = $this->apiDisco($instanceId);
         $apiBaseUri = $apiInfo['api_base_uri'];
 
-        $this->session->set('instance_id', $instanceId);
+        $_SESSION['instance_id'] = $instanceId;
+
+//        echo '<pre>';
+
+//        var_dump($this->oauthClient);
+//        var_dump($_SESSION);
+//        echo '</pre>';
+//        die();
 
         // instance specified, get user_info
         $userInfo = $this->get($requestScope, sprintf('%s/user_info', $apiBaseUri))->json();
