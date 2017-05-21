@@ -17,20 +17,26 @@ div.header h1 {
     text-align: center;
 }
 
-ul.chooser {
+ul.chooser, ul.mode {
     padding: 0;
 }
 
-ul.chooser li {
+ul.chooser li, ul.mode li {
     border-bottom: 2px solid #eee;
     list-style: none;
     padding: 0.5em 0;
 }
 
-ul.chooser li a {
+ul.chooser li a, ul.mode li a {
     text-decoration: none;
     font-weight: bold;
     color: #00b3d0;
+}
+
+span.expl {
+    display: block;
+    margin: 0.5em;
+    font-size: 90%;
 }
 
 ul.crumbs {

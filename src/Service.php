@@ -144,7 +144,6 @@ class Service
     {
         // we get both the "secure internet" and "secure access" lists
         $secureInternetList = $this->getAndVerifyList('https://static.eduvpn.nl/federation.json');
-        $secureAccessList = $this->getAndVerifyList('https://static.eduvpn.nl/instances.json');
 
 //        echo '<pre>';
 //        var_dump($_SESSION);
@@ -158,7 +157,6 @@ class Service
                 [
                     'federationProvider' => array_key_exists('federation_provider', $_SESSION) ? $_SESSION['federation_provider'] : false,
                     'secureInternet' => $secureInternetList,
-                    'secureAccess' => $secureAccessList,
                 ]
             )
         );

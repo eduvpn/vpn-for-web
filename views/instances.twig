@@ -11,32 +11,17 @@
 
         <h2>Secure Internet</h2>
         {% if federationProvider %}
-            <p>Your federation provider is: {{ federationProvider }}.</p>
+            <p>Your <em>home</em> service is <code>{{ federationProvider }}</code>.</p>
+            <p>Feel free to use any of the VPN services below!</p>
+        {% else %}
+            <p>Before using any of the available VPN services, first choose your <em>home</em> provider for which you have an account, typically in the same country as your institute.</p>
         {% endif %}
-        <p>Go online using a secure VPN service in any of the listed countries!</p>
 
         <ul class="chooser">
             {% for item in secureInternet.instances %}
                 <li><a href="?federation=yes&instance_id={{ item.base_uri }}">{{ item.display_name }}</a></li>
             {% endfor %}
         </ul>
-
-        <h2>Secure Access</h2>
-        <p>Use these to get access to the network of your institute. You need
-            an account at the chosen institute!</p>
-        <ul class="chooser">
-            {% for item in secureAccess.instances %}
-                <li><a href="?instance_id={{ item.base_uri }}">{{ item.display_name }}</a></li>
-            {% endfor %}
-        </ul>
-
-        <h3>Other</h3>
-        <p>If your organization is not (yet) listed here, provide the URL below.</p>
-        <form method="get">
-            <label>URL <input type="text" name="instance_id" placeholder="https://vpn.example.org/"></label>
-            <input type="submit" value="Go">
-        </form>
-
     </div>
     {% include 'footer.twig' %}
 </body>
