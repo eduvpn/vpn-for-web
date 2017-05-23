@@ -2,19 +2,14 @@
 
 return [
     // enable Twig template cache
-    'enableTemplateCache' => true,
+    'enableTemplateCache' => false,
 
-    // URL to list of instances supporting the VPN Token Service
-    'instanceListUri' => 'https://static.eduvpn.nl/instances.json',
+    // URL containing list of VPN providers
+    'instanceListUri' => 'https://static.eduvpn.nl/federation.json',
+    // Public key used to sign the list of VPN providers
+    'instanceListPublicKey' => 'E5On0JTtyUVZmcWd+I/FXRm32nSq8R2ioyW7dcu/U88=',
 
     // OAuth Client Configuration
-    'clientConfig' => [
-        'client_id' => 'eduvpn-for-web',
-        'client_secret' => 'foo_bar_baz',
-    ],
-
-    // the public key(s) to verify "instances.json" for instance discovery
-    'publicKeys' => [
-        'E5On0JTtyUVZmcWd+I/FXRm32nSq8R2ioyW7dcu/U88=',
-    ],
+    'clientId' => 'eduvpn-for-web',
+    'clientSecret' => '03Y4q834psuY5ZmE',
 ];

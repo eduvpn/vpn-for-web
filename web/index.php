@@ -41,10 +41,9 @@ try {
 
     $request = new Request($_SERVER, $_GET, $_POST);
     $service = new Service(
+        $config,
         $tpl,
-        new CurlHttpClient(),
-        $config->get('clientConfig')->asArray(),
-        $config->get('publicKeys')
+        new CurlHttpClient()
     );
     $response = $service->run($request);
     $response->send();

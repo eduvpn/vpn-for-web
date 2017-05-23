@@ -31,31 +31,27 @@ use SURFnet\VPN\ApiClient\Http\Response;
 
 class Service
 {
+    /** @var Config */
+    private $config;
+
     /** @var TplInterface */
     private $tpl;
 
     /** @var \fkooman\OAuth\Client\Http\HttpClientInterface */
     private $httpClient;
 
-    /** @var array */
-    private $publicKeys;
-
-    /** @var array */
-    private $clientConfig;
-
     /** @var \fkooman\OAuth\Client\OAuthClient|null */
     private $oauthClient = null;
 
-    public function __construct(TplInterface $tpl, HttpClientInterface $httpClient, array $clientConfig, array $publicKeys)
+    public function __construct(Config $config, TplInterface $tpl, HttpClientInterface $httpClient)
     {
+        $this->config = $config;
+        $this->tpl = $tpl;
+        $this->httpClient = $httpClient;
+
         if ('' === session_id()) {
             session_start();
         }
-
-        $this->tpl = $tpl;
-        $this->httpClient = $httpClient;
-        $this->publicKeys = $publicKeys;
-        $this->clientConfig = $clientConfig;
     }
 
     public function run(Request $request)
@@ -108,7 +104,7 @@ class Service
 
     private function showInstanceList()
     {
-        $instanceList = $this->getInstanceList('https://static.eduvpn.nl/federation.json');
+        $instanceList = $this->getInstanceList($this->config->get('instanceListUri'));
 
         return new Response(
             200,
@@ -171,15 +167,15 @@ class Service
             // we need to set the federation provider client info!
             $tokenProviderInfo = $this->apiInfo($_SESSION['tokenProvider']);
             $provider = new Provider(
-                $this->clientConfig['client_id'],
-                $this->clientConfig['client_secret'],
+                $this->config->get('clientId'),
+                $this->config->get('clientSecret'),
                 $tokenProviderInfo['authorization_endpoint'],
                 $tokenProviderInfo['token_endpoint']
             );
         } else {
             $provider = new Provider(
-                $this->clientConfig['client_id'],
-                $this->clientConfig['client_secret'],
+                $this->config->get('clientId'),
+                $this->config->get('clientSecret'),
                 $apiInfo['authorization_endpoint'],
                 $apiInfo['token_endpoint']
             );
@@ -237,13 +233,9 @@ class Service
     private function verifySignature($jsonText, $instanceSignature)
     {
         $rawSignature = Base64::decode($instanceSignature);
-        foreach ($this->publicKeys as $encodedPublicKey) {
-            $publicKey = Base64::decode($encodedPublicKey);
-            if (\Sodium\crypto_sign_verify_detached($rawSignature, $jsonText, $publicKey)) {
-                return;
-            }
+        $publicKey = Base64::decode($this->config->get('instanceListPublicKey'));
+        if (!\Sodium\crypto_sign_verify_detached($rawSignature, $jsonText, $publicKey)) {
+            throw new RuntimeException('unable to verify discovery file signature');
         }
-
-        throw new RuntimeException('unable to verify discovery file signature');
     }
 }
