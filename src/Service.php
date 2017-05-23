@@ -76,58 +76,24 @@ class Service
                             $request->getQueryParameter('state')
                         );
 
-                        if (array_key_exists('federation_attempt', $_SESSION)) {
-                            unset($_SESSION['federation_attempt']);
-                            $_SESSION['federation_provider'] = $instanceId;
-                        }
+                        $_SESSION['tokenProvider'] = $instanceId;
 
                         return new Response(
                             302,
                             [
-                                'Location' => sprintf('%sindex.php?instance_id=%s', $request->getRootUri(), $instanceId),
+                                'Location' => $request->getRootUri(),
                             ]
                         );
                     }
 
                     if (null === $instanceId = $request->getQueryParameter('instance_id')) {
                         // no instance specified
-                        return $this->getInstanceList();
+                        return $this->showInstanceList();
                     }
 
-                    if (null === $profileId = $request->getQueryParameter('profile_id')) {
-                        // no profile specified
-                        if ('yes' === $request->getQueryParameter('federation')) {
-                            if (!array_key_exists('federation_attempt', $_SESSION)) {
-                                $_SESSION['federation_attempt'] = true;
-                            }
-                        }
-
-                        return $this->getProfileList($requestScope, $instanceId);
-                    }
-
-                    // instance & profile specified, show all API call outputs
-                    return $this->getConfig($requestScope, $instanceId, $profileId);
-                case 'POST':
-                    if (null === $instanceId = $request->getQueryParameter('instance_id')) {
-                        // no instance specified, we cannot generate a keypair
-                        return new Response(
-                            400,
-                            [],
-                            'no instance_id specified'
-                        );
-                    }
-
-                    if (null === $displayName = $request->getPostParameter('display_name')) {
-                        return new Response(
-                            400,
-                            [],
-                            'no display_name specified'
-                        );
-                    }
-
-                    return $this->getKeypair($requestScope, $instanceId, $displayName);
+                    return $this->getConfig($instanceId);
                 default:
-                    return new Response(405, ['Allow' => 'GET,POST']);
+                    return new Response(405, ['Allow' => 'GET,HEAD']);
             }
         } catch (TokenException $e) {
             // no valid OAuth token available...
@@ -140,29 +106,24 @@ class Service
         }
     }
 
-    private function getInstanceList()
+    private function showInstanceList()
     {
-        // we get both the "secure internet" and "secure access" lists
-        $secureInternetList = $this->getAndVerifyList('https://static.eduvpn.nl/federation.json');
-
-//        echo '<pre>';
-//        var_dump($_SESSION);
-//        echo '</pre>';
+        $instanceList = $this->getInstanceList('https://static.eduvpn.nl/federation.json');
 
         return new Response(
             200,
             [],
             $this->tpl->render(
-                'instances',
+                'instanceList',
                 [
-                    'federationProvider' => array_key_exists('federation_provider', $_SESSION) ? $_SESSION['federation_provider'] : false,
-                    'secureInternet' => $secureInternetList,
+                    'tokenProvider' => array_key_exists('tokenProvider', $_SESSION) ? $_SESSION['tokenProvider'] : false,
+                    'instanceList' => $instanceList['instances'],
                 ]
             )
         );
     }
 
-    private function getAndVerifyList($instanceListUrl)
+    private function getInstanceList($instanceListUrl)
     {
         $response = $this->httpClient->send(HttpRequest::get($instanceListUrl));
         if (!$response->isOkay()) {
@@ -206,14 +167,14 @@ class Service
             $this->httpClient
         );
 
-        if (array_key_exists('federation_provider', $_SESSION)) {
+        if (array_key_exists('tokenProvider', $_SESSION)) {
             // we need to set the federation provider client info!
-            $federationProviderInfo = $this->apiInfo($_SESSION['federation_provider']);
+            $tokenProviderInfo = $this->apiInfo($_SESSION['tokenProvider']);
             $provider = new Provider(
                 $this->clientConfig['client_id'],
                 $this->clientConfig['client_secret'],
-                $federationProviderInfo['authorization_endpoint'],
-                $federationProviderInfo['token_endpoint']
+                $tokenProviderInfo['authorization_endpoint'],
+                $tokenProviderInfo['token_endpoint']
             );
         } else {
             $provider = new Provider(
@@ -225,94 +186,33 @@ class Service
         }
 
         $this->oauthClient->setProvider($provider);
-        $this->oauthClient->setUserId('session_user');
+        $this->oauthClient->setUserId('N/A');
 
         return $apiInfo;
     }
 
-    private function getKeypair($requestScope, $instanceId, $displayName)
+    private function getConfig($instanceId)
     {
-        $apiInfo = $this->apiDisco($instanceId);
-        $apiBaseUri = $apiInfo['api_base_uri'];
-
-        $createKeypair = $this->post(
-            $requestScope,
-            sprintf('%s/create_keypair', $apiInfo['api_base_uri']),
-            [
-                'display_name' => $displayName,
-            ]
-        )->json();
-
-        return new Response(
-            200,
-            [],
-            $this->tpl->render(
-                'keypair',
-                array_merge(
-                    ['instance_id' => $instanceId],
-                    ['create_keypair' => $createKeypair['create_keypair']['data']]
-                )
-            )
-        );
-    }
-
-    private function getProfileList($requestScope, $instanceId)
-    {
-        $apiInfo = $this->apiDisco($instanceId);
-        $apiBaseUri = $apiInfo['api_base_uri'];
-
         $_SESSION['instance_id'] = $instanceId;
 
-//        echo '<pre>';
-
-//        var_dump($this->oauthClient);
-//        var_dump($_SESSION);
-//        echo '</pre>';
-//        die();
-
-        // instance specified, get user_info
-        $userInfo = $this->get($requestScope, sprintf('%s/user_info', $apiBaseUri))->json();
-        $profileList = $this->get($requestScope, sprintf('%s/profile_list', $apiBaseUri))->json();
-        $systemMessages = $this->get($requestScope, sprintf('%s/system_messages', $apiBaseUri))->json();
-        $userMessages = $this->get($requestScope, sprintf('%s/user_messages', $apiBaseUri))->json();
-
-        return new Response(
-            200,
-            [],
-            $this->tpl->render(
-                'profiles',
-                array_merge(
-                    ['instance_id' => $instanceId],
-                    ['user_info' => $userInfo['user_info']['data']],
-                    ['profile_list' => $profileList['profile_list']['data']],
-                    ['system_messages' => $systemMessages['system_messages']['data']],
-                    ['user_messages' => $userMessages['user_messages']['data']]
-                )
-            )
-        );
-    }
-
-    private function getConfig($requestScope, $instanceId, $profileId)
-    {
         $apiInfo = $this->apiDisco($instanceId);
         $apiBaseUri = $apiInfo['api_base_uri'];
 
-        $profileConfig = $this->get(
-            $requestScope,
-            sprintf('%s/profile_config?profile_id=%s', $apiBaseUri, $profileId)
-        )->getBody();
+        $createConfigResponse = $this->post(
+            'config',
+            sprintf('%s/create_config', $apiInfo['api_base_uri']),
+            [
+                'display_name' => 'eduVPN for Web',
+                'profile_id' => 'internet',
+            ]
+        );
 
         return new Response(
             200,
-            [],
-            $this->tpl->render(
-                'config',
-                array_merge(
-                    ['instance_id' => $instanceId],
-                    ['profile_id' => $profileId],
-                    ['profile_config' => $profileConfig]
-                )
-            )
+            [
+                'Content-Type' => 'application/x-openvpn-profile',
+            ],
+            $createConfigResponse->getBody()
         );
     }
 

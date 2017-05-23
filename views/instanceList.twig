@@ -9,17 +9,16 @@
             <li><a href="index.php">Index</a></li>
         </ul>
 
-        <h2>Secure Internet</h2>
-        {% if federationProvider %}
-            <p>Your <em>home</em> service is <code>{{ federationProvider }}</code>.</p>
+        {% if tokenProvider %}
+            <p>Your <em>home</em> service is <code>{{ tokenProvider }}</code>.</p>
             <p>Feel free to use any of the VPN services below!</p>
         {% else %}
             <p>Before using any of the available VPN services, first choose your <em>home</em> provider for which you have an account, typically in the same country as your institute.</p>
         {% endif %}
 
         <ul class="chooser">
-            {% for item in secureInternet.instances %}
-                <li><a href="?federation=yes&instance_id={{ item.base_uri }}">{{ item.display_name }}</a></li>
+            {% for instance in instanceList %}
+                <li><a href="?instance_id={{ instance.base_uri }}">{{ instance.display_name }}</a></li>
             {% endfor %}
         </ul>
     </div>
