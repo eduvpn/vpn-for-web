@@ -44,7 +44,7 @@ class Config
     /**
      * @param string $key
      *
-     * @return object|string|array
+     * @return mixed
      */
     public function get($key)
     {
@@ -66,13 +66,5 @@ class Config
         }
 
         return $this->data[$key];
-    }
-
-    /**
-     * @return array
-     */
-    public function asArray()
-    {
-        return $this->data;
     }
 }

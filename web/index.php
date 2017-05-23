@@ -18,6 +18,8 @@
 require_once sprintf('%s/vendor/autoload.php', dirname(__DIR__));
 
 use fkooman\OAuth\Client\Http\CurlHttpClient;
+use fkooman\OAuth\Client\OAuthClient;
+use fkooman\OAuth\Client\SessionTokenStorage;
 use SURFnet\VPN\ApiClient\Config;
 use SURFnet\VPN\ApiClient\Http\Request;
 use SURFnet\VPN\ApiClient\Service;
@@ -40,10 +42,21 @@ try {
     $tpl = new TwigTpl($templateDirs, $templateCache);
 
     $request = new Request($_SERVER, $_GET, $_POST);
+
+    $httpClient = new CurlHttpClient();
+
+    // OAuth client
+    $oauthClient = new OAuthClient(
+        new SessionTokenStorage(),
+        $httpClient
+    );
+    $oauthClient->setUserId('N/A');
+
     $service = new Service(
         $config,
         $tpl,
-        new CurlHttpClient()
+        $oauthClient,
+        $httpClient
     );
     $response = $service->run($request);
     $response->send();

@@ -22,7 +22,6 @@ use fkooman\OAuth\Client\Http\HttpClientInterface;
 use fkooman\OAuth\Client\Http\Request as HttpRequest;
 use fkooman\OAuth\Client\OAuthClient;
 use fkooman\OAuth\Client\Provider;
-use fkooman\OAuth\Client\SessionTokenStorage;
 use ParagonIE\ConstantTime\Base64;
 use RuntimeException;
 use SURFnet\VPN\ApiClient\Http\Exception\TokenException;
@@ -40,201 +39,208 @@ class Service
     /** @var \fkooman\OAuth\Client\Http\HttpClientInterface */
     private $httpClient;
 
-    /** @var \fkooman\OAuth\Client\OAuthClient|null */
-    private $oauthClient = null;
+    /** @var \fkooman\OAuth\Client\OAuthClient */
+    private $oauthClient;
 
-    public function __construct(Config $config, TplInterface $tpl, HttpClientInterface $httpClient)
+    public function __construct(Config $config, TplInterface $tpl, OAuthClient $oauthClient, HttpClientInterface $httpClient)
     {
         $this->config = $config;
         $this->tpl = $tpl;
         $this->httpClient = $httpClient;
+        $this->oauthClient = $oauthClient;
 
         if ('' === session_id()) {
             session_start();
         }
     }
 
+    /**
+     * @param Http\Request $request
+     *
+     * @return Http\Response
+     */
     public function run(Request $request)
     {
-        $requestScope = 'config';
-        $callbackUri = sprintf('%sindex.php?callback=yes', $request->getRootUri());
-        $instanceId = null;
+        switch ($request->getMethod()) {
+            case 'HEAD':
+            case 'GET':
+                switch ($request->getPathInfo()) {
+                    case '/':
+                        // show list of providers
+                        return $this->showProviderList();
+                    case '/callback':
+                        // handle OAuth server callback
+                        return $this->handleCallback($request);
+                    case '/config':
+                        // fetch an OpenVPN client configuration
+                        $providerId = $request->getQueryParameter('provider_id');
 
+                        return $this->getConfig($request, $providerId);
+                    default:
+                        return new Response(404, [], 'Not Found');
+                }
+            default:
+                return new Response(405, ['Allow' => 'GET,HEAD']);
+        }
+    }
+
+    /**
+     * @return Http\Response
+     */
+    private function showProviderList()
+    {
+        $providerList = $this->getProviderList($this->config->get('providerListUri'));
+
+        return new Response(
+            200,
+            [],
+            $this->tpl->render(
+                'providerList',
+                [
+                    'tokenProviderId' => array_key_exists('tokenProviderId', $_SESSION) ? $_SESSION['tokenProviderId'] : false,
+                    'providerList' => $providerList['instances'],
+                ]
+            )
+        );
+    }
+
+    /**
+     * @param string $providerListUrl
+     *
+     * @return array
+     */
+    private function getProviderList($providerListUrl)
+    {
+        $providerListResponse = $this->httpClient->send(HttpRequest::get($providerListUrl));
+        if (!$providerListResponse->isOkay()) {
+            throw new RuntimeException(sprintf('unable to fetch "%s"', $providerListUrl));
+        }
+
+        $providerListSignatureUrl = sprintf('%s.sig', $providerListUrl);
+        $providerListSignatureResponse = $this->httpClient->send(HttpRequest::get($providerListSignatureUrl));
+        if (!$providerListSignatureResponse->isOkay()) {
+            throw new RuntimeException(sprintf('unable to fetch "%s"', $providerListSignatureUrl));
+        }
+
+        $this->verifySignature($providerListResponse->getBody(), $providerListSignatureResponse->getBody());
+
+        return $providerListResponse->json();
+    }
+
+    private function handleCallback(Request $request)
+    {
+        // this was our chosen "home" organization
+        $tokenProviderId = $_SESSION['tokenProviderId'];
+
+        // get OAuth information for chosen tokenProvider
+        $tokenProviderInfo = $this->getProviderInfo($tokenProviderId);
+
+        // load OAuth provider with this information
+        $this->oauthClient->setProvider(
+            new Provider(
+                $this->config->get('OAuth')->get('clientId'),
+                $this->config->get('OAuth')->get('clientSecret'),
+                $tokenProviderInfo['authorization_endpoint'],
+                $tokenProviderInfo['token_endpoint']
+            )
+        );
+
+        $this->oauthClient->handleCallback(
+            $request->getQueryParameter('code'),
+            $request->getQueryParameter('state')
+        );
+
+        // redirect back
+        return new Response(
+            302,
+            [
+                'Location' => $request->getRootUri(),
+            ]
+        );
+    }
+
+    private function getProviderInfo($providerId)
+    {
+        $providerInfoUrl = sprintf('%s/info.json', $providerId);
+        $providerInfoResponse = $this->httpClient->send(HttpRequest::get($providerInfoUrl));
+        if (!$providerInfoResponse->isOkay()) {
+            throw new RuntimeException(sprintf('unable to fetch "%s"', $providerInfoUrl));
+        }
+
+        // XXX check response format!
+        return $providerInfoResponse->json()['api']['http://eduvpn.org/api#2'];
+    }
+
+    /**
+     * Get an OpenVPN client configuration for a provider.
+     *
+     * @param Http\Request $request
+     * @param string       $providerId
+     */
+    private function getConfig(Request $request, $providerId)
+    {
         try {
-            switch ($request->getMethod()) {
-                case 'HEAD':
-                case 'GET':
-                    if ('yes' === $request->getQueryParameter('callback')) {
-                        $instanceId = $_SESSION['instance_id'];
-                        $apiInfo = $this->apiDisco($instanceId);
-                        $this->oauthClient->handleCallback(
-                            $request->getQueryParameter('code'),
-                            $request->getQueryParameter('state')
-                        );
-
-                        $_SESSION['tokenProvider'] = $instanceId;
-
-                        return new Response(
-                            302,
-                            [
-                                'Location' => $request->getRootUri(),
-                            ]
-                        );
-                    }
-
-                    if (null === $instanceId = $request->getQueryParameter('instance_id')) {
-                        // no instance specified
-                        return $this->showInstanceList();
-                    }
-
-                    return $this->getConfig($instanceId);
-                default:
-                    return new Response(405, ['Allow' => 'GET,HEAD']);
+            if (!array_key_exists('tokenProviderId', $_SESSION)) {
+                $_SESSION['tokenProviderId'] = $providerId;
             }
+            $tokenProviderId = $_SESSION['tokenProviderId'];
+
+            // get OAuth information for chosen tokenProvider
+            $tokenProviderInfo = $this->getProviderInfo($tokenProviderId);
+
+            // load OAuth provider with this information
+            $this->oauthClient->setProvider(
+                new Provider(
+                    $this->config->get('OAuth')->get('clientId'),
+                    $this->config->get('OAuth')->get('clientSecret'),
+                    $tokenProviderInfo['authorization_endpoint'],
+                    $tokenProviderInfo['token_endpoint']
+                )
+            );
+
+            $providerInfo = $this->getProviderInfo($providerId);
+            $apiBaseUri = $providerInfo['api_base_uri'];
+
+            $response = $this->post(
+                sprintf('%s/create_config', $apiBaseUri),
+                [
+                    'display_name' => 'eduVPN for Web',
+                    'profile_id' => 'internet',
+                ]
+            );
+
+            return new Response(
+                200,
+                [
+                    'Content-Type' => 'application/x-openvpn-profile',
+                    'Content-Disposition' => 'attachment; filename="eduVPN for Web.ovpn"',
+                ],
+                $response->getBody()
+            );
         } catch (TokenException $e) {
             // no valid OAuth token available...
             $authorizeUri = $this->oauthClient->getAuthorizeUri(
-                $requestScope,
-                $callbackUri
+                $this->config->get('OAuth')->get('requestScope'),
+                sprintf('%scallback', $request->getRootUri())
             );
 
             return new Response(302, ['Location' => $authorizeUri]);
         }
     }
 
-    private function showInstanceList()
+    private function post($requestUri, array $postBody)
     {
-        $instanceList = $this->getInstanceList($this->config->get('instanceListUri'));
-
-        return new Response(
-            200,
-            [],
-            $this->tpl->render(
-                'instanceList',
-                [
-                    'tokenProvider' => array_key_exists('tokenProvider', $_SESSION) ? $_SESSION['tokenProvider'] : false,
-                    'instanceList' => $instanceList['instances'],
-                ]
-            )
-        );
-    }
-
-    private function getInstanceList($instanceListUrl)
-    {
-        $response = $this->httpClient->send(HttpRequest::get($instanceListUrl));
-        if (!$response->isOkay()) {
-            throw new RuntimeException(sprintf('unable to fetch "%s"', $instanceListUrl));
-        }
-
-        $instancesSignatureUrl = sprintf('%s.sig', $instanceListUrl);
-        $signatureResponse = $this->httpClient->send(HttpRequest::get($instancesSignatureUrl));
-        if (!$signatureResponse->isOkay()) {
-            throw new RuntimeException(sprintf('unable to fetch "%s"', $instancesSignatureUrl));
-        }
-
-        $this->verifySignature($response->getBody(), $signatureResponse->getBody());
-
-        return $response->json();
-    }
-
-    private function apiInfo($instanceId)
-    {
-        $infoUrl = sprintf('%s/info.json', $instanceId);
-        $response = $this->httpClient->send(HttpRequest::get($infoUrl));
-        if (!$response->isOkay()) {
-            throw new RuntimeException(sprintf('unable to fetch "%s"', $infoUrl));
-        }
-
-        return $response->json()['api']['http://eduvpn.org/api#2'];
-    }
-
-    /**
-     * @return Response|array
-     */
-    private function apiDisco($instanceId)
-    {
-        $apiInfo = $this->apiInfo($instanceId);
-
-        // every endpoint has their own OAuth server, so we need to connect
-        // to that one!
-        $sessionTokenStorage = new SessionTokenStorage();
-        $this->oauthClient = new OAuthClient(
-            $sessionTokenStorage,
-            $this->httpClient
-        );
-
-        if (array_key_exists('tokenProvider', $_SESSION)) {
-            // we need to set the federation provider client info!
-            $tokenProviderInfo = $this->apiInfo($_SESSION['tokenProvider']);
-            $provider = new Provider(
-                $this->config->get('clientId'),
-                $this->config->get('clientSecret'),
-                $tokenProviderInfo['authorization_endpoint'],
-                $tokenProviderInfo['token_endpoint']
-            );
-        } else {
-            $provider = new Provider(
-                $this->config->get('clientId'),
-                $this->config->get('clientSecret'),
-                $apiInfo['authorization_endpoint'],
-                $apiInfo['token_endpoint']
-            );
-        }
-
-        $this->oauthClient->setProvider($provider);
-        $this->oauthClient->setUserId('N/A');
-
-        return $apiInfo;
-    }
-
-    private function getConfig($instanceId)
-    {
-        $_SESSION['instance_id'] = $instanceId;
-
-        $apiInfo = $this->apiDisco($instanceId);
-        $apiBaseUri = $apiInfo['api_base_uri'];
-
-        $response = $this->post(
-            'config',
-            sprintf('%s/create_config', $apiInfo['api_base_uri']),
-            [
-                'display_name' => 'eduVPN for Web',
-                'profile_id' => 'internet',
-            ]
-        );
-
-        return new Response(
-            200,
-            [
-                'Content-Type' => 'application/x-openvpn-profile',
-                'Content-Disposition' => 'attachment; filename="eduVPN for Web.ovpn"',
-            ],
-            $response->getBody()
-        );
-    }
-
-    private function get($requestScope, $requestUri)
-    {
-        if (false === $response = $this->oauthClient->get($requestScope, $requestUri)) {
+        if (false === $response = $this->oauthClient->post($this->config->get('OAuth')->get('requestScope'), $requestUri, $postBody)) {
             throw new TokenException('no token available');
         }
 
         return $response;
     }
 
-    private function post($requestScope, $requestUri, array $postBody)
+    private function verifySignature($jsonText, $providerListSignature)
     {
-        if (false === $response = $this->oauthClient->post($requestScope, $requestUri, $postBody)) {
-            throw new TokenException('no token available');
-        }
-
-        return $response;
-    }
-
-    private function verifySignature($jsonText, $instanceSignature)
-    {
-        $rawSignature = Base64::decode($instanceSignature);
-        $publicKey = Base64::decode($this->config->get('instanceListPublicKey'));
+        $rawSignature = Base64::decode($providerListSignature);
+        $publicKey = Base64::decode($this->config->get('providerListPublicKey'));
         if (!\Sodium\crypto_sign_verify_detached($rawSignature, $jsonText, $publicKey)) {
             throw new RuntimeException('unable to verify discovery file signature');
         }

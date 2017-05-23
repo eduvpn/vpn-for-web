@@ -88,6 +88,27 @@ class Request
         return array_key_exists($key, $this->serverData) ? $this->serverData[$key] : null;
     }
 
+    public function getPathInfo()
+    {
+        // remove the query string
+        $requestUri = $this->serverData['REQUEST_URI'];
+        if (false !== $pos = mb_strpos($requestUri, '?')) {
+            $requestUri = mb_substr($requestUri, 0, $pos);
+        }
+
+        // remove script_name (if it is part of request_uri
+        if (0 === mb_strpos($requestUri, $this->serverData['SCRIPT_NAME'])) {
+            return substr($requestUri, mb_strlen($this->serverData['SCRIPT_NAME']));
+        }
+
+        // remove the root
+        if ('/' !== $this->getRoot()) {
+            return mb_substr($requestUri, mb_strlen($this->getRoot()) - 1);
+        }
+
+        return $requestUri;
+    }
+
     /**
      * @return string
      */

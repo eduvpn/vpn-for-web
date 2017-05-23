@@ -5,16 +5,16 @@
 <body>
     {% include 'header.twig' %}
     <div class="content">
-        {% if tokenProvider %}
-            <p>Your <em>home</em> service is <code>{{ tokenProvider }}</code>.</p>
+        {% if tokenProviderId %}
+            <p>Your <em>home</em> service is <code>{{ tokenProviderId }}</code>.</p>
             <p>Feel free to use any of the VPN services below!</p>
         {% else %}
             <p>Before using any of the available VPN services, first choose your <em>home</em> provider for which you have an account, typically in the same country as your institute.</p>
         {% endif %}
 
         <ul class="chooser">
-            {% for instance in instanceList %}
-                <li><a href="?instance_id={{ instance.base_uri }}">{{ instance.display_name }}</a></li>
+            {% for provider in providerList %}
+                <li><a href="config?provider_id={{ provider.base_uri }}">{{ provider.display_name }}</a></li>
             {% endfor %}
         </ul>
     </div>

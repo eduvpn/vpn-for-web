@@ -5,11 +5,14 @@ return [
     'enableTemplateCache' => false,
 
     // URL containing list of VPN providers
-    'instanceListUri' => 'https://static.eduvpn.nl/federation.json',
+    'providerListUri' => 'https://static.eduvpn.nl/federation.json',
     // Public key used to sign the list of VPN providers
-    'instanceListPublicKey' => 'E5On0JTtyUVZmcWd+I/FXRm32nSq8R2ioyW7dcu/U88=',
+    'providerListPublicKey' => 'E5On0JTtyUVZmcWd+I/FXRm32nSq8R2ioyW7dcu/U88=',
 
     // OAuth Client Configuration
-    'clientId' => 'eduvpn-for-web',
-    'clientSecret' => '03Y4q834psuY5ZmE',
+    'OAuth' => [
+        'clientId' => 'eduvpn-for-web',
+        'clientSecret' => '03Y4q834psuY5ZmE',
+        'requestScope' => 'config',
+    ],
 ];
