@@ -5,12 +5,21 @@
 <body>
     {% include 'header.twig' %}
     <div class="content">
+
         {% if tokenProviderId %}
-            <p>Your <em>home</em> service is <code>{{ tokenProviderId }}</code>.</p>
-            <p>Feel free to use any of the VPN services below!</p>
+
+            <h2>Choose an Endpoint</h2>
+            <p>Click on the desired location to obtain a VPN configuration!</p>
+
         {% else %}
-            <p>Before using any of the available VPN services, first choose your <em>home</em> provider for which you have an account, typically in the same country as your institute.</p>
+
+            <h2>Choose your Home Provider</h2>
+            <p>Before you can download a VPN configuration for your chosen VPN endpoint, you first have to select the VPN provider for which you have an account and login there. Typically this is the endpoint located in your organization's country.</p>
+            <p>After this, you will be able to choose any VPN endpoint from this list and download the configuration.</p>
+
         {% endif %}
+
+        <h3>Providers</h3>
 
         <ul class="chooser">
             {% for provider in providerList %}
