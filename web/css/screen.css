@@ -17,48 +17,20 @@ div.header h1 {
     text-align: center;
 }
 
-ul.chooser, ul.mode {
+ul.chooser {
     padding: 0;
 }
 
-ul.chooser li, ul.mode li {
+ul.chooser li {
     border-bottom: 2px solid #eee;
     list-style: none;
     padding: 0.5em 0;
 }
 
-ul.chooser li a, ul.mode li a {
+ul.chooser li a {
     text-decoration: none;
     font-weight: bold;
     color: #00b3d0;
-}
-
-span.expl {
-    display: block;
-    margin: 0.5em;
-    font-size: 90%;
-}
-
-ul.crumbs {
-    padding: 0;
-}
-
-ul.crumbs li {
-    display: inline-block;
-    padding: 0 1em 0 0;
-}
-
-ul.crumbs li a {
-    text-decoration: none;
-    font-weight: bold;
-    color: #00b3d0;
-}
-
-pre {
-    border: 1px solid #555;
-    background-color: #eee;
-    padding: 1em;
-    overflow: auto;
 }
 
 div.content {
@@ -69,23 +41,12 @@ div.content {
     text-align: justify;
 }
 
-p.msg {
-    border: 1px solid #555;
-    background-color: #eee;
-    padding: 1em;
-    overflow: auto;
-}
-
 a {
     color: #555;
 }
 
 hr {
     display: none;
-}
-
-label {
-    font-weight: bold;
 }
 
 div.footer {

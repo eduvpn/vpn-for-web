@@ -194,7 +194,7 @@ class Service
         $apiInfo = $this->apiDisco($instanceId);
         $apiBaseUri = $apiInfo['api_base_uri'];
 
-        $createConfigResponse = $this->post(
+        $response = $this->post(
             'config',
             sprintf('%s/create_config', $apiInfo['api_base_uri']),
             [
@@ -207,8 +207,9 @@ class Service
             200,
             [
                 'Content-Type' => 'application/x-openvpn-profile',
+                'Content-Disposition' => 'attachment; filename="eduVPN for Web.ovpn"',
             ],
-            $createConfigResponse->getBody()
+            $response->getBody()
         );
     }
 

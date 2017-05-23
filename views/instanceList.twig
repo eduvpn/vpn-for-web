@@ -5,10 +5,6 @@
 <body>
     {% include 'header.twig' %}
     <div class="content">
-        <ul class="crumbs">
-            <li><a href="index.php">Index</a></li>
-        </ul>
-
         {% if tokenProvider %}
             <p>Your <em>home</em> service is <code>{{ tokenProvider }}</code>.</p>
             <p>Feel free to use any of the VPN services below!</p>
