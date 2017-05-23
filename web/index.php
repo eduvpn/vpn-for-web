@@ -27,6 +27,7 @@ use SURFnet\VPN\ApiClient\TwigTpl;
 
 try {
     $config = new Config(require sprintf('%s/config/config.php', dirname(__DIR__)));
+    $dataDir = sprintf('%s/data', dirname(__DIR__));
 
     // Templates
     $templateDirs = [
@@ -34,14 +35,10 @@ try {
         sprintf('%s/config/views', dirname(__DIR__)),
     ];
 
-    $dataDir = sprintf('%s/data', dirname(__DIR__));
-    $templateCache = null;
-    if ($config->get('enableTemplateCache')) {
-        $templateCache = sprintf('%s/tpl', $dataDir);
-    }
-    $tpl = new TwigTpl($templateDirs, $templateCache);
-
-    $request = new Request($_SERVER, $_GET, $_POST);
+    $tpl = new TwigTpl(
+        $templateDirs,
+        $config->get('enableTemplateCache') ? sprintf('%s/tpl', $dataDir) : null
+    );
 
     $httpClient = new CurlHttpClient();
 
@@ -50,6 +47,7 @@ try {
         new SessionTokenStorage(),
         $httpClient
     );
+    // we store tokens in session, so no need to bind it to a user
     $oauthClient->setUserId('N/A');
 
     $service = new Service(
@@ -58,9 +56,11 @@ try {
         $oauthClient,
         $httpClient
     );
-    $response = $service->run($request);
+    $response = $service->run(
+        new Request($_SERVER, $_GET, $_POST)
+    );
     $response->send();
 } catch (Exception $e) {
-    echo $e->getMessage();
+    echo sprintf('ERROR: %s', $e->getMessage());
     exit(1);
 }
