@@ -209,11 +209,15 @@ class Service
                 ]
             );
 
+            if (false === $providerHostName = parse_url($providerId, PHP_URL_HOST)) {
+                throw new RuntimeException('unable to extract hostname from providerId');
+            }
+
             return new Response(
                 200,
                 [
                     'Content-Type' => 'application/x-openvpn-profile',
-                    'Content-Disposition' => 'attachment; filename="eduVPN for Web.ovpn"',
+                    'Content-Disposition' => sprintf('attachment; filename="eduVPN for Android (%s).ovpn"', $providerHostName),
                 ],
                 $response->getBody()
             );
