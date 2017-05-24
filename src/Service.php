@@ -139,7 +139,7 @@ class Service
         $this->oauthClient->setProvider(
             new Provider(
                 $this->config->get('OAuth')->get('clientId'),
-                $this->config->get('OAuth')->get('clientSecret'),
+                null,
                 $tokenProviderInfo['authorization_endpoint'],
                 $tokenProviderInfo['token_endpoint']
             )
@@ -192,7 +192,7 @@ class Service
             $this->oauthClient->setProvider(
                 new Provider(
                     $this->config->get('OAuth')->get('clientId'),
-                    $this->config->get('OAuth')->get('clientSecret'),
+                    null,
                     $tokenProviderInfo['authorization_endpoint'],
                     $tokenProviderInfo['token_endpoint']
                 )

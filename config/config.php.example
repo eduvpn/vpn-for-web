@@ -12,7 +12,6 @@ return [
     // OAuth Client Configuration
     'OAuth' => [
         'clientId' => 'eduvpn-for-web',
-        'clientSecret' => '03Y4q834psuY5ZmE',
         'requestScope' => 'config',
     ],
 ];
