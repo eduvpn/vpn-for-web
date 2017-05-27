@@ -2,7 +2,7 @@
 
 return [
     // enable Twig template cache
-    'enableTemplateCache' => false,
+    'enableTemplateCache' => true,
 
     // URL containing list of VPN providers
     'providerListUri' => 'https://static.eduvpn.nl/federation.json',
