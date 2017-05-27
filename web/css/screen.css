@@ -1,8 +1,17 @@
+* {
+    box-sizing: border-box;
+}
+
 body {
     font-family: "Helvetica Neue", "Calibri Light", Roboto, sans-serif;
-    line-height: 1.4;
+    background-color: #fff;
+    color: #555;
     margin: 0;
     padding: 0;
+}
+
+a {
+    color: #555;
 }
 
 div.header {
@@ -17,32 +26,36 @@ div.header h1 {
     text-align: center;
 }
 
-ul.chooser {
-    padding: 0;
-}
-
-ul.chooser li {
-    border-bottom: 2px solid #eee;
-    list-style: none;
-    padding: 0.5em 0;
-}
-
-ul.chooser li a {
-    text-decoration: none;
-    font-weight: bold;
-    color: #00b3d0;
-}
-
 div.content {
-    max-width: 50em;
+    max-width: 40em;
     margin: 0 auto;
-    color: #555;
-    padding: 0.3em;
-    text-align: justify;
 }
 
-a {
-    color: #555;
+ul {
+    padding: 0;
+    list-style: none;
+}
+
+ul li {
+    border-bottom: 2px solid #eee;
+}
+
+form.entity button {
+    width: 100%;
+    text-align: left;
+    border: 0;
+    background-color: #fff;
+}
+
+form.entity button:hover, form.entity button:active, form.entity button:focus {
+    background-color: #00b3d0;
+    color: #fff;
+    cursor: pointer;
+}
+
+form.entity button::-moz-focus-inner {
+    /* firefox work around to disable ugly "outline" */
+    border: 0;
 }
 
 hr {
@@ -50,8 +63,11 @@ hr {
 }
 
 div.footer {
+    text-align: center;
     margin: 2em;
     font-size: 85%;
+}
+
+div.footer, div.footer a {
     color: #888;
-    text-align: center;
 }

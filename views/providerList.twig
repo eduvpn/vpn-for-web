@@ -18,14 +18,18 @@
             <p>After this, you will be able to choose any VPN endpoint from this list and download the configuration.</p>
 
         {% endif %}
-
-        <h3>Providers</h3>
-
-        <ul class="chooser">
-            {% for provider in providerList %}
-                <li><a href="config?provider_id={{ provider.base_uri }}">{{ provider.display_name }}</a></li>
-            {% endfor %}
-        </ul>
+        
+        <div id="providerList">
+            <ul id="chooser">
+                {% for key, provider in providerList %}
+                    <li>
+                        <form class="entity" method="post">
+                            <button name="provider_id" value="{{ provider.base_uri }}" tabindex="{{ key + 2 }}" class="{{ provider.hostName }}">{{ provider.display_name }}</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
     {% include 'footer.twig' %}
 </body>

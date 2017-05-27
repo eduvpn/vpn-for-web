@@ -54,13 +54,14 @@ try {
         $config,
         $tpl,
         $oauthClient,
-        $httpClient
+        $httpClient,
+        $dataDir
     );
     $response = $service->run(
         new Request($_SERVER, $_GET, $_POST)
     );
     $response->send();
 } catch (Exception $e) {
-    echo sprintf('ERROR: %s', $e->getMessage());
+    echo sprintf('ERROR: %s', $e->getMessage().get_class($e));
     exit(1);
 }

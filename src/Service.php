@@ -22,7 +22,6 @@ use fkooman\OAuth\Client\Http\HttpClientInterface;
 use fkooman\OAuth\Client\Http\Request as HttpRequest;
 use fkooman\OAuth\Client\OAuthClient;
 use fkooman\OAuth\Client\Provider;
-use ParagonIE\ConstantTime\Base64;
 use RuntimeException;
 use SURFnet\VPN\ApiClient\Http\Exception\TokenException;
 use SURFnet\VPN\ApiClient\Http\Request;
@@ -42,12 +41,16 @@ class Service
     /** @var \fkooman\OAuth\Client\OAuthClient */
     private $oauthClient;
 
-    public function __construct(Config $config, TplInterface $tpl, OAuthClient $oauthClient, HttpClientInterface $httpClient)
+    /** @var string */
+    private $dataDir;
+
+    public function __construct(Config $config, TplInterface $tpl, OAuthClient $oauthClient, HttpClientInterface $httpClient, $dataDir)
     {
         $this->config = $config;
         $this->tpl = $tpl;
         $this->httpClient = $httpClient;
         $this->oauthClient = $oauthClient;
+        $this->dataDir = $dataDir;
 
         if ('' === session_id()) {
             session_start();
@@ -71,16 +74,23 @@ class Service
                     case '/callback':
                         // handle OAuth server callback
                         return $this->handleCallback($request);
-                    case '/config':
+                    default:
+                        return new Response(404, [], '[404] Not Found');
+                }
+                break;
+            case 'POST':
+                switch ($request->getPathInfo()) {
+                    case '/':
                         // fetch an OpenVPN client configuration
-                        $providerId = $request->getQueryParameter('provider_id');
+                        $providerId = $request->getPostParameter('provider_id');
 
                         return $this->getConfig($request, $providerId);
                     default:
-                        return new Response(404, [], 'Not Found');
+                        return new Response(404, [], '[404] Not Found');
                 }
+                break;
             default:
-                return new Response(405, ['Allow' => 'GET,HEAD']);
+                return new Response(405, ['Allow' => 'GET,HEAD'], '[405] Method Not Allowed');
         }
     }
 
@@ -89,7 +99,11 @@ class Service
      */
     private function showProviderList()
     {
-        $providerList = $this->getProviderList($this->config->get('providerListUri'));
+        $providerList = json_decode(file_get_contents(sprintf('%s/provider_list.json', $this->dataDir)), true);
+        // XXX cleanup this crap!
+        foreach ($providerList['instances'] as $k => $v) {
+            $providerList['instances'][$k]['hostName'] = parse_url($v['base_uri'], PHP_URL_HOST);
+        }
 
         return new Response(
             200,
@@ -102,29 +116,6 @@ class Service
                 ]
             )
         );
-    }
-
-    /**
-     * @param string $providerListUrl
-     *
-     * @return array
-     */
-    private function getProviderList($providerListUrl)
-    {
-        $providerListResponse = $this->httpClient->send(HttpRequest::get($providerListUrl));
-        if (!$providerListResponse->isOkay()) {
-            throw new RuntimeException(sprintf('unable to fetch "%s"', $providerListUrl));
-        }
-
-        $providerListSignatureUrl = sprintf('%s.sig', $providerListUrl);
-        $providerListSignatureResponse = $this->httpClient->send(HttpRequest::get($providerListSignatureUrl));
-        if (!$providerListSignatureResponse->isOkay()) {
-            throw new RuntimeException(sprintf('unable to fetch "%s"', $providerListSignatureUrl));
-        }
-
-        $this->verifySignature($providerListResponse->getBody(), $providerListSignatureResponse->getBody());
-
-        return $providerListResponse->json();
     }
 
     private function handleCallback(Request $request)
@@ -239,14 +230,5 @@ class Service
         }
 
         return $response;
-    }
-
-    private function verifySignature($jsonText, $providerListSignature)
-    {
-        $rawSignature = Base64::decode($providerListSignature);
-        $publicKey = Base64::decode($this->config->get('providerListPublicKey'));
-        if (!\Sodium\crypto_sign_verify_detached($rawSignature, $jsonText, $publicKey)) {
-            throw new RuntimeException('unable to verify discovery file signature');
-        }
     }
 }
