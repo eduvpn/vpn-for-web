@@ -67,6 +67,6 @@ try {
     );
     $response->send();
 } catch (Exception $e) {
-    echo sprintf('ERROR: %s', $e->getMessage().get_class($e));
+    echo sprintf('ERROR (%s): %s', get_class($e), $e->getMessage());
     exit(1);
 }

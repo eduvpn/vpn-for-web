@@ -221,7 +221,7 @@ class Service
                     }
                     break;
                 default:
-                    throw new RuntimeException('mode not (yet) supported');
+                    throw new RuntimeException(sprintf('authorization_type "%s" not supported', $this->getAuthorizationType($activeDiscoveryUrl)));
             }
             $tokenProviderId = $_SESSION['tokenProviderId'];
 
