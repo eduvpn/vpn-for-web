@@ -119,6 +119,7 @@ class Service
                 [
                     'discoChooser' => $discoChooser,
                     'activeDiscoveryUrl' => $activeDiscoveryUrl,
+                    'encodedDiscoveryUrl' => self::encodeStr($activeDiscoveryUrl),
                     'providerList' => $discoveryData,
 //                    'clientMode' => $this->getMode($activeDiscoveryUrl),
                 ]

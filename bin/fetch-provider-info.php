@@ -27,34 +27,36 @@ use SURFnet\VPN\ApiClient\TwigTpl;
 try {
     $config = new Config(require sprintf('%s/config/config.php', dirname(__DIR__)));
 
-    $providerListUri = $config->get('providerListUri');
-    $providerListPublicKey = $config->get('providerListPublicKey');
+    $discoveryUrlList = $config->get('Discovery')->keys();
+    foreach ($discoveryUrlList as $discoveryUrl) {
+        $publicKey = $config->get('Discovery')->get($discoveryUrl)->get('publicKey');
+        $encodedDiscoveryUrl = preg_replace('/[^A-Za-z.]/', '_', $discoveryUrl); // XXX code duplication
+        $providerListFetcher = new ProviderListFetcher(sprintf('%s/data/%s', dirname(__DIR__), $encodedDiscoveryUrl));
+        $discoveryData = $providerListFetcher->update(new CurlHttpClient(), $discoveryUrl, $publicKey);
 
-    $providerListFetcher = new ProviderListFetcher(sprintf('%s/data/provider_list.json', dirname(__DIR__)));
-    $discoveryData = $providerListFetcher->update(new CurlHttpClient(), $providerListUri, $providerListPublicKey);
-
-    $logoDir = sprintf('%s/data/logo', dirname(__DIR__));
-    $logoFetcher = new LogoFetcher($logoDir, new CurlHttpClient());
-    $hostNameList = [];
-    foreach ($discoveryData['instances'] as $instance) {
-        if (false === $hostName = parse_url($instance['base_uri'], PHP_URL_HOST)) {
-            throw new RuntimeException('unable to extract hostname');
+        $logoDir = sprintf('%s/data/logo', dirname(__DIR__));
+        $logoFetcher = new LogoFetcher($logoDir, new CurlHttpClient());
+        $hostNameList = [];
+        foreach ($discoveryData['instances'] as $instance) {
+            if (false === $hostName = parse_url($instance['base_uri'], PHP_URL_HOST)) {
+                throw new RuntimeException('unable to extract hostname');
+            }
+            $logoFetcher->get($hostName, $instance['logo_uri']);
+            $hostNameList[] = ['hostName' => $hostName, 'encodedHostName' => preg_replace('/\./', '\.', $hostName)];
         }
-        $logoFetcher->get($hostName, $instance['logo_uri']);
-        $hostNameList[] = ['hostName' => $hostName, 'encodedHostName' => preg_replace('/\./', '\.', $hostName)];
-    }
 
-    // generate CSS
-    // Templates
-    $templateDirs = [
-        sprintf('%s/views', dirname(__DIR__)),
-        sprintf('%s/config/views', dirname(__DIR__)),
-    ];
+        // generate CSS
+        // Templates
+        $templateDirs = [
+            sprintf('%s/views', dirname(__DIR__)),
+            sprintf('%s/config/views', dirname(__DIR__)),
+        ];
 
-    $tpl = new TwigTpl($templateDirs, null);
-    $logoCssFile = sprintf('%s/logo.css', $logoDir);
-    if (false === @file_put_contents($logoCssFile, $tpl->render('logo-css', ['hostNameList' => $hostNameList]))) {
-        throw new RuntimeException(sprintf('unable to write "%s"', $logoCssFile));
+        $tpl = new TwigTpl($templateDirs, null);
+        $logoCssFile = sprintf('%s/%s.css', $logoDir, $encodedDiscoveryUrl);    // XXX strip json from encodedDiscoveryUrl
+        if (false === @file_put_contents($logoCssFile, $tpl->render('logo-css', ['hostNameList' => $hostNameList]))) {
+            throw new RuntimeException(sprintf('unable to write "%s"', $logoCssFile));
+        }
     }
 } catch (Exception $e) {
     echo sprintf('ERROR: %s', $e->getMessage()).PHP_EOL;
