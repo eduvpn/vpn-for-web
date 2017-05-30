@@ -20,10 +20,10 @@ require_once sprintf('%s/vendor/autoload.php', dirname(__DIR__));
 use fkooman\OAuth\Client\Http\CurlHttpClient;
 use fkooman\OAuth\Client\OAuthClient;
 use fkooman\OAuth\Client\SessionTokenStorage;
-use SURFnet\VPN\ApiClient\Config;
-use SURFnet\VPN\ApiClient\Http\Request;
-use SURFnet\VPN\ApiClient\Service;
-use SURFnet\VPN\ApiClient\TwigTpl;
+use SURFnet\VPN\Web\Config;
+use SURFnet\VPN\Web\Http\Request;
+use SURFnet\VPN\Web\Service;
+use SURFnet\VPN\Web\TwigTpl;
 
 // XXX move this into a separate class!
 if ('' === session_id()) {

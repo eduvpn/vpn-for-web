@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
-namespace SURFnet\VPN\ApiClient;
+namespace SURFnet\VPN\Web;
 
 use fkooman\OAuth\Client\Http\HttpClientInterface;
 use fkooman\OAuth\Client\Http\Request;
 use Imagick;
 use ImagickException;
 use RuntimeException;
-use SURFnet\VPN\ApiClient\Exception\LogoException;
+use SURFnet\VPN\Web\Exception\LogoException;
 
 class LogoFetcher
 {

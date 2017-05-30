@@ -16,9 +16,9 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace SURFnet\VPN\ApiClient;
+namespace SURFnet\VPN\Web;
 
-use SURFnet\VPN\ApiClient\Exception\ConfigException;
+use SURFnet\VPN\Web\Exception\ConfigException;
 
 class Config
 {

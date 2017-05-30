@@ -16,7 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace SURFnet\VPN\ApiClient;
+namespace SURFnet\VPN\Web;
 
 interface TplInterface
 {

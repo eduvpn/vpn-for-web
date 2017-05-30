@@ -19,10 +19,10 @@
 require_once sprintf('%s/vendor/autoload.php', dirname(__DIR__));
 
 use fkooman\OAuth\Client\Http\CurlHttpClient;
-use SURFnet\VPN\ApiClient\Config;
-use SURFnet\VPN\ApiClient\LogoFetcher;
-use SURFnet\VPN\ApiClient\ProviderListFetcher;
-use SURFnet\VPN\ApiClient\TwigTpl;
+use SURFnet\VPN\Web\Config;
+use SURFnet\VPN\Web\LogoFetcher;
+use SURFnet\VPN\Web\ProviderListFetcher;
+use SURFnet\VPN\Web\TwigTpl;
 
 try {
     $config = new Config(require sprintf('%s/config/config.php', dirname(__DIR__)));

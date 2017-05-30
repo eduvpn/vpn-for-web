@@ -7,12 +7,12 @@
     ],
     "autoload": {
         "psr-4": {
-            "SURFnet\\VPN\\ApiClient\\": "src/"
+            "SURFnet\\VPN\\Web\\": "src/"
         }
     },
-    "description": "VPN API Client",
+    "description": "VPN for Web",
     "license": "AGPL-3.0",
-    "name": "eduvpn/vpn-api-client",
+    "name": "eduvpn/vpn-for-web",
     "require": {
         "ext-filter": "*",
         "ext-imagick": "*",

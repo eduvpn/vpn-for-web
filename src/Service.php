@@ -16,16 +16,16 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace SURFnet\VPN\ApiClient;
+namespace SURFnet\VPN\Web;
 
 use fkooman\OAuth\Client\Http\HttpClientInterface;
 use fkooman\OAuth\Client\Http\Request as HttpRequest;
 use fkooman\OAuth\Client\OAuthClient;
 use fkooman\OAuth\Client\Provider;
 use RuntimeException;
-use SURFnet\VPN\ApiClient\Http\Exception\TokenException;
-use SURFnet\VPN\ApiClient\Http\Request;
-use SURFnet\VPN\ApiClient\Http\Response;
+use SURFnet\VPN\Web\Http\Exception\TokenException;
+use SURFnet\VPN\Web\Http\Request;
+use SURFnet\VPN\Web\Http\Response;
 
 class Service
 {
