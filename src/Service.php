@@ -244,7 +244,7 @@ class Service
             $response = $this->post(
                 sprintf('%s/create_config', $apiBaseUri),
                 [
-                    'display_name' => 'eduVPN for Web',
+                    'display_name' => 'VPN for Web',
                     'profile_id' => 'internet',
                 ]
             );
@@ -257,7 +257,7 @@ class Service
                 200,
                 [
                     'Content-Type' => 'application/x-openvpn-profile',
-                    'Content-Disposition' => sprintf('attachment; filename="eduVPN for Android (%s).ovpn"', $providerHostName),
+                    'Content-Disposition' => sprintf('attachment; filename="VPN for Web (%s).ovpn"', $providerHostName),
                 ],
                 $response->getBody()
             );
