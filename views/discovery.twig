@@ -1,0 +1,31 @@
+{% extends "base.twig" %}
+
+{% block header %}
+    <h1>VPN for Web</h1>
+{% endblock %}
+    
+{% block container %}
+
+    <form class="discoChooser" method="post" action="setDiscoveryUrl">
+        <select name="discoveryUrl">
+            {% for discoItem in discoChooser %}
+                <option value="{{ discoItem.discoveryUrl }}" {% if discoItem.discoveryUrl == activeDiscoveryUrl %}selected="selected"{% endif %}>
+                    {{ discoItem.displayName }}
+                </option>
+            {% endfor %}
+        </select>
+        <button type="submit">Switch</button>
+    </form>
+
+    <div id="providerList">
+        <ul id="chooser">
+            {% for key, provider in providerList %}
+                <li>
+                    <form class="entity" method="post">
+                        <button name="provider_id" value="{{ provider.base_uri }}" tabindex="{{ key + 2 }}" class="{{ provider.hostName }}">{{ provider.display_name }}</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

@@ -18,6 +18,7 @@ div.header {
     background-color: #00b3d0;
     color: #fff;
     padding: 1em;
+    text-align: center;
 }
 
 div.header h1 {
@@ -26,7 +27,7 @@ div.header h1 {
     text-align: center;
 }
 
-div.content {
+div.container {
     max-width: 40em;
     margin: 0 auto;
 }
@@ -38,6 +39,11 @@ ul {
 
 ul li {
     border-bottom: 2px solid #eee;
+}
+
+form.discoChooser {
+    margin-top: 2em;
+    text-align: center;
 }
 
 form.entity button {

@@ -42,6 +42,14 @@ class Config
     }
 
     /**
+     * @return array
+     */
+    public function keys()
+    {
+        return array_keys($this->data);
+    }
+
+    /**
      * @param string $key
      *
      * @return mixed

@@ -25,6 +25,11 @@ use SURFnet\VPN\ApiClient\Http\Request;
 use SURFnet\VPN\ApiClient\Service;
 use SURFnet\VPN\ApiClient\TwigTpl;
 
+// XXX move this into a separate class!
+if ('' === session_id()) {
+    session_start();
+}
+
 try {
     $config = new Config(require sprintf('%s/config/config.php', dirname(__DIR__)));
     $dataDir = sprintf('%s/data', dirname(__DIR__));
@@ -37,7 +42,7 @@ try {
 
     $tpl = new TwigTpl(
         $templateDirs,
-        $config->get('enableTemplateCache') ? sprintf('%s/tpl', $dataDir) : null
+        $config->get('TemplateCache') ? sprintf('%s/tpl', $dataDir) : null
     );
 
     $httpClient = new CurlHttpClient();

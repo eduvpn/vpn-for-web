@@ -1,17 +1,24 @@
 <?php
 
 return [
-    // enable Twig template cache
-    'enableTemplateCache' => true,
-
-    // URL containing list of VPN providers
-    'providerListUri' => 'https://static.eduvpn.nl/federation.json',
-    // Public key used to sign the list of VPN providers
-    'providerListPublicKey' => 'E5On0JTtyUVZmcWd+I/FXRm32nSq8R2ioyW7dcu/U88=',
+    // Discovery URLs for VPN providers
+    'Discovery' => [
+        'https://static.eduvpn.nl/instances.json' => [
+            'publicKey' => 'E5On0JTtyUVZmcWd+I/FXRm32nSq8R2ioyW7dcu/U88=',
+            'displayName' => 'Secure Access',
+        ],
+        'https://static.eduvpn.nl/federation.json' => [
+            'publicKey' => 'E5On0JTtyUVZmcWd+I/FXRm32nSq8R2ioyW7dcu/U88=',
+            'displayName' => 'Secure Internet',
+        ],
+    ],
 
     // OAuth Client Configuration
     'OAuth' => [
-        'clientId' => 'eduvpn-for-web',
+        'clientId' => 'vpn-for-web',
         'requestScope' => 'config',
     ],
+
+    // enable/disable template cache
+    'TemplateCache' => true,
 ];

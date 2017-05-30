@@ -51,10 +51,6 @@ class Service
         $this->httpClient = $httpClient;
         $this->oauthClient = $oauthClient;
         $this->dataDir = $dataDir;
-
-        if ('' === session_id()) {
-            session_start();
-        }
     }
 
     /**
@@ -69,8 +65,7 @@ class Service
             case 'GET':
                 switch ($request->getPathInfo()) {
                     case '/':
-                        // show list of providers
-                        return $this->showProviderList();
+                        return $this->showDiscovery();
                     case '/callback':
                         // handle OAuth server callback
                         return $this->handleCallback($request);
@@ -85,6 +80,8 @@ class Service
                         $providerId = $request->getPostParameter('provider_id');
 
                         return $this->getConfig($request, $providerId);
+                    case '/setDiscoveryUrl':
+                        return $this->setDiscoveryUrl($request);
                     default:
                         return new Response(404, [], '[404] Not Found');
                 }
@@ -97,25 +94,59 @@ class Service
     /**
      * @return Http\Response
      */
-    private function showProviderList()
+    private function showDiscovery()
     {
-        $providerList = json_decode(file_get_contents(sprintf('%s/provider_list.json', $this->dataDir)), true);
-        // XXX cleanup this crap!
-        foreach ($providerList['instances'] as $k => $v) {
-            $providerList['instances'][$k]['hostName'] = parse_url($v['base_uri'], PHP_URL_HOST);
+        $discoChooser = [];
+        $discoveryUrlList = $this->config->get('Discovery')->keys();
+        foreach ($discoveryUrlList as $discoveryUrl) {
+            $discoChooser[] = ['discoveryUrl' => $discoveryUrl, 'displayName' => $this->config->get('Discovery')->get($discoveryUrl)->get('displayName')];
         }
+
+        // check if we already chose a discoveryUrl, if not default to the
+        // first one in the configuration
+        if (!array_key_exists('activeDiscoveryUrl', $_SESSION)) {
+            $_SESSION['activeDiscoveryUrl'] = $this->config->get('Discovery')->keys()[0];
+        }
+        $activeDiscoveryUrl = $_SESSION['activeDiscoveryUrl'];
+
+        $discoveryData = $this->getDiscoveryData($activeDiscoveryUrl);
 
         return new Response(
             200,
             [],
             $this->tpl->render(
-                'providerList',
+                'discovery',
                 [
-                    'tokenProviderId' => array_key_exists('tokenProviderId', $_SESSION) ? $_SESSION['tokenProviderId'] : false,
-                    'providerList' => $providerList['instances'],
+                    'discoChooser' => $discoChooser,
+                    'activeDiscoveryUrl' => $activeDiscoveryUrl,
+                    'providerList' => $discoveryData,
+//                    'clientMode' => $this->getMode($activeDiscoveryUrl),
                 ]
             )
         );
+    }
+
+    private function getDiscoveryData($discoveryUrl)
+    {
+        $discoveryData = json_decode(file_get_contents(sprintf('%s/%s', $this->dataDir, self::encodeStr($discoveryUrl))), true);
+
+        foreach ($discoveryData['instances'] as $k => $v) {
+            $discoveryData['instances'][$k]['hostName'] = parse_url($v['base_uri'], PHP_URL_HOST);
+        }
+
+        return $discoveryData['instances'];
+    }
+
+    private function getMode($discoveryUrl)
+    {
+        $discoveryData = json_decode(file_get_contents(sprintf('%s/%s', $this->dataDir, self::encodeStr($discoveryUrl))), true);
+
+        return $discoveryData['client_mode'];
+    }
+
+    private static function encodeStr($str)
+    {
+        return preg_replace('/[^A-Za-z.]/', '_', $str);
     }
 
     private function handleCallback(Request $request)
@@ -140,6 +171,12 @@ class Service
             $request->getQueryParameter('code'),
             $request->getQueryParameter('state')
         );
+
+        $activeDiscoveryUrl = $_SESSION['activeDiscoveryUrl'];
+        if ('local' === $this->getMode($activeDiscoveryUrl)) {
+            // download config
+            return $this->getConfig($request, $tokenProviderId);
+        }
 
         // redirect back
         return new Response(
@@ -171,8 +208,19 @@ class Service
     private function getConfig(Request $request, $providerId)
     {
         try {
-            if (!array_key_exists('tokenProviderId', $_SESSION)) {
-                $_SESSION['tokenProviderId'] = $providerId;
+            $activeDiscoveryUrl = $_SESSION['activeDiscoveryUrl'];
+
+            switch ($this->getMode($activeDiscoveryUrl)) {
+                case 'local':
+                    $_SESSION['tokenProviderId'] = $providerId;
+                    break;
+                case 'distributed':
+                    if (!array_key_exists('tokenProviderId', $_SESSION)) {
+                        $_SESSION['tokenProviderId'] = $providerId;
+                    }
+                    break;
+                default:
+                    throw new RuntimeException('mode not (yet) supported');
             }
             $tokenProviderId = $_SESSION['tokenProviderId'];
 
@@ -221,6 +269,13 @@ class Service
 
             return new Response(302, ['Location' => $authorizeUri]);
         }
+    }
+
+    private function setDiscoveryUrl(Request $request)
+    {
+        $_SESSION['activeDiscoveryUrl'] = $request->getPostParameter('discoveryUrl');
+
+        return new Response(302, ['Location' => $request->getRootUri()]);
     }
 
     private function post($requestUri, array $postBody)
