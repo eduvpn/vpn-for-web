@@ -121,7 +121,7 @@ class Service
                     'activeDiscoveryUrl' => $activeDiscoveryUrl,
                     'encodedDiscoveryUrl' => self::encodeStr($activeDiscoveryUrl),
                     'providerList' => $discoveryData,
-//                    'clientMode' => $this->getMode($activeDiscoveryUrl),
+//                    'clientMode' => $this->getAuthorizationType($activeDiscoveryUrl),
                 ]
             )
         );
@@ -138,11 +138,11 @@ class Service
         return $discoveryData['instances'];
     }
 
-    private function getMode($discoveryUrl)
+    private function getAuthorizationType($discoveryUrl)
     {
         $discoveryData = json_decode(file_get_contents(sprintf('%s/%s', $this->dataDir, self::encodeStr($discoveryUrl))), true);
 
-        return $discoveryData['client_mode'];
+        return $discoveryData['authorization_type'];
     }
 
     private static function encodeStr($str)
@@ -174,7 +174,7 @@ class Service
         );
 
         $activeDiscoveryUrl = $_SESSION['activeDiscoveryUrl'];
-        if ('local' === $this->getMode($activeDiscoveryUrl)) {
+        if ('local' === $this->getAuthorizationType($activeDiscoveryUrl)) {
             // download config
             return $this->getConfig($request, $tokenProviderId);
         }
@@ -211,7 +211,7 @@ class Service
         try {
             $activeDiscoveryUrl = $_SESSION['activeDiscoveryUrl'];
 
-            switch ($this->getMode($activeDiscoveryUrl)) {
+            switch ($this->getAuthorizationType($activeDiscoveryUrl)) {
                 case 'local':
                     $_SESSION['tokenProviderId'] = $providerId;
                     break;
