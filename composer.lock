@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "e1ac8edf52c460380832ed6a820d4e72",
+    "content-hash": "2d9b3981d004148ec54a5d97984672ec",
     "packages": [
         {
             "name": "fkooman/oauth2-client",
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/fkooman/php-oauth2-client.git",
-                "reference": "d561063692b939bf64f5e3f469fbec5717075cb7"
+                "url": "https://github.com/fkooman/php-oauth2-client",
+                "reference": "8b0d2cd02189551ec71c09a38f349876ebd5b069"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fkooman/php-oauth2-client/zipball/d561063692b939bf64f5e3f469fbec5717075cb7",
-                "reference": "d561063692b939bf64f5e3f469fbec5717075cb7",
+                "url": "https://api.github.com/repos/fkooman/php-oauth2-client/zipball/8b0d2cd02189551ec71c09a38f349876ebd5b069",
+                "reference": "8b0d2cd02189551ec71c09a38f349876ebd5b069",
                 "shasum": ""
             },
             "require": {
@@ -44,18 +44,17 @@
                     "fkooman\\OAuth\\Client\\Tests\\": "tests/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
             "authors": [
                 {
-                    "name": "François Kooman",
-                    "email": "fkooman@tuxed.net"
+                    "email": "fkooman@tuxed.net",
+                    "name": "François Kooman"
                 }
             ],
             "description": "Very simple OAuth 2.0 client",
-            "time": "2017-05-24 10:18:50"
+            "time": "2017-05-31 13:00:45"
         },
         {
             "name": "paragonie/constant_time_encoding",

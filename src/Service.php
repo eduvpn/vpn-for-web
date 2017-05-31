@@ -23,7 +23,6 @@ use fkooman\OAuth\Client\Http\Request as HttpRequest;
 use fkooman\OAuth\Client\OAuthClient;
 use fkooman\OAuth\Client\Provider;
 use RuntimeException;
-use SURFnet\VPN\Web\Http\Exception\TokenException;
 use SURFnet\VPN\Web\Http\Request;
 use SURFnet\VPN\Web\Http\Response;
 
@@ -79,6 +78,20 @@ class Service
                         // fetch an OpenVPN client configuration
                         $providerId = $request->getPostParameter('provider_id');
 
+                        return $this->getDownloadPage($request, $providerId);
+                    case '/download':
+                        $providerId = $request->getPostParameter('provider_id');
+                        $action = $request->getPostParameter('action');
+
+                        if ('back' === $action) {
+                            return new Response(
+                                302,
+                                [
+                                    'Location' => $request->getRootUri(),
+                                ]
+                            );
+                        }
+
                         return $this->getConfig($request, $providerId);
                     case '/setDiscoveryUrl':
                         return $this->setDiscoveryUrl($request);
@@ -121,7 +134,6 @@ class Service
                     'activeDiscoveryUrl' => $activeDiscoveryUrl,
                     'encodedDiscoveryUrl' => self::encodeStr($activeDiscoveryUrl),
                     'providerList' => $discoveryData,
-//                    'clientMode' => $this->getAuthorizationType($activeDiscoveryUrl),
                 ]
             )
         );
@@ -200,6 +212,38 @@ class Service
         return $providerInfoResponse->json()['api']['http://eduvpn.org/api#2'];
     }
 
+    private function getTokenProviderId($providerId)
+    {
+        $activeDiscoveryUrl = $_SESSION['activeDiscoveryUrl'];
+        switch ($this->getAuthorizationType($activeDiscoveryUrl)) {
+            case 'local':
+                $_SESSION['tokenProviderId'] = $providerId;
+                break;
+            case 'distributed':
+                if (!array_key_exists('tokenProviderId', $_SESSION)) {
+                    $_SESSION['tokenProviderId'] = $providerId;
+                }
+                break;
+            default:
+                throw new RuntimeException(sprintf('authorization_type "%s" not supported', $this->getAuthorizationType($activeDiscoveryUrl)));
+        }
+
+        return $_SESSION['tokenProviderId'];
+    }
+
+    private function setProvider(array $tokenProviderInfo)
+    {
+        // load OAuth provider with this information
+        $this->oauthClient->setProvider(
+            new Provider(
+                $this->config->get('OAuth')->get('clientId'),
+                null,
+                $tokenProviderInfo['authorization_endpoint'],
+                $tokenProviderInfo['token_endpoint']
+            )
+        );
+    }
+
     /**
      * Get an OpenVPN client configuration for a provider.
      *
@@ -208,60 +252,23 @@ class Service
      */
     private function getConfig(Request $request, $providerId)
     {
-        try {
-            $activeDiscoveryUrl = $_SESSION['activeDiscoveryUrl'];
+        $tokenProviderId = $this->getTokenProviderId($providerId);
 
-            switch ($this->getAuthorizationType($activeDiscoveryUrl)) {
-                case 'local':
-                    $_SESSION['tokenProviderId'] = $providerId;
-                    break;
-                case 'distributed':
-                    if (!array_key_exists('tokenProviderId', $_SESSION)) {
-                        $_SESSION['tokenProviderId'] = $providerId;
-                    }
-                    break;
-                default:
-                    throw new RuntimeException(sprintf('authorization_type "%s" not supported', $this->getAuthorizationType($activeDiscoveryUrl)));
-            }
-            $tokenProviderId = $_SESSION['tokenProviderId'];
+        // get OAuth information for chosen tokenProvider
+        $tokenProviderInfo = $this->getProviderInfo($tokenProviderId);
+        $this->setProvider($tokenProviderInfo);
+        $providerInfo = $this->getProviderInfo($providerId);
+        $apiBaseUri = $providerInfo['api_base_uri'];
 
-            // get OAuth information for chosen tokenProvider
-            $tokenProviderInfo = $this->getProviderInfo($tokenProviderId);
-
-            // load OAuth provider with this information
-            $this->oauthClient->setProvider(
-                new Provider(
-                    $this->config->get('OAuth')->get('clientId'),
-                    null,
-                    $tokenProviderInfo['authorization_endpoint'],
-                    $tokenProviderInfo['token_endpoint']
-                )
-            );
-
-            $providerInfo = $this->getProviderInfo($providerId);
-            $apiBaseUri = $providerInfo['api_base_uri'];
-
-            $response = $this->post(
-                sprintf('%s/create_config', $apiBaseUri),
-                [
-                    'display_name' => 'VPN for Web',
-                    'profile_id' => 'internet',
-                ]
-            );
-
-            if (false === $providerHostName = parse_url($providerId, PHP_URL_HOST)) {
-                throw new RuntimeException('unable to extract hostname from providerId');
-            }
-
-            return new Response(
-                200,
-                [
-                    'Content-Type' => 'application/x-openvpn-profile',
-                    'Content-Disposition' => sprintf('attachment; filename="VPN for Web (%s).ovpn"', $providerHostName),
-                ],
-                $response->getBody()
-            );
-        } catch (TokenException $e) {
+        $response = $this->oauthClient->post(
+            $this->config->get('OAuth')->get('requestScope'),
+            sprintf('%s/create_config', $apiBaseUri),
+            [
+                'display_name' => 'VPN for Web',
+                'profile_id' => 'internet',
+            ]
+        );
+        if (false === $response) {
             // no valid OAuth token available...
             $authorizeUri = $this->oauthClient->getAuthorizeUri(
                 $this->config->get('OAuth')->get('requestScope'),
@@ -270,21 +277,65 @@ class Service
 
             return new Response(302, ['Location' => $authorizeUri]);
         }
+
+        if (false === $providerHostName = parse_url($providerId, PHP_URL_HOST)) {
+            throw new RuntimeException('unable to extract hostname from providerId');
+        }
+
+        return new Response(
+            200,
+            [
+                'Content-Type' => 'application/x-openvpn-profile',
+                'Content-Disposition' => sprintf('attachment; filename="VPN for Web (%s).ovpn"', $providerHostName),
+            ],
+            $response->getBody()
+        );
+    }
+
+    private function getDownloadPage(Request $request, $providerId)
+    {
+        $tokenProviderId = $this->getTokenProviderId($providerId);
+
+        // get OAuth information for chosen tokenProvider
+        $tokenProviderInfo = $this->getProviderInfo($tokenProviderId);
+        $this->setProvider($tokenProviderInfo);
+        if (!$this->oauthClient->hasAccessToken($this->config->get('OAuth')->get('requestScope'))) {
+            // no oauth token
+            $authorizeUri = $this->oauthClient->getAuthorizeUri(
+                $this->config->get('OAuth')->get('requestScope'),
+                sprintf('%scallback', $request->getRootUri())
+            );
+
+            return new Response(302, ['Location' => $authorizeUri]);
+        }
+
+        $discoveryData = $this->getDiscoveryData($_SESSION['activeDiscoveryUrl']);
+        $displayName = null;
+        foreach ($discoveryData as $provider) {
+            if ($provider['base_uri'] === $providerId) {
+                $displayName = $provider['display_name'];
+            }
+        }
+
+        return new Response(
+            200,
+            [],
+            $this->tpl->render(
+                'download',
+                [
+                    'providerId' => $providerId,
+                    'displayName' => $displayName,
+                ]
+            )
+        );
     }
 
     private function setDiscoveryUrl(Request $request)
     {
         $_SESSION['activeDiscoveryUrl'] = $request->getPostParameter('discoveryUrl');
+        // forget about our token provider, may not be relevant!
+        unset($_SESSION['tokenProviderId']);
 
         return new Response(302, ['Location' => $request->getRootUri()]);
-    }
-
-    private function post($requestUri, array $postBody)
-    {
-        if (false === $response = $this->oauthClient->post($this->config->get('OAuth')->get('requestScope'), $requestUri, $postBody)) {
-            throw new TokenException('no token available');
-        }
-
-        return $response;
     }
 }

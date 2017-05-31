@@ -1,0 +1,23 @@
+{% extends "base.twig" %}
+
+{% block header %}
+    <h1>VPN for Web</h1>
+{% endblock %}
+    
+{% block container %}
+
+    <h2>Download</h2>
+    <p>
+        Click the button below to start the download of the OpenVPN
+        configuration file for the VPN provider <strong>{{ displayName }}</strong>.
+    </p>
+
+    <form method="post" action="download">
+        <input type="hidden" name="provider_id" value="{{ providerId }}">
+        <fieldset>
+            <button name="action" value="back">&lt; Back</button>
+            <button name="action" value="download">Download</button>
+        </fieldset>
+    </form>
+
+{% endblock %}

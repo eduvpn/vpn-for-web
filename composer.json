@@ -13,6 +13,13 @@
     "description": "VPN for Web",
     "license": "AGPL-3.0",
     "name": "eduvpn/vpn-for-web",
+    "repositories": [
+        {
+            "no-api": true,
+            "type": "vcs",
+            "url": "https://github.com/fkooman/php-oauth2-client"
+        }
+    ],
     "require": {
         "ext-filter": "*",
         "ext-imagick": "*",
