@@ -188,7 +188,7 @@ class Service
         $activeDiscoveryUrl = $_SESSION['activeDiscoveryUrl'];
         if ('local' === $this->getAuthorizationType($activeDiscoveryUrl)) {
             // download config
-            return $this->getConfig($request, $tokenProviderId);
+            return $this->getDownloadPage($request, $tokenProviderId);
         }
 
         // redirect back
