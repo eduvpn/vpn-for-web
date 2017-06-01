@@ -1,4 +1,3 @@
-[![Build Status](https://travis-ci.org/eduvpn/vpn-for-web.svg)](https://travis-ci.org/eduvpn/vpn-for-web)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/eduvpn/vpn-for-web/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/eduvpn/vpn-for-web/?branch=master)
 
 **NOTE**: NOT YET READY! FULL OF HOLES :)
