@@ -16,7 +16,7 @@ a {
 }
 
 div.header {
-    background-color: #00b3d0;
+    background-color: #555;
     color: #fff;
     padding: 1em;
     text-align: center;
@@ -31,6 +31,10 @@ div.header h1 {
 div.container {
     max-width: 40em;
     margin: 0 auto;
+}
+
+div.container h2 {
+    text-align: center;
 }
 
 ul {
@@ -61,7 +65,7 @@ form.entity button {
 }
 
 form.entity button:hover, form.entity button:active, form.entity button:focus {
-    background-color: #00b3d0;
+    background-color: #555;
     color: #fff;
     cursor: pointer;
 }
@@ -69,6 +73,30 @@ form.entity button:hover, form.entity button:active, form.entity button:focus {
 form.entity button::-moz-focus-inner {
     /* firefox work around to disable ugly "outline" */
     border: 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #555;
+}
+
+table thead tr {
+    background-color: #555;
+    color: #fff;
+}
+
+table thead th {
+    padding: 0.5em;
+    text-align: left;
+}
+
+table tbody td {
+    padding: 0.5em;
+}
+
+table tbody td.right {
+    text-align: right;
 }
 
 hr {

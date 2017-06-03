@@ -80,7 +80,6 @@ class Service
 
                         return $this->getDownloadPage($request, $providerId);
                     case '/download':
-                        $providerId = $request->getPostParameter('provider_id');
                         $action = $request->getPostParameter('action');
 
                         if ('back' === $action) {
@@ -92,7 +91,10 @@ class Service
                             );
                         }
 
-                        return $this->getConfig($request, $providerId);
+                        $providerId = $request->getPostParameter('provider_id');
+                        $profileId = $request->getPostParameter('profile_id');
+
+                        return $this->getConfig($request, $providerId, $profileId);
                     case '/setDiscoveryUrl':
                         return $this->setDiscoveryUrl($request);
                     default:
@@ -250,7 +252,7 @@ class Service
      * @param Http\Request $request
      * @param string       $providerId
      */
-    private function getConfig(Request $request, $providerId)
+    private function getConfig(Request $request, $providerId, $profileId)
     {
         $tokenProviderId = $this->getTokenProviderId($providerId);
 
@@ -265,7 +267,7 @@ class Service
             sprintf('%s/create_config', $apiBaseUri),
             [
                 'display_name' => 'VPN for Web',
-                'profile_id' => 'internet',
+                'profile_id' => $profileId,
             ]
         );
         if (false === $response) {
@@ -323,11 +325,39 @@ class Service
             $this->tpl->render(
                 'download',
                 [
+                    'profileList' => $this->getProfileList($request, $providerId),
                     'providerId' => $providerId,
                     'displayName' => $displayName,
                 ]
             )
         );
+    }
+
+    private function getProfileList(Request $request, $providerId)
+    {
+        $tokenProviderId = $this->getTokenProviderId($providerId);
+
+        // get OAuth information for chosen tokenProvider
+        $tokenProviderInfo = $this->getProviderInfo($tokenProviderId);
+        $this->setProvider($tokenProviderInfo);
+        $providerInfo = $this->getProviderInfo($providerId);
+        $apiBaseUri = $providerInfo['api_base_uri'];
+
+        $response = $this->oauthClient->get(
+            $this->config->get('OAuth')->get('requestScope'),
+            sprintf('%s/profile_list', $apiBaseUri)
+        );
+        if (false === $response) {
+            // no valid OAuth token available...
+            $authorizeUri = $this->oauthClient->getAuthorizeUri(
+                $this->config->get('OAuth')->get('requestScope'),
+                sprintf('%scallback', $request->getRootUri())
+            );
+
+            return new Response(302, ['Location' => $authorizeUri]);
+        }
+
+        return $response->json()['profile_list']['data'];
     }
 
     private function setDiscoveryUrl(Request $request)

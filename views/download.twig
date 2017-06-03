@@ -7,17 +7,40 @@
 {% block container %}
 
     <h2>Download</h2>
-    <p>
-        Click the button below to start the download of the OpenVPN
-        configuration file for the VPN provider <strong>{{ displayName }}</strong>.
-    </p>
 
     <form method="post" action="download">
         <input type="hidden" name="provider_id" value="{{ providerId }}">
         <fieldset>
             <button name="action" value="back">&lt; Back</button>
-            <button name="action" value="download">Download</button>
         </fieldset>
     </form>
+
+    <p>
+        Choose a profile to download an OpenVPN configuration file for the VPN provider 
+        <strong>{{ displayName }}</strong>.
+    </p>
+
+    <table>
+        <thead>
+            <tr><th>Profile</th><th title="Two-factor Authenication">2FA</th><th></th></tr>
+        </thead>
+        <tbody>
+            {% for profile in profileList %}
+                <tr>
+                    <td>{{ profile.display_name }}</td>
+                    <td>{% if profile.two_factor %}Yes{% else %}No{% endif %}</td>
+                    <td class="right">
+                        <form method="post" action="download">
+                            <input type="hidden" name="provider_id" value="{{ providerId }}">
+                            <input type="hidden" name="profile_id" value="{{ profile.profile_id }}">
+                            <fieldset>
+                                <button name="action" value="download">Download</button>
+                            </fieldset>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
 {% endblock %}
