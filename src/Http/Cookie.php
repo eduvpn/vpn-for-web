@@ -62,7 +62,7 @@ class Cookie
         }
 
         if (!is_null($this->cookieOptions['Max-Age'])) {
-            $attributeValueList = sprintf('Max-Age=%d', $this->cookieOptions['Max-Age']);
+            $attributeValueList[] = sprintf('Max-Age=%d', $this->cookieOptions['Max-Age']);
         }
         $attributeValueList[] = sprintf('SameSite=%s', $this->cookieOptions['SameSite']);
 
