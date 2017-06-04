@@ -33,6 +33,7 @@ try {
     $session = new Session(
         [
             'Secure' => $config->get('SecureCookie'),
+            'SameSite' => 'Lax',
         ]
     );
 
