@@ -79,6 +79,12 @@ class Service
                         $providerId = $request->getPostParameter('provider_id');
 
                         return $this->getDownloadPage($request, $providerId);
+
+                    case '/home':
+                        unset($_SESSION['activeDiscoveryUrl']);
+
+                        return new Response(302, ['Location' => $request->getRootUri()]);
+
                     case '/download':
                         $action = $request->getPostParameter('action');
 
@@ -120,7 +126,16 @@ class Service
         // check if we already chose a discoveryUrl, if not default to the
         // first one in the configuration
         if (!array_key_exists('activeDiscoveryUrl', $_SESSION)) {
-            $_SESSION['activeDiscoveryUrl'] = $this->config->get('Discovery')->keys()[0];
+            return new Response(
+                200,
+                [],
+                $this->tpl->render(
+                    'home',
+                    [
+                        'discoChooser' => $discoChooser,
+                    ]
+                )
+            );
         }
         $activeDiscoveryUrl = $_SESSION['activeDiscoveryUrl'];
 

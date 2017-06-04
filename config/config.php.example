@@ -21,4 +21,7 @@ return [
 
     // enable/disable template cache
     'TemplateCache' => true,
+
+    // use "Secure" HTTP cookies (HTTPS-only)
+    'SecureCookie' => true,
 ];

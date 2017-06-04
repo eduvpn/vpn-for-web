@@ -22,17 +22,19 @@ use fkooman\OAuth\Client\OAuthClient;
 use fkooman\OAuth\Client\SessionTokenStorage;
 use SURFnet\VPN\Web\Config;
 use SURFnet\VPN\Web\Http\Request;
+use SURFnet\VPN\Web\Http\Session;
 use SURFnet\VPN\Web\Service;
 use SURFnet\VPN\Web\TwigTpl;
-
-// XXX move this into a separate class!
-if ('' === session_id()) {
-    session_start();
-}
 
 try {
     $config = new Config(require sprintf('%s/config/config.php', dirname(__DIR__)));
     $dataDir = sprintf('%s/data', dirname(__DIR__));
+
+    $session = new Session(
+        [
+            'Secure' => $config->get('SecureCookie'),
+        ]
+    );
 
     // Templates
     $templateDirs = [

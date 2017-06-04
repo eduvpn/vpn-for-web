@@ -6,18 +6,11 @@
     
 {% block container %}
 
-    <form class="discoChooser" method="post" action="setDiscoveryUrl">
-        <select name="discoveryUrl">
-            {% for discoItem in discoChooser %}
-                <option value="{{ discoItem.discoveryUrl }}" {% if discoItem.discoveryUrl == activeDiscoveryUrl %}selected="selected"{% endif %}>
-                    {{ discoItem.displayName }}
-                </option>
-            {% endfor %}
-        </select>
-        <button type="submit">Switch</button>
-    </form>
-
     <h2>Choose your Provider</h2>
+
+    <form method="post" action="home">
+        <button type="submit">&lt; Back</button>
+    </form>
 
     <div id="providerList">
         <ul id="chooser">
