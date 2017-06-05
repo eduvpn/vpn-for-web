@@ -34,8 +34,8 @@ class Session extends Cookie
     {
         $this->sessionOptions = array_merge(
             [
-                'Domain' => null,       // also bind session to Domain
-                'Path' => null,         // also bind session to Path
+                'DomainBinding' => null,       // also bind session to Domain
+                'PathBinding' => null,         // also bind session to Path
             ],
             $sessionOptions
         );
@@ -59,6 +59,40 @@ class Session extends Cookie
         $this->replace(session_name(), session_id());
     }
 
+    public function set($key, $value)
+    {
+        $_SESSION[$key] = $value;
+    }
+
+    public function delete($key)
+    {
+        if (!$this->has($key)) {
+            throw new SessionException(sprintf('key "%s" not available in session', $key));
+        }
+
+        unset($_SESSION[$key]);
+    }
+
+    public function has($key)
+    {
+        return array_key_exists($key, $_SESSION);
+    }
+
+    public function get($key)
+    {
+        if (!$this->has($key)) {
+            throw new SessionException(sprintf('key "%s" not available in session', $key));
+        }
+
+        return $_SESSION[$key];
+    }
+
+    public function destroy()
+    {
+        $_SESSION = [];
+        $this->regenerate(true);
+    }
+
     private function sessionCanary()
     {
         $dateTime = new DateTime();
@@ -78,12 +112,12 @@ class Session extends Cookie
 
     private function domainBinding()
     {
-        $this->sessionBinding('Domain');
+        $this->sessionBinding('DomainBinding');
     }
 
     private function pathBinding()
     {
-        $this->sessionBinding('Path');
+        $this->sessionBinding('PathBinding');
     }
 
     private function sessionBinding($key)
