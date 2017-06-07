@@ -18,6 +18,11 @@
             "no-api": true,
             "type": "vcs",
             "url": "https://github.com/fkooman/php-oauth2-client"
+        },
+        {
+            "no-api": true,
+            "type": "vcs",
+            "url": "https://github.com/fkooman/php-secookie"
         }
     ],
     "require": {
@@ -30,6 +35,7 @@
         "ext-session": "*",
         "ext-spl": "*",
         "fkooman/oauth2-client": "dev-master",
+        "fkooman/secookie": "dev-master",
         "paragonie/constant_time_encoding": "^1",
         "php": ">= 5.4.0",
         "twig/twig": "^1.0"

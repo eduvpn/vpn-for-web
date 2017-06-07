@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "2d9b3981d004148ec54a5d97984672ec",
+    "content-hash": "1044332ff65522127630a0de4d47bf05",
     "packages": [
         {
             "name": "fkooman/oauth2-client",
@@ -55,6 +55,47 @@
             ],
             "description": "Very simple OAuth 2.0 client",
             "time": "2017-06-01 15:23:01"
+        },
+        {
+            "name": "fkooman/secookie",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/fkooman/php-secookie",
+                "reference": "12b467334317d1f4a95b12b74b0dcb7a991917ae"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/fkooman/php-secookie/zipball/12b467334317d1f4a95b12b74b0dcb7a991917ae",
+                "reference": "12b467334317d1f4a95b12b74b0dcb7a991917ae",
+                "shasum": ""
+            },
+            "require": {
+                "ext-date": "*",
+                "ext-session": "*",
+                "php": ">=5.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^5.7"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "fkooman\\SeCookie\\": "src/",
+                    "fkooman\\SeCookie\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "email": "fkooman@tuxed.net",
+                    "name": "François Kooman"
+                }
+            ],
+            "description": "Very simple Cookie and PHP Session library",
+            "time": "2017-06-06 18:00:45"
         },
         {
             "name": "paragonie/constant_time_encoding",
@@ -276,20 +317,20 @@
         },
         {
             "name": "twig/twig",
-            "version": "v1.33.2",
+            "version": "v1.34.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "dd6ca96227917e1e85b41c7c3cc6507b411e0927"
+                "reference": "55e4beb721a044db9e31ae0470024fc205b6a008"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/dd6ca96227917e1e85b41c7c3cc6507b411e0927",
-                "reference": "dd6ca96227917e1e85b41c7c3cc6507b411e0927",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/55e4beb721a044db9e31ae0470024fc205b6a008",
+                "reference": "55e4beb721a044db9e31ae0470024fc205b6a008",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.2.7"
+                "php": ">=5.3.3"
             },
             "require-dev": {
                 "psr/container": "^1.0",
@@ -299,12 +340,15 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.33-dev"
+                    "dev-master": "1.34-dev"
                 }
             },
             "autoload": {
                 "psr-0": {
                     "Twig_": "lib/"
+                },
+                "psr-4": {
+                    "Twig\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -334,7 +378,7 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2017-04-20T17:39:48+00:00"
+            "time": "2017-06-06T03:56:50+00:00"
         }
     ],
     "packages-dev": [
@@ -1351,16 +1395,16 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v3.3.0",
+            "version": "v3.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "885db865f6b2b918404a1fae28f9ac640f71f994"
+                "reference": "9752a30000a8ca9f4b34b5227d15d0101b96b063"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/885db865f6b2b918404a1fae28f9ac640f71f994",
-                "reference": "885db865f6b2b918404a1fae28f9ac640f71f994",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/9752a30000a8ca9f4b34b5227d15d0101b96b063",
+                "reference": "9752a30000a8ca9f4b34b5227d15d0101b96b063",
                 "shasum": ""
             },
             "require": {
@@ -1402,7 +1446,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2017-05-28T10:56:20+00:00"
+            "time": "2017-06-02T22:05:06+00:00"
         },
         {
             "name": "webmozart/assert",
@@ -1458,7 +1502,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "fkooman/oauth2-client": 20
+        "fkooman/oauth2-client": 20,
+        "fkooman/secookie": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
