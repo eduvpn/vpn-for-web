@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fkooman/php-oauth2-client",
-                "reference": "79da075478c74490e019031d880a904e72a89c4c"
+                "reference": "84bd95a0afe6e15eee37f698a5ac23425e188c18"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fkooman/php-oauth2-client/zipball/79da075478c74490e019031d880a904e72a89c4c",
-                "reference": "79da075478c74490e019031d880a904e72a89c4c",
+                "url": "https://api.github.com/repos/fkooman/php-oauth2-client/zipball/84bd95a0afe6e15eee37f698a5ac23425e188c18",
+                "reference": "84bd95a0afe6e15eee37f698a5ac23425e188c18",
                 "shasum": ""
             },
             "require": {
@@ -54,7 +54,7 @@
                 }
             ],
             "description": "Very simple OAuth 2.0 client",
-            "time": "2017-06-01 15:23:01"
+            "time": "2017-06-07 12:34:55"
         },
         {
             "name": "fkooman/secookie",
