@@ -62,12 +62,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fkooman/php-secookie",
-                "reference": "fe3efa67e22d34118259d9412a768a6050143d6d"
+                "reference": "48af39a0f43d42b895372dae54638d92a2c1f2aa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fkooman/php-secookie/zipball/fe3efa67e22d34118259d9412a768a6050143d6d",
-                "reference": "fe3efa67e22d34118259d9412a768a6050143d6d",
+                "url": "https://api.github.com/repos/fkooman/php-secookie/zipball/48af39a0f43d42b895372dae54638d92a2c1f2aa",
+                "reference": "48af39a0f43d42b895372dae54638d92a2c1f2aa",
                 "shasum": ""
             },
             "require": {
@@ -95,7 +95,7 @@
                 }
             ],
             "description": "Secure Cookie and Session library for PHP",
-            "time": "2017-06-14 11:21:22"
+            "time": "2017-06-14 11:38:02"
         },
         {
             "name": "paragonie/constant_time_encoding",
