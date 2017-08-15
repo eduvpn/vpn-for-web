@@ -13,18 +13,6 @@
     "description": "VPN for Web",
     "license": "AGPL-3.0",
     "name": "eduvpn/vpn-for-web",
-    "repositories": [
-        {
-            "no-api": true,
-            "type": "vcs",
-            "url": "https://github.com/fkooman/php-oauth2-client"
-        },
-        {
-            "no-api": true,
-            "type": "vcs",
-            "url": "https://github.com/fkooman/php-secookie"
-        }
-    ],
     "require": {
         "ext-filter": "*",
         "ext-imagick": "*",
@@ -34,13 +22,13 @@
         "ext-pcre": "*",
         "ext-session": "*",
         "ext-spl": "*",
-        "fkooman/oauth2-client": "dev-master",
-        "fkooman/secookie": "dev-master",
+        "fkooman/oauth2-client": "^5",
+        "fkooman/secookie": "^1",
         "paragonie/constant_time_encoding": "^1",
         "php": ">= 5.4.0",
         "twig/twig": "^1.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^4.8"
+        "phpunit/phpunit": "^5.7"
     }
 }
