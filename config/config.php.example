@@ -15,7 +15,7 @@ return [
 
     // OAuth Client Configuration
     'OAuth' => [
-        'clientId' => 'vpn-for-web',
+        'clientId' => 'org.eduvpn.app',
         'requestScope' => 'config',
     ],
 
