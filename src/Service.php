@@ -158,10 +158,23 @@ class Service
 
     private function getDiscoveryData($discoveryUrl)
     {
+        $preferredLanguage = 'en-US';
         $discoveryData = json_decode(file_get_contents(sprintf('%s/%s', $this->dataDir, self::encodeStr($discoveryUrl))), true);
 
         foreach ($discoveryData['instances'] as $k => $v) {
             $discoveryData['instances'][$k]['hostName'] = parse_url($v['base_uri'], PHP_URL_HOST);
+
+            $dN = $v['display_name'];
+            if (is_string($dN)) {
+                $displayName = $dN;
+            } else {
+                if (array_key_exists($preferredLanguage, $dN)) {
+                    $displayName = $dN[$preferredLanguage];
+                } else {
+                    $displayName = $dN[array_keys($dN)[0]];
+                }
+            }
+            $discoveryData['instances'][$k]['display_name'] = $displayName;
         }
 
         return $discoveryData['instances'];

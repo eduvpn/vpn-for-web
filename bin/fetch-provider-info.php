@@ -24,6 +24,8 @@ use SURFnet\VPN\Web\LogoFetcher;
 use SURFnet\VPN\Web\ProviderListFetcher;
 use SURFnet\VPN\Web\TwigTpl;
 
+$preferredLanguage = 'en-US';
+
 try {
     $config = new Config(require sprintf('%s/config/config.php', dirname(__DIR__)));
 
@@ -41,7 +43,19 @@ try {
             if (false === $hostName = parse_url($instance['base_uri'], PHP_URL_HOST)) {
                 throw new RuntimeException('unable to extract hostname');
             }
-            $logoFetcher->get($hostName, $instance['logo_uri']);
+
+            $logoInfo = $instance['logo'];
+            if (is_string($logoInfo)) {
+                $logoUri = $logoInfo;
+            } else {
+                if ($logoInfo->has($preferredLanguage)) {
+                    $logoUri = $logoInfo->get($preferredLanguage);
+                } else {
+                    $logoUri = $logoInfo->get($logoInfo->keys()[0]);
+                }
+            }
+
+            $logoFetcher->get($hostName, $logoUri);
             $hostNameList[] = ['hostName' => $hostName, 'encodedHostName' => preg_replace('/\./', '\.', $hostName)];
         }
 

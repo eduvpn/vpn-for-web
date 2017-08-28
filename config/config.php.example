@@ -3,13 +3,13 @@
 return [
     // Discovery URLs for VPN providers
     'Discovery' => [
-        'https://static.eduvpn.nl/instances.json' => [
-            'publicKey' => 'E5On0JTtyUVZmcWd+I/FXRm32nSq8R2ioyW7dcu/U88=',
-            'displayName' => 'Secure Access',
-        ],
-        'https://static.eduvpn.nl/federation.json' => [
+        'https://static.eduvpn.nl/disco/secure_internet_dev.json' => [
             'publicKey' => 'E5On0JTtyUVZmcWd+I/FXRm32nSq8R2ioyW7dcu/U88=',
             'displayName' => 'Secure Internet',
+        ],
+        'https://static.eduvpn.nl/disco/institute_access_dev.json' => [
+            'publicKey' => 'E5On0JTtyUVZmcWd+I/FXRm32nSq8R2ioyW7dcu/U88=',
+            'displayName' => 'Institute Access',
         ],
     ],
 
