@@ -20,6 +20,7 @@ require_once sprintf('%s/vendor/autoload.php', dirname(__DIR__));
 use fkooman\OAuth\Client\Http\CurlHttpClient;
 use fkooman\OAuth\Client\OAuthClient;
 use fkooman\OAuth\Client\SessionTokenStorage;
+use fkooman\SeCookie\Cookie;
 use fkooman\SeCookie\Session;
 use SURFnet\VPN\Web\Config;
 use SURFnet\VPN\Web\Http\Request;
@@ -31,10 +32,13 @@ try {
     $dataDir = sprintf('%s/data', dirname(__DIR__));
 
     $session = new Session(
-        [
-            'Secure' => $config->get('SecureCookie'),
-            'SameSite' => 'Lax',
-        ]
+        [],
+        new Cookie(
+            [
+                'Secure' => $config->get('SecureCookie'),
+                'SameSite' => 'Lax',
+            ]
+        )
     );
 
     // Templates

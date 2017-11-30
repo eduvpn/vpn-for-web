@@ -45,6 +45,7 @@ class LogoFetcher
 
     /**
      * @param string $logoUrl
+     * @param mixed  $fileName
      */
     public function get($fileName, $logoUrl)
     {
@@ -85,6 +86,8 @@ class LogoFetcher
     }
 
     /**
+     * @param mixed $logoUrl
+     *
      * @return string
      */
     private function obtainLogo($logoUrl)

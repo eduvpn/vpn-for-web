@@ -4,18 +4,19 @@ return [
     // Discovery URLs for VPN providers
     'Discovery' => [
         'https://static.eduvpn.nl/disco/secure_internet_dev.json' => [
-            'publicKey' => 'E5On0JTtyUVZmcWd+I/FXRm32nSq8R2ioyW7dcu/U88=',
+            'publicKey' => 'zzls4TZTXHEyV3yxaxag1DZw3tSpIdBoaaOjUGH/Rwg=',
             'displayName' => 'Secure Internet',
         ],
         'https://static.eduvpn.nl/disco/institute_access_dev.json' => [
-            'publicKey' => 'E5On0JTtyUVZmcWd+I/FXRm32nSq8R2ioyW7dcu/U88=',
+            'publicKey' => 'zzls4TZTXHEyV3yxaxag1DZw3tSpIdBoaaOjUGH/Rwg=',
             'displayName' => 'Institute Access',
         ],
     ],
 
     // OAuth Client Configuration
     'OAuth' => [
-        'clientId' => 'org.eduvpn.app',
+        'clientId' => 'org.eduvpn.web',
+        'clientSecret' => '12345abcde',
         'requestScope' => 'config',
     ],
 

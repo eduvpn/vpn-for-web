@@ -119,6 +119,7 @@ class ProviderListFetcher
 
     /**
      * @param string
+     * @param mixed $jsonText
      *
      * @return array
      */

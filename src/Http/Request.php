@@ -81,6 +81,8 @@ class Request
     }
 
     /**
+     * @param mixed $key
+     *
      * @return string|null
      */
     public function getHeader($key)

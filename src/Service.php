@@ -204,15 +204,14 @@ class Service
         $this->oauthClient->setProvider(
             new Provider(
                 $this->config->get('OAuth')->get('clientId'),
-                null,
+                $this->config->get('OAuth')->get('clientSecret'),
                 $tokenProviderInfo['authorization_endpoint'],
                 $tokenProviderInfo['token_endpoint']
             )
         );
 
         $this->oauthClient->handleCallback(
-            $request->getQueryParameter('code'),
-            $request->getQueryParameter('state')
+            $request->getQueryParameters()
         );
 
         $activeDiscoveryUrl = $_SESSION['activeDiscoveryUrl'];
@@ -267,7 +266,7 @@ class Service
         $this->oauthClient->setProvider(
             new Provider(
                 $this->config->get('OAuth')->get('clientId'),
-                null,
+                $this->config->get('OAuth')->get('clientSecret'),
                 $tokenProviderInfo['authorization_endpoint'],
                 $tokenProviderInfo['token_endpoint']
             )
@@ -279,6 +278,7 @@ class Service
      *
      * @param Http\Request $request
      * @param string       $providerId
+     * @param mixed        $profileId
      */
     private function getConfig(Request $request, $providerId, $profileId)
     {
