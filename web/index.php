@@ -60,7 +60,7 @@ try {
         $httpClient
     );
     // we store tokens in session, so no need to bind it to a user
-    $oauthClient->setUserId('N/A');
+    //$oauthClient->setUserId('N/A');
 
     $service = new Service(
         $config,

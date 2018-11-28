@@ -222,16 +222,16 @@ class Service
         $tokenProviderInfo = $this->getProviderInfo($tokenProviderId);
 
         // load OAuth provider with this information
-        $this->oauthClient->setProvider(
-            new Provider(
-                $this->config->get('OAuth')->get('clientId'),
-                $this->config->get('OAuth')->get('clientSecret'),
-                $tokenProviderInfo['authorization_endpoint'],
-                $tokenProviderInfo['token_endpoint']
-            )
+        $p = new Provider(
+            $this->config->get('OAuth')->get('clientId'),
+            $this->config->get('OAuth')->get('clientSecret'),
+            $tokenProviderInfo['authorization_endpoint'],
+            $tokenProviderInfo['token_endpoint']
         );
 
         $this->oauthClient->handleCallback(
+            $p,
+            'web_user',
             $request->getQueryParameters()
         );
 
@@ -292,18 +292,16 @@ class Service
     }
 
     /**
-     * @return void
+     * @return \fkooman\OAuth\Client\Provider
      */
-    private function setProvider(array $tokenProviderInfo)
+    private function getProvider(array $tokenProviderInfo)
     {
         // load OAuth provider with this information
-        $this->oauthClient->setProvider(
-            new Provider(
-                $this->config->get('OAuth')->get('clientId'),
-                $this->config->get('OAuth')->get('clientSecret'),
-                $tokenProviderInfo['authorization_endpoint'],
-                $tokenProviderInfo['token_endpoint']
-            )
+        return new Provider(
+            $this->config->get('OAuth')->get('clientId'),
+            $this->config->get('OAuth')->get('clientSecret'),
+            $tokenProviderInfo['authorization_endpoint'],
+            $tokenProviderInfo['token_endpoint']
         );
     }
 
@@ -322,11 +320,13 @@ class Service
 
         // get OAuth information for chosen tokenProvider
         $tokenProviderInfo = $this->getProviderInfo($tokenProviderId);
-        $this->setProvider($tokenProviderInfo);
+        $p = $this->getProvider($tokenProviderInfo);
         $providerInfo = $this->getProviderInfo($providerId);
         $apiBaseUri = $providerInfo['api_base_uri'];
 
         $response = $this->oauthClient->post(
+            $p,
+            'web_user',
             $this->config->get('OAuth')->get('requestScope'),
             sprintf('%s/create_config', $apiBaseUri),
             [
@@ -337,6 +337,8 @@ class Service
         if (false === $response) {
             // no valid OAuth token available...
             $authorizeUri = $this->oauthClient->getAuthorizeUri(
+                $p,
+                'web_user',
                 $this->config->get('OAuth')->get('requestScope'),
                 sprintf('%scallback', $request->getRootUri())
             );
@@ -366,19 +368,44 @@ class Service
     private function getDownloadPage(Request $request, $providerId)
     {
         $tokenProviderId = $this->getTokenProviderId($providerId);
+        $tokenProviderInfo = $this->getProviderInfo($tokenProviderId);
+        $p = $this->getProvider($tokenProviderInfo);
+        $providerInfo = $this->getProviderInfo($providerId);
+        $apiBaseUri = $providerInfo['api_base_uri'];
 
         // get OAuth information for chosen tokenProvider
         $tokenProviderInfo = $this->getProviderInfo($tokenProviderId);
-        $this->setProvider($tokenProviderInfo);
-        if (!$this->oauthClient->hasAccessToken($this->config->get('OAuth')->get('requestScope'))) {
-            // no oauth token
+        $p = $this->getProvider($tokenProviderInfo);
+
+        $response = $this->oauthClient->get(
+            $p,
+            'web_user',
+            $this->config->get('OAuth')->get('requestScope'),
+            sprintf('%s/user_info', $apiBaseUri)
+        );
+        if (false === $response) {
+            // no valid OAuth token available...
             $authorizeUri = $this->oauthClient->getAuthorizeUri(
+                $p,
+                'web_user',
                 $this->config->get('OAuth')->get('requestScope'),
                 sprintf('%scallback', $request->getRootUri())
             );
 
             return new Response(302, ['Location' => $authorizeUri]);
         }
+
+        $userInfo = $response->json()['user_info']['data'];
+
+//        if (!$this->oauthClient->hasAccessToken($this->config->get('OAuth')->get('requestScope'))) {
+//            // no oauth token
+//            $authorizeUri = $this->oauthClient->getAuthorizeUri(
+//                $this->config->get('OAuth')->get('requestScope'),
+//                sprintf('%scallback', $request->getRootUri())
+//            );
+
+//            return new Response(302, ['Location' => $authorizeUri]);
+//        }
 
         $discoveryData = $this->getDiscoveryData($_SESSION['activeDiscoveryUrl']);
         $displayName = null;
@@ -397,6 +424,7 @@ class Service
                     'profileList' => $this->getProfileList($request, $providerId),
                     'providerId' => $providerId,
                     'displayName' => $displayName,
+                    'userInfo' => $userInfo,
                 ]
             )
         );
@@ -413,17 +441,21 @@ class Service
 
         // get OAuth information for chosen tokenProvider
         $tokenProviderInfo = $this->getProviderInfo($tokenProviderId);
-        $this->setProvider($tokenProviderInfo);
+        $p = $this->getProvider($tokenProviderInfo);
         $providerInfo = $this->getProviderInfo($providerId);
         $apiBaseUri = $providerInfo['api_base_uri'];
 
         $response = $this->oauthClient->get(
+            $p,
+            'web_user',
             $this->config->get('OAuth')->get('requestScope'),
             sprintf('%s/profile_list', $apiBaseUri)
         );
         if (false === $response) {
             // no valid OAuth token available...
             $authorizeUri = $this->oauthClient->getAuthorizeUri(
+                $p,
+                'web_user',
                 $this->config->get('OAuth')->get('requestScope'),
                 sprintf('%scallback', $request->getRootUri())
             );
