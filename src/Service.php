@@ -43,6 +43,9 @@ class Service
     /** @var string */
     private $dataDir;
 
+    /**
+     * @param string $dataDir
+     */
     public function __construct(Config $config, TplInterface $tpl, OAuthClient $oauthClient, HttpClientInterface $httpClient, $dataDir)
     {
         $this->config = $config;
@@ -156,6 +159,11 @@ class Service
         );
     }
 
+    /**
+     * @param string $discoveryUrl
+     *
+     * @return array
+     */
     private function getDiscoveryData($discoveryUrl)
     {
         $preferredLanguage = 'en-US';
@@ -165,7 +173,7 @@ class Service
             $discoveryData['instances'][$k]['hostName'] = parse_url($v['base_uri'], PHP_URL_HOST);
 
             $dN = $v['display_name'];
-            if (is_string($dN)) {
+            if (\is_string($dN)) {
                 $displayName = $dN;
             } else {
                 if (array_key_exists($preferredLanguage, $dN)) {
@@ -180,6 +188,11 @@ class Service
         return $discoveryData['instances'];
     }
 
+    /**
+     * @param string $discoveryUrl
+     *
+     * @return string
+     */
     private function getAuthorizationType($discoveryUrl)
     {
         $discoveryData = json_decode(file_get_contents(sprintf('%s/%s', $this->dataDir, self::encodeStr($discoveryUrl))), true);
@@ -187,11 +200,19 @@ class Service
         return $discoveryData['authorization_type'];
     }
 
+    /**
+     * @param string $str
+     *
+     * @return string
+     */
     private static function encodeStr($str)
     {
         return preg_replace('/[^A-Za-z.]/', '_', $str);
     }
 
+    /**
+     * @return Http\Response
+     */
     private function handleCallback(Request $request)
     {
         // this was our chosen "home" organization
@@ -229,6 +250,11 @@ class Service
         );
     }
 
+    /**
+     * @param string $providerId
+     *
+     * @return array
+     */
     private function getProviderInfo($providerId)
     {
         $providerInfoUrl = sprintf('%s/info.json', $providerId);
@@ -241,6 +267,11 @@ class Service
         return $providerInfoResponse->json()['api']['http://eduvpn.org/api#2'];
     }
 
+    /**
+     * @param string $providerId
+     *
+     * @return string
+     */
     private function getTokenProviderId($providerId)
     {
         $activeDiscoveryUrl = $_SESSION['activeDiscoveryUrl'];
@@ -260,6 +291,9 @@ class Service
         return $_SESSION['tokenProviderId'];
     }
 
+    /**
+     * @return void
+     */
     private function setProvider(array $tokenProviderInfo)
     {
         // load OAuth provider with this information
@@ -278,7 +312,9 @@ class Service
      *
      * @param Http\Request $request
      * @param string       $providerId
-     * @param mixed        $profileId
+     * @param string       $profileId
+     *
+     * @return Http\Response
      */
     private function getConfig(Request $request, $providerId, $profileId)
     {
@@ -308,7 +344,7 @@ class Service
             return new Response(302, ['Location' => $authorizeUri]);
         }
 
-        if (false === $providerHostName = parse_url($providerId, PHP_URL_HOST)) {
+        if (null === $providerHostName = parse_url($providerId, PHP_URL_HOST)) {
             throw new RuntimeException('unable to extract hostname from providerId');
         }
 
@@ -322,6 +358,11 @@ class Service
         );
     }
 
+    /**
+     * @param string $providerId
+     *
+     * @return Http\Response
+     */
     private function getDownloadPage(Request $request, $providerId)
     {
         $tokenProviderId = $this->getTokenProviderId($providerId);
@@ -361,6 +402,11 @@ class Service
         );
     }
 
+    /**
+     * @param string $providerId
+     *
+     * @return array|Http\Response
+     */
     private function getProfileList(Request $request, $providerId)
     {
         $tokenProviderId = $this->getTokenProviderId($providerId);
@@ -388,6 +434,9 @@ class Service
         return $response->json()['profile_list']['data'];
     }
 
+    /**
+     * @return Http\Response
+     */
     private function setDiscoveryUrl(Request $request)
     {
         $_SESSION['activeDiscoveryUrl'] = $request->getPostParameter('discoveryUrl');

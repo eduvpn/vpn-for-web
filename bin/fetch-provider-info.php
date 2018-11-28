@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU Affero General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-require_once sprintf('%s/vendor/autoload.php', dirname(__DIR__));
+require_once dirname(__DIR__).'/vendor/autoload.php';
 
 use fkooman\OAuth\Client\Http\CurlHttpClient;
 use SURFnet\VPN\Web\Config;
@@ -40,7 +40,7 @@ try {
         $logoFetcher = new LogoFetcher($logoDir, new CurlHttpClient());
         $hostNameList = [];
         foreach ($discoveryData['instances'] as $instance) {
-            if (false === $hostName = parse_url($instance['base_uri'], PHP_URL_HOST)) {
+            if (null === $hostName = parse_url($instance['base_uri'], PHP_URL_HOST)) {
                 throw new RuntimeException('unable to extract hostname');
             }
 

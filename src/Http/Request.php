@@ -49,6 +49,9 @@ class Request
         return $this->serverData['REQUEST_METHOD'];
     }
 
+    /**
+     * @return string
+     */
     public function getServerName()
     {
         return $this->serverData['SERVER_NAME'];
@@ -62,6 +65,11 @@ class Request
         return $this->getData;
     }
 
+    /**
+     * @param string $key
+     *
+     * @return null|string
+     */
     public function getQueryParameter($key)
     {
         return array_key_exists($key, $this->getData) ? $this->getData[$key] : null;
@@ -75,13 +83,18 @@ class Request
         return $this->postData;
     }
 
+    /**
+     * @param string $key
+     *
+     * @return null|string
+     */
     public function getPostParameter($key)
     {
         return array_key_exists($key, $this->postData) ? $this->postData[$key] : null;
     }
 
     /**
-     * @param mixed $key
+     * @param string $key
      *
      * @return string|null
      */
@@ -90,6 +103,9 @@ class Request
         return array_key_exists($key, $this->serverData) ? $this->serverData[$key] : null;
     }
 
+    /**
+     * @return string
+     */
     public function getPathInfo()
     {
         // remove the query string
@@ -131,7 +147,7 @@ class Request
      */
     public function getRoot()
     {
-        $rootDir = dirname($this->serverData['SCRIPT_NAME']);
+        $rootDir = \dirname($this->serverData['SCRIPT_NAME']);
         if ('/' !== $rootDir) {
             return sprintf('%s/', $rootDir);
         }

@@ -29,6 +29,10 @@ class Response
     /** @var string */
     private $body;
 
+    /**
+     * @param int    $statusCode
+     * @param string $body
+     */
     public function __construct($statusCode = 200, array $headers = [], $body = '')
     {
         $this->statusCode = (int) $statusCode;
@@ -36,21 +40,36 @@ class Response
         $this->body = (string) $body;
     }
 
+    /**
+     * @return array
+     */
     public function getHeaders()
     {
         return $this->headers;
     }
 
+    /**
+     * @return string
+     */
     public function getBody()
     {
         return $this->body;
     }
 
+    /**
+     * @param string $key
+     * @param string $value
+     *
+     * @return void
+     */
     public function setHeader($key, $value)
     {
         $this->headers[$key] = $value;
     }
 
+    /**
+     * @return void
+     */
     public function send()
     {
         http_response_code($this->statusCode);

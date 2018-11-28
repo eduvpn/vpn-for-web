@@ -34,9 +34,8 @@ class TwigTpl implements TplInterface
     /**
      * Create TwigTemplateManager.
      *
-     * @param array  $templateDirs template directories to look in where later
-     *                             paths override the earlier paths
-     * @param string $cacheDir     the writable directory to store the cache
+     * @param array<string> $templateDirs
+     * @param string        $cacheDir
      */
     public function __construct(array $templateDirs, $cacheDir = null)
     {
@@ -71,11 +70,17 @@ class TwigTpl implements TplInterface
         $this->defaultVariables = [];
     }
 
+    /**
+     * @return void
+     */
     public function setDefault(array $templateVariables)
     {
         $this->defaultVariables = $templateVariables;
     }
 
+    /**
+     * @return void
+     */
     public function addDefault(array $templateVariables)
     {
         $this->defaultVariables = array_merge(
@@ -83,19 +88,19 @@ class TwigTpl implements TplInterface
         );
     }
 
+    /**
+     * @return void
+     */
     public function addFilter(Twig_SimpleFilter $filter)
     {
         $this->twig->addFilter($filter);
     }
 
     /**
-     * Render the template.
+     * @param string $templateName
+     * @param array  $templateVariables
      *
-     * @param string $templateName      the name of the template
-     * @param array  $templateVariables the variables to be used in the
-     *                                  template
-     *
-     * @return string the rendered template
+     * @return string
      */
     public function render($templateName, array $templateVariables)
     {

@@ -35,6 +35,8 @@ class Config
 
     /**
      * @param string $key
+     *
+     * @return bool
      */
     public function has($key)
     {
@@ -62,11 +64,11 @@ class Config
             throw new ConfigException(sprintf('missing field "%s" in configuration', $key));
         }
 
-        if (is_array($this->data[$key])) {
+        if (\is_array($this->data[$key])) {
             // if all we get is a "flat" array with sequential numeric keys
             // return the array instead of an object
             $k = array_keys($this->data[$key]);
-            if ($k === range(0, count($k) - 1)) {
+            if ($k === range(0, \count($k) - 1)) {
                 return $this->data[$key];
             }
 

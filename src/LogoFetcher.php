@@ -32,6 +32,9 @@ class LogoFetcher
     /** @var \fkooman\OAuth\Client\Http\HttpClientInterface */
     private $httpClient;
 
+    /**
+     * @param string $logoDir
+     */
     public function __construct($logoDir, HttpClientInterface $httpClient)
     {
         if (!@file_exists($logoDir)) {
@@ -45,7 +48,9 @@ class LogoFetcher
 
     /**
      * @param string $logoUrl
-     * @param mixed  $fileName
+     * @param string $fileName
+     *
+     * @return void
      */
     public function get($fileName, $logoUrl)
     {
@@ -86,7 +91,7 @@ class LogoFetcher
     }
 
     /**
-     * @param mixed $logoUrl
+     * @param string $logoUrl
      *
      * @return string
      */
