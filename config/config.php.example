@@ -3,14 +3,25 @@
 return [
     // Discovery URLs for VPN providers
     'Discovery' => [
-        'https://static.eduvpn.nl/disco/secure_internet_dev.json' => [
-            'publicKey' => 'zzls4TZTXHEyV3yxaxag1DZw3tSpIdBoaaOjUGH/Rwg=',
+        // PRODUCTION
+        'https://static.eduvpn.nl/disco/secure_internet.json' => [
+            'publicKey' => 'E5On0JTtyUVZmcWd+I/FXRm32nSq8R2ioyW7dcu/U88=',
             'displayName' => 'Secure Internet',
         ],
-        'https://static.eduvpn.nl/disco/institute_access_dev.json' => [
-            'publicKey' => 'zzls4TZTXHEyV3yxaxag1DZw3tSpIdBoaaOjUGH/Rwg=',
+        'https://static.eduvpn.nl/disco/institute_access.json' => [
+            'publicKey' => 'E5On0JTtyUVZmcWd+I/FXRm32nSq8R2ioyW7dcu/U88=',
             'displayName' => 'Institute Access',
         ],
+
+        // DEVELOPMENT
+        //'https://static.eduvpn.nl/disco/secure_internet_dev.json' => [
+        //    'publicKey' => 'zzls4TZTXHEyV3yxaxag1DZw3tSpIdBoaaOjUGH/Rwg=',
+        //    'displayName' => '[DEV] Secure Internet',
+        //],
+        //'https://static.eduvpn.nl/disco/institute_access_dev.json' => [
+        //    'publicKey' => 'zzls4TZTXHEyV3yxaxag1DZw3tSpIdBoaaOjUGH/Rwg=',
+        //    'displayName' => '[DEV] Institute Access',
+        //],
     ],
 
     // OAuth Client Configuration
