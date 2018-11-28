@@ -17,6 +17,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 require_once dirname(__DIR__).'/vendor/autoload.php';
+$baseDir = dirname(__DIR__);
 
 use fkooman\OAuth\Client\Http\CurlHttpClient;
 use SURFnet\VPN\Web\Config;
@@ -27,16 +28,16 @@ use SURFnet\VPN\Web\TwigTpl;
 $preferredLanguage = 'en-US';
 
 try {
-    $config = new Config(require sprintf('%s/config/config.php', dirname(__DIR__)));
+    $config = new Config(require sprintf('%s/config/config.php', $baseDir));
 
     $discoveryUrlList = $config->get('Discovery')->keys();
     foreach ($discoveryUrlList as $discoveryUrl) {
         $publicKey = $config->get('Discovery')->get($discoveryUrl)->get('publicKey');
         $encodedDiscoveryUrl = preg_replace('/[^A-Za-z.]/', '_', $discoveryUrl); // XXX code duplication
-        $providerListFetcher = new ProviderListFetcher(sprintf('%s/data/%s', dirname(__DIR__), $encodedDiscoveryUrl));
+        $providerListFetcher = new ProviderListFetcher(sprintf('%s/data/%s', $baseDir, $encodedDiscoveryUrl));
         $discoveryData = $providerListFetcher->update(new CurlHttpClient(), $discoveryUrl, $publicKey);
 
-        $logoDir = sprintf('%s/data/logo', dirname(__DIR__));
+        $logoDir = sprintf('%s/data/logo', $baseDir);
         $logoFetcher = new LogoFetcher($logoDir, new CurlHttpClient());
         $hostNameList = [];
         foreach ($discoveryData['instances'] as $instance) {
@@ -62,8 +63,8 @@ try {
         // generate CSS
         // Templates
         $templateDirs = [
-            sprintf('%s/views', dirname(__DIR__)),
-            sprintf('%s/config/views', dirname(__DIR__)),
+            sprintf('%s/views', $baseDir),
+            sprintf('%s/config/views', $baseDir),
         ];
 
         $tpl = new TwigTpl($templateDirs, null);

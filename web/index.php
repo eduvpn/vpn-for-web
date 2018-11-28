@@ -16,6 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 require_once dirname(__DIR__).'/vendor/autoload.php';
+$baseDir = dirname(__DIR__);
 
 use fkooman\OAuth\Client\Http\CurlHttpClient;
 use fkooman\OAuth\Client\OAuthClient;
@@ -28,8 +29,8 @@ use SURFnet\VPN\Web\Service;
 use SURFnet\VPN\Web\TwigTpl;
 
 try {
-    $config = new Config(require sprintf('%s/config/config.php', dirname(__DIR__)));
-    $dataDir = sprintf('%s/data', dirname(__DIR__));
+    $config = new Config(require sprintf('%s/config/config.php', $baseDir));
+    $dataDir = sprintf('%s/data', $baseDir);
 
     $session = new Session(
         [],
@@ -43,8 +44,8 @@ try {
 
     // Templates
     $templateDirs = [
-        sprintf('%s/views', dirname(__DIR__)),
-        sprintf('%s/config/views', dirname(__DIR__)),
+        sprintf('%s/views', $baseDir),
+        sprintf('%s/config/views', $baseDir),
     ];
 
     $tpl = new TwigTpl(
