@@ -98,7 +98,6 @@ class TwigTpl implements TplInterface
 
     /**
      * @param string $templateName
-     * @param array  $templateVariables
      *
      * @return string
      */

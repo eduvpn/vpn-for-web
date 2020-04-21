@@ -37,9 +37,8 @@ class ProviderListFetcher
     }
 
     /**
-     * @param HttpClientInterface $httpClient
-     * @param string              $discoveryUrl
-     * @param string              $encodedPublicKey
+     * @param string $discoveryUrl
+     * @param string $encodedPublicKey
      *
      * @return array
      */
@@ -54,7 +53,7 @@ class ProviderListFetcher
         $discoverySignature = Base64::decode($discoverySignatureResponse->getBody());
         $discoveryBody = $discoveryResponse->getBody();
 
-        if (!\sodium_crypto_sign_verify_detached($discoverySignature, $discoveryBody, $publicKey)) {
+        if (!sodium_crypto_sign_verify_detached($discoverySignature, $discoveryBody, $publicKey)) {
             throw new RuntimeException('unable to verify signature');
         }
 
@@ -104,8 +103,7 @@ class ProviderListFetcher
     }
 
     /**
-     * @param HttpClientInterface $httpClient
-     * @param string              $requestUrl
+     * @param string $requestUrl
      *
      * @return \fkooman\OAuth\Client\Http\Response
      */

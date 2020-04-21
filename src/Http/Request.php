@@ -29,11 +29,6 @@ class Request
     /** @var array */
     private $postData;
 
-    /**
-     * @param array $serverData
-     * @param array $getData
-     * @param array $postData
-     */
     public function __construct(array $serverData, array $getData, array $postData)
     {
         $this->serverData = $serverData;
@@ -68,11 +63,11 @@ class Request
     /**
      * @param string $key
      *
-     * @return null|string
+     * @return string|null
      */
     public function getQueryParameter($key)
     {
-        return array_key_exists($key, $this->getData) ? $this->getData[$key] : null;
+        return \array_key_exists($key, $this->getData) ? $this->getData[$key] : null;
     }
 
     /**
@@ -86,11 +81,11 @@ class Request
     /**
      * @param string $key
      *
-     * @return null|string
+     * @return string|null
      */
     public function getPostParameter($key)
     {
-        return array_key_exists($key, $this->postData) ? $this->postData[$key] : null;
+        return \array_key_exists($key, $this->postData) ? $this->postData[$key] : null;
     }
 
     /**
@@ -100,7 +95,7 @@ class Request
      */
     public function getHeader($key)
     {
-        return array_key_exists($key, $this->serverData) ? $this->serverData[$key] : null;
+        return \array_key_exists($key, $this->serverData) ? $this->serverData[$key] : null;
     }
 
     /**
@@ -132,7 +127,7 @@ class Request
      */
     public function getAuthority()
     {
-        $requestScheme = array_key_exists('REQUEST_SCHEME', $this->serverData) ? $this->serverData['REQUEST_SCHEME'] : 'http';
+        $requestScheme = \array_key_exists('REQUEST_SCHEME', $this->serverData) ? $this->serverData['REQUEST_SCHEME'] : 'http';
         $serverName = $this->serverData['SERVER_NAME'];
         $serverPort = (int) $this->serverData['SERVER_PORT'];
         if (('https' === $requestScheme && 443 !== $serverPort) || ('http' === $requestScheme && 80 !== $serverPort)) {

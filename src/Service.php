@@ -128,7 +128,7 @@ class Service
 
         // check if we already chose a discoveryUrl, if not default to the
         // first one in the configuration
-        if (!array_key_exists('activeDiscoveryUrl', $_SESSION)) {
+        if (!\array_key_exists('activeDiscoveryUrl', $_SESSION)) {
             return new Response(
                 200,
                 [],
@@ -176,7 +176,7 @@ class Service
             if (\is_string($dN)) {
                 $displayName = $dN;
             } else {
-                if (array_key_exists($preferredLanguage, $dN)) {
+                if (\array_key_exists($preferredLanguage, $dN)) {
                     $displayName = $dN[$preferredLanguage];
                 } else {
                     $displayName = $dN[array_keys($dN)[0]];
@@ -280,7 +280,7 @@ class Service
                 $_SESSION['tokenProviderId'] = $providerId;
                 break;
             case 'distributed':
-                if (!array_key_exists('tokenProviderId', $_SESSION)) {
+                if (!\array_key_exists('tokenProviderId', $_SESSION)) {
                     $_SESSION['tokenProviderId'] = $providerId;
                 }
                 break;

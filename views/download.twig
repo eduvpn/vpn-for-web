@@ -22,13 +22,12 @@
 
     <table>
         <thead>
-            <tr><th>Profile</th><th title="Two-factor Authenication">2FA</th><th></th></tr>
+            <tr><th>Profile</th><th></th></tr>
         </thead>
         <tbody>
             {% for profile in profileList %}
                 <tr>
                     <td>{{ profile.display_name }}</td>
-                    <td>{% if profile.two_factor %}Yes{% else %}No{% endif %}</td>
                     <td class="right">
                         <form method="post" action="download">
                             <input type="hidden" name="provider_id" value="{{ providerId }}">

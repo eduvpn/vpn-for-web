@@ -21,57 +21,16 @@ $baseDir = dirname(__DIR__);
 
 use fkooman\OAuth\Client\Http\CurlHttpClient;
 use SURFnet\VPN\Web\Config;
-use SURFnet\VPN\Web\LogoFetcher;
 use SURFnet\VPN\Web\ProviderListFetcher;
-use SURFnet\VPN\Web\TwigTpl;
-
-$preferredLanguage = 'en-US';
 
 try {
     $config = new Config(require sprintf('%s/config/config.php', $baseDir));
-
     $discoveryUrlList = $config->get('Discovery')->keys();
     foreach ($discoveryUrlList as $discoveryUrl) {
         $publicKey = $config->get('Discovery')->get($discoveryUrl)->get('publicKey');
-        $encodedDiscoveryUrl = preg_replace('/[^A-Za-z.]/', '_', $discoveryUrl); // XXX code duplication
+        $encodedDiscoveryUrl = preg_replace('/[^A-Za-z.]/', '_', $discoveryUrl);
         $providerListFetcher = new ProviderListFetcher(sprintf('%s/data/%s', $baseDir, $encodedDiscoveryUrl));
-        $discoveryData = $providerListFetcher->update(new CurlHttpClient(), $discoveryUrl, $publicKey);
-
-        $logoDir = sprintf('%s/data/logo', $baseDir);
-        $logoFetcher = new LogoFetcher($logoDir, new CurlHttpClient());
-        $hostNameList = [];
-        foreach ($discoveryData['instances'] as $instance) {
-            if (null === $hostName = parse_url($instance['base_uri'], PHP_URL_HOST)) {
-                throw new RuntimeException('unable to extract hostname');
-            }
-
-            $logoInfo = $instance['logo'];
-            if (is_string($logoInfo)) {
-                $logoUri = $logoInfo;
-            } else {
-                if ($logoInfo->has($preferredLanguage)) {
-                    $logoUri = $logoInfo->get($preferredLanguage);
-                } else {
-                    $logoUri = $logoInfo->get($logoInfo->keys()[0]);
-                }
-            }
-
-            $logoFetcher->get($hostName, $logoUri);
-            $hostNameList[] = ['hostName' => $hostName, 'encodedHostName' => preg_replace('/\./', '\.', $hostName)];
-        }
-
-        // generate CSS
-        // Templates
-        $templateDirs = [
-            sprintf('%s/views', $baseDir),
-            sprintf('%s/config/views', $baseDir),
-        ];
-
-        $tpl = new TwigTpl($templateDirs, null);
-        $logoCssFile = sprintf('%s/%s.css', $logoDir, $encodedDiscoveryUrl);    // XXX strip json from encodedDiscoveryUrl
-        if (false === @file_put_contents($logoCssFile, $tpl->render('logo-css', ['hostNameList' => $hostNameList]))) {
-            throw new RuntimeException(sprintf('unable to write "%s"', $logoCssFile));
-        }
+        $providerListFetcher->update(new CurlHttpClient(), $discoveryUrl, $publicKey);
     }
 } catch (Exception $e) {
     echo sprintf('ERROR: %s', $e->getMessage()).PHP_EOL;
