@@ -7,20 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VPN for Web</title>
     <link rel="stylesheet" type="text/css" href="css/screen.css">
-    {% if encodedDiscoveryUrl is defined %}
-        <link rel="stylesheet" type="text/css" href="logo/{{ encodedDiscoveryUrl }}.css">
-    {% endif %}
 </head>
 <body>
-    <div class="header">
-        {% block header %}{% endblock %}
-    </div> <!-- header -->
     <div class="container">
         {% block container %}{% endblock %}
     </div> <!-- container -->
-
-    <div class="footer">
-        Powered by <a href="https://github.com/eduvpn/vpn-for-web">vpn-for-web</a>
-    </div> <!-- footer -->
 </body>
 </html>

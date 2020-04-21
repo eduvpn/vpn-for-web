@@ -1,11 +1,5 @@
 {% extends "base.twig" %}
-
-{% block header %}
-    <h1>VPN for Web</h1>
-{% endblock %}
-    
 {% block container %}
-
     <h2>Choose your Connection Type</h2>
     <form class="discoChooser" method="post" action="setDiscoveryUrl">
         <select name="discoveryUrl">
@@ -17,5 +11,4 @@
         </select>
         <button type="submit">Switch</button>
     </form>
-
 {% endblock %}
