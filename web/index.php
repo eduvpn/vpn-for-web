@@ -21,26 +21,16 @@ $baseDir = dirname(__DIR__);
 use fkooman\OAuth\Client\Http\CurlHttpClient;
 use fkooman\OAuth\Client\OAuthClient;
 use fkooman\OAuth\Client\SessionTokenStorage;
-use fkooman\SeCookie\Cookie;
-use fkooman\SeCookie\Session;
 use SURFnet\VPN\Web\Config;
 use SURFnet\VPN\Web\Http\Request;
 use SURFnet\VPN\Web\Service;
 use SURFnet\VPN\Web\TwigTpl;
 
+session_start();
+
 try {
     $config = new Config(require sprintf('%s/config/config.php', $baseDir));
     $dataDir = sprintf('%s/data', $baseDir);
-
-    $session = new Session(
-        [],
-        new Cookie(
-            [
-                'Secure' => $config->get('SecureCookie'),
-                'SameSite' => 'Lax',
-            ]
-        )
-    );
 
     // Templates
     $templateDirs = [
@@ -60,8 +50,6 @@ try {
         new SessionTokenStorage(),
         $httpClient
     );
-    // we store tokens in session, so no need to bind it to a user
-    //$oauthClient->setUserId('N/A');
 
     $service = new Service(
         $config,
