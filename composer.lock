@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d9114780a8f99ae24b58fd5bb4c056d3",
+    "content-hash": "874a58eb9071e7accae5c8bff398c1b4",
     "packages": [
         {
             "name": "fkooman/oauth2-client",

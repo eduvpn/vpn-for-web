@@ -14,10 +14,6 @@
         {
             "type": "vcs",
             "url": "https://git.tuxed.net/fkooman/php-oauth2-client"
-        },
-        {
-            "type": "vcs",
-            "url": "https://git.tuxed.net/fkooman/php-secookie"
         }
     ],
     "description": "VPN for Web",
