@@ -20,6 +20,11 @@ use SURFnet\VPN\Web\Tpl;
 
 session_start();
 
+//echo '<pre>';
+//var_dump($_SESSION);
+//echo '</pre>';
+//exit(0);
+
 try {
     $config = new Config(require sprintf('%s/config/config.php', $baseDir));
     $dataDir = sprintf('%s/data', $baseDir);
@@ -49,6 +54,6 @@ try {
     );
     $response->send();
 } catch (Exception $e) {
-    echo sprintf('ERROR (%s): %s', get_class($e), $e->getMessage());
+    echo sprintf('ERROR (%s): %s %s', get_class($e), $e->getMessage(), $e->getTraceAsString());
     exit(1);
 }
