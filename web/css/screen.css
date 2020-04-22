@@ -1,114 +1,117 @@
-* {
-    box-sizing: border-box;
-}
-
 body {
-    font-family: "Helvetica Neue", "Calibri Light", Roboto, sans-serif;
-    background-color: #fff;
-    color: #555;
-    margin: 0;
-    padding: 0;
-    line-height: 1.4;
-}
-
-a {
-    color: #555;
-}
-
-div.header {
-    background-color: #555;
-    color: #fff;
-    padding: 1em;
-    text-align: center;
-}
-
-div.header h1 {
-    margin: 0;
-    padding: 0;
-    text-align: center;
-}
-
-div.container {
     max-width: 40em;
     margin: 0 auto;
+    padding: 0.5em;
+    text-align: inherit;    /* override for bootstrap-reboot */
 }
 
-div.container h2 {
-    text-align: center;
+main, header {
+    padding: 0 0.5em;
+}
+
+span.mute {
+    color: #888;
+}
+
+summary {
+    margin: 1em 0;
+}
+
+header {
+    text-align: end;
+}
+
+button {
+    padding: 0.3em;
+    border: 1px solid #d8d8d8;
+    outline: none;
+    margin: 0.5em 0;
+    background-color: #f8f8f8;
+    color: #777;
 }
 
 ul {
-    padding: 0;
     list-style: none;
+    padding: 0;
 }
 
 ul li {
-    border-bottom: 2px solid #eee;
-}
-
-fieldset {
-    border: 0;
     margin: 0;
-    padding: 0;
+    padding: 0.1em 0;
 }
 
-form.discoChooser {
+ul li button {
+    width: 100%;
+    text-align: start;
+    padding: 0.75em;
+    margin: 0;
+}
+
+p.warning {
+    border: 1px solid orange;
+    padding: 1em;
+    width: 100%;
+    color: orange;
+}
+
+p.warning::before {
+    content: "⚠️"
+}
+
+p.success {
+    border: 1px solid darkgreen;
+    padding: 1em;
+    width: 100%;
+    color: darkgreen;
+}
+
+p.success::before {
+    content: "✔️"
+}
+
+summary {
+    margin-bottom: 1em;
+}
+
+footer {
     margin-top: 2em;
+    font-size: 75%;
     text-align: center;
 }
 
-form.entity button {
-    width: 100%;
-    text-align: left;
-    border: 0;
-    background-color: #fff;
-}
-
-form.entity button:hover, form.entity button:active, form.entity button:focus {
-    background-color: #555;
-    color: #fff;
-    cursor: pointer;
-}
-
-form.entity button::-moz-focus-inner {
-    /* firefox work around to disable ugly "outline" */
-    border: 0;
-}
-
-table {
+table.tbl {
+    border: 1px solid #ccc;
     width: 100%;
     border-collapse: collapse;
-    border: 1px solid #555;
+    margin-bottom: 1em;
 }
 
-table thead tr {
-    background-color: #555;
-    color: #fff;
+table.tbl ul {
+    margin: 0;
+    padding: 0 0 0 1em;
 }
 
-table thead th {
-    padding: 0.5em;
-    text-align: left;
+table.tbl thead tr {
+    background-color: #f8f8f8;
+    color: #555;
 }
 
-table tbody td {
-    padding: 0.5em;
+table.tbl tbody th {
+    vertical-align: top;
 }
 
-table tbody td.right {
+table.tbl td, table.tbl th {
+    padding: 0.8em 0.5em;
+}
+
+table.tbl tbody tr:nth-child(even) {
+    background-color: #f8f8f8;
+}
+
+table.tbl button, table.tbl form {
+    margin: 0;
+}
+
+.right {
     text-align: right;
-}
-
-hr {
-    display: none;
-}
-
-div.footer {
-    text-align: center;
-    margin: 2em;
-    font-size: 85%;
-}
-
-div.footer, div.footer a {
-    color: #888;
 }

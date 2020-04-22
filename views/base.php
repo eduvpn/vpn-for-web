@@ -7,9 +7,11 @@
     <title>VPN for Web</title>
     <link href="css/bootstrap-reboot.min.css" media="screen" rel="stylesheet">
     <link href="css/screen.css" media="screen" rel="stylesheet">
+    <link href="css/eduVPN/screen.css" media="screen" rel="stylesheet">
 </head>
 <body>
     <header>
+        <h1>VPN for Web</h1>
     </header>
     <main>
         <?=$this->section('content'); ?>

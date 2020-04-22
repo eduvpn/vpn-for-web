@@ -11,7 +11,6 @@ namespace SURFnet\VPN\Web;
 
 use fkooman\OAuth\Client\Http\HttpClientInterface;
 use fkooman\OAuth\Client\Http\Request;
-use ParagonIE\ConstantTime\Base64;
 use RuntimeException;
 
 class ProviderListFetcher
@@ -35,13 +34,13 @@ class ProviderListFetcher
      */
     public function update(HttpClientInterface $httpClient, $discoveryUrl, $encodedPublicKey)
     {
-        $publicKey = Base64::decode($encodedPublicKey);
+        $publicKey = base64_decode($encodedPublicKey);
         $discoverySignatureUrl = sprintf('%s.sig', $discoveryUrl);
 
         $discoveryResponse = $this->httpGet($httpClient, $discoveryUrl);
         $discoverySignatureResponse = $this->httpGet($httpClient, $discoverySignatureUrl);
 
-        $discoverySignature = Base64::decode($discoverySignatureResponse->getBody());
+        $discoverySignature = base64_decode($discoverySignatureResponse->getBody());
         $discoveryBody = $discoveryResponse->getBody();
 
         if (!sodium_crypto_sign_verify_detached($discoverySignature, $discoveryBody, $publicKey)) {

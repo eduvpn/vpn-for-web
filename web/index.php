@@ -23,19 +23,14 @@ session_start();
 try {
     $config = new Config(require sprintf('%s/config/config.php', $baseDir));
     $dataDir = sprintf('%s/data', $baseDir);
-
-    // Templates
-    $templateDirs = [
-        sprintf('%s/views', $baseDir),
-        sprintf('%s/config/views', $baseDir),
-    ];
-
     $tpl = new Tpl(
-        $templateDirs
+        [
+            sprintf('%s/views', $baseDir),
+            sprintf('%s/config/views', $baseDir),
+        ]
     );
 
     $httpClient = new CurlHttpClient();
-
     // OAuth client
     $oauthClient = new OAuthClient(
         new SessionTokenStorage(),

@@ -1,14 +1,33 @@
 <?php $this->layout('base'); ?>
 <?php $this->start('content'); ?>
-    <h2>Choose your Connection Type</h2>
-    <form class="discoChooser" method="post" action="setDiscoveryUrl">
-        <select name="discoveryUrl">
-<?php foreach ($discoChooser as $discoItem):?>
-            <option value="<?=$this->e($discoItem['discoveryUrl']); ?>">
-                <?=$this->e($discoItem['displayName']); ?>
-            </option>
+<h2>Institute Access</h2>
+<?php if (0 === count($myInstituteList)): ?>
+    <span class="mute">No Institute Yet...</span>
+<?php else: ?>
+    <ul>
+        <form method="get" action="getProfileList">
+<?php  foreach ($myInstituteList as $instituteEntry): ?>
+        <li>
+            <button name="baseUri" value="<?=$this->e($instituteEntry['base_uri']); ?>"><?=$this->e($instituteEntry['display_name']); ?></button>
+        </li>
 <?php endforeach; ?>
-        </select>
-        <button type="submit">Switch</button>
-    </form>
+        </form>
+    </ul>
+<?php endif; ?>
+<details>
+    <summary>Add New Institute</summary>
+    <ul>
+        <form method="post" action="addInstitute">
+<?php  foreach ($instituteList as $instituteEntry): ?>
+        <li>
+            <button name="baseUri" value="<?=$this->e($instituteEntry['base_uri']); ?>"><?=$this->e($instituteEntry['display_name']); ?></button>
+        </li>
+<?php endforeach; ?>
+        </form>
+    </ul>
+</details>
+
+<h2>Secure Internet</h2>
+<span class="mute">Not Yet Implemented...</span>
+
 <?php $this->stop('content');

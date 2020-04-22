@@ -3,36 +3,21 @@
 return [
     // Discovery URLs for VPN providers
     'Discovery' => [
-        // PRODUCTION
-        'https://static.eduvpn.nl/disco/secure_internet.json' => [
-            'publicKey' => 'E5On0JTtyUVZmcWd+I/FXRm32nSq8R2ioyW7dcu/U88=',
-            'displayName' => 'Secure Internet',
-        ],
         'https://static.eduvpn.nl/disco/institute_access.json' => [
             'publicKey' => 'E5On0JTtyUVZmcWd+I/FXRm32nSq8R2ioyW7dcu/U88=',
             'displayName' => 'Institute Access',
         ],
-
-        // DEVELOPMENT
-        //'https://static.eduvpn.nl/disco/secure_internet_dev.json' => [
-        //    'publicKey' => 'zzls4TZTXHEyV3yxaxag1DZw3tSpIdBoaaOjUGH/Rwg=',
-        //    'displayName' => '[DEV] Secure Internet',
-        //],
-        //'https://static.eduvpn.nl/disco/institute_access_dev.json' => [
-        //    'publicKey' => 'zzls4TZTXHEyV3yxaxag1DZw3tSpIdBoaaOjUGH/Rwg=',
-        //    'displayName' => '[DEV] Institute Access',
-        //],
+        'https://static.eduvpn.nl/disco/secure_internet.json' => [
+            'publicKey' => 'E5On0JTtyUVZmcWd+I/FXRm32nSq8R2ioyW7dcu/U88=',
+            'displayName' => 'Secure Internet',
+        ],
     ],
 
     // OAuth Client Configuration
     'OAuth' => [
         'clientId' => 'org.eduvpn.web',
-        'clientSecret' => '12345abcde',
         'requestScope' => 'config',
     ],
-
-    // enable/disable template cache
-    'TemplateCache' => true,
 
     // use "Secure" HTTP cookies (HTTPS-only)
     'SecureCookie' => true,
