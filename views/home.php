@@ -1,33 +1,34 @@
 <?php $this->layout('base'); ?>
 <?php $this->start('content'); ?>
-<h2>Institute Access</h2>
-<?php if (0 === count($myInstituteList)): ?>
-    <span class="mute">No Institute Yet...</span>
-<?php else: ?>
+<p><a href="../">Home</a> | <a href="../settings">Settings</a></p>
+<h2>Server List</h2>
+<?php if (0 !== count($myInstituteList)): ?>
+<p>Choose a server to download a VPN configuration.</p>
     <ul>
         <form method="get" action="getProfileList">
 <?php  foreach ($myInstituteList as $instituteEntry): ?>
         <li>
-            <button name="baseUri" value="<?=$this->e($instituteEntry['base_uri']); ?>"><?=$this->e($instituteEntry['display_name']); ?></button>
+            <button name="baseUri" value="<?=$this->e($instituteEntry['base_uri']); ?>">
+<?php if ('institute_access' === $instituteEntry['type']): ?>
+🏛️
+<?php elseif ('secure_internet' === $instituteEntry['type']): ?>
+🌍
+<?php else: ?>
+👽
+<?php endif; ?>
+                <?=$this->l($instituteEntry['display_name']); ?>
+            </button>
         </li>
 <?php endforeach; ?>
         </form>
     </ul>
 <?php endif; ?>
-<details>
-    <summary>Add New Institute</summary>
-    <ul>
-        <form method="post" action="addInstitute">
-<?php  foreach ($instituteList as $instituteEntry): ?>
-        <li>
-            <button name="baseUri" value="<?=$this->e($instituteEntry['base_uri']); ?>"><?=$this->e($instituteEntry['display_name']); ?></button>
-        </li>
-<?php endforeach; ?>
-        </form>
-    </ul>
-</details>
-
-<h2>Secure Internet</h2>
-<span class="mute">Not Yet Implemented...</span>
-
+<p class="center">
+<?php if (0 === count($myInstituteList)): ?>
+    <a class="small" href="chooseServer">Add Server...</a>
+<?php else: ?>
+    <a class="small" href="chooseServer">Add Additional Server...</a>
+    <form class="center small" method="post" action="clearList"><button type="submit">Reset Data (DEBUG)</button></form>
+<?php endif; ?>
+</p>
 <?php $this->stop('content');

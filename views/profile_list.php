@@ -1,7 +1,8 @@
 <?php $this->layout('base'); ?>
 <?php $this->start('content'); ?>
-    <h2><?=$this->e($serverInfo['display_name']); ?></h2>
-
+<p><a href="../">Home</a> | <a href="../settings">Settings</a></p>
+    <h2><?=$this->l($serverInfo['display_name']); ?></h2>
+<p>Click the "Download" button to download a profile configuration. Import it in your OpenVPN client afterwards.</p>
     <table class="tbl">
         <thead>
             <tr><th>Profile</th><th></th></tr>

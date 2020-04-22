@@ -34,13 +34,13 @@ class ProviderListFetcher
      */
     public function update(HttpClientInterface $httpClient, $discoveryUrl, $encodedPublicKey)
     {
-        $publicKey = base64_decode($encodedPublicKey);
+        $publicKey = base64_decode($encodedPublicKey, true);
         $discoverySignatureUrl = sprintf('%s.sig', $discoveryUrl);
 
         $discoveryResponse = $this->httpGet($httpClient, $discoveryUrl);
         $discoverySignatureResponse = $this->httpGet($httpClient, $discoverySignatureUrl);
 
-        $discoverySignature = base64_decode($discoverySignatureResponse->getBody());
+        $discoverySignature = base64_decode($discoverySignatureResponse->getBody(), true);
         $discoveryBody = $discoveryResponse->getBody();
 
         if (!sodium_crypto_sign_verify_detached($discoverySignature, $discoveryBody, $publicKey)) {

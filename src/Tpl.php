@@ -221,6 +221,21 @@ class Tpl implements TplInterface
         return htmlentities($v, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 
+    private function l($v)
+    {
+        if (!\is_array($v)) {
+            return $this->e($v);
+        }
+        if (\array_key_exists('en', $v)) {
+            return $this->e($v['en']);
+        }
+        if (\array_key_exists('en-US', $v)) {
+            return $this->e($v['en-US']);
+        }
+
+        return $this->e(array_values($v)[0]);
+    }
+
     /**
      * @param string $v
      * @param string $cb
