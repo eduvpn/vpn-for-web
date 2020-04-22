@@ -7,10 +7,10 @@
  * SPDX-License-Identifier: AGPL-3.0+
  */
 
-namespace SURFnet\VPN\Web\Http\Exception;
+namespace SURFnet\VPN\Web\Exception;
 
 use Exception;
 
-class TokenException extends Exception
+class TplException extends Exception
 {
 }

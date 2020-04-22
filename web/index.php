@@ -1,20 +1,12 @@
 <?php
-/**
- *  Copyright (C) 2017 SURFnet.
+
+/*
+ * eduVPN - End-user friendly VPN.
  *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of the
- *  License, or (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * Copyright: 2016-2020, The Commons Conservancy eduVPN Programme
+ * SPDX-License-Identifier: AGPL-3.0+
  */
+
 require_once dirname(__DIR__).'/vendor/autoload.php';
 $baseDir = dirname(__DIR__);
 
@@ -24,7 +16,7 @@ use fkooman\OAuth\Client\SessionTokenStorage;
 use SURFnet\VPN\Web\Config;
 use SURFnet\VPN\Web\Http\Request;
 use SURFnet\VPN\Web\Service;
-use SURFnet\VPN\Web\TwigTpl;
+use SURFnet\VPN\Web\Tpl;
 
 session_start();
 
@@ -38,9 +30,8 @@ try {
         sprintf('%s/config/views', $baseDir),
     ];
 
-    $tpl = new TwigTpl(
-        $templateDirs,
-        $config->get('TemplateCache') ? sprintf('%s/tpl', $dataDir) : null
+    $tpl = new Tpl(
+        $templateDirs
     );
 
     $httpClient = new CurlHttpClient();
