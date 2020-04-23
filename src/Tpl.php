@@ -221,6 +221,11 @@ class Tpl implements TplInterface
         return htmlentities($v, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 
+    /**
+     * @param array<string,string>|string $v
+     *
+     * @return string
+     */
     private function l($v)
     {
         if (!\is_array($v)) {

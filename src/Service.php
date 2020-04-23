@@ -215,9 +215,15 @@ class Service
         return null;
     }
 
+    /**
+     * @return \LC\Web\Http\Response
+     */
     private function getProfileList(Request $request)
     {
-        $baseUri = $request->getQueryParameter('baseUri');
+        if (null === $baseUri = $request->getQueryParameter('baseUri')) {
+            return new Response(400, [], 'baseUri query parameter missing');
+        }
+
         $provider = null;
         if ($this->isSecureInternetServer($baseUri)) {
             // do we already have a token for any secure internet server?
@@ -368,6 +374,9 @@ class Service
         return json_decode(file_get_contents($this->dataDir.'/organization_list.json'), true)['organization_list'];
     }
 
+    /**
+     * @return array
+     */
     private function getSessionData()
     {
         if (!\array_key_exists('VpnForWeb', $_SESSION)) {
@@ -377,6 +386,9 @@ class Service
         return json_decode($_SESSION['VpnForWeb'], true);
     }
 
+    /**
+     * @return void
+     */
     private function writeSessionData(array $sessionData)
     {
         $_SESSION['VpnForWeb'] = json_encode($sessionData);
