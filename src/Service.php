@@ -71,7 +71,7 @@ class Service
                     default:
                         return new Response(404, [], '[404] Not Found');
                 }
-                break;
+                // no break
             case 'POST':
                 switch ($request->getPathInfo()) {
                     case '/addServer':
@@ -105,7 +105,7 @@ class Service
                     default:
                         return new Response(404, [], '[404] Not Found');
                 }
-                break;
+                // no break
             default:
                 return new Response(405, ['Allow' => 'GET,HEAD'], '[405] Method Not Allowed');
         }
@@ -221,7 +221,7 @@ class Service
         $provider = null;
         if ($this->isSecureInternetServer($baseUri)) {
             // do we already have a token for any secure internet server?
-            if (null === $homeProvider = $this->hasSecureInternetToken($baseUri)) {
+            if (null === $homeProvider = $this->hasSecureInternetToken()) {
                 if (null === $orgId = $request->getQueryParameter('orgId')) {
                     // show IdP list
                     return new Response(302, ['Location' => $request->getRootUri().'chooseIdP?baseUri='.$baseUri]);
