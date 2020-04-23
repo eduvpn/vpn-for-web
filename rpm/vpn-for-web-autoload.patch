@@ -1,0 +1,30 @@
+diff --git a/bin/fetch-provider-info.php b/bin/fetch-provider-info.php
+index d6a4dbf..17690bd 100644
+--- a/bin/fetch-provider-info.php
++++ b/bin/fetch-provider-info.php
+@@ -7,8 +7,8 @@
+  * SPDX-License-Identifier: AGPL-3.0+
+  */
+ 
+-require_once dirname(__DIR__).'/vendor/autoload.php';
+-$baseDir = dirname(__DIR__);
++require_once '/usr/share/php/LC/Web/autoload.php';
++$baseDir = '/usr/share/vpn-for-web';
+ 
+ use fkooman\OAuth\Client\Http\CurlHttpClient;
+ use LC\Web\Config;
+diff --git a/web/index.php b/web/index.php
+index 5256909..789f587 100644
+--- a/web/index.php
++++ b/web/index.php
+@@ -7,8 +7,8 @@
+  * SPDX-License-Identifier: AGPL-3.0+
+  */
+ 
+-require_once dirname(__DIR__).'/vendor/autoload.php';
+-$baseDir = dirname(__DIR__);
++require_once '/usr/share/php/LC/Web/autoload.php';
++$baseDir = '/usr/share/vpn-for-web';
+ 
+ use fkooman\OAuth\Client\Http\CurlHttpClient;
+ use fkooman\OAuth\Client\OAuthClient;
