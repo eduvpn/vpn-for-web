@@ -20,11 +20,6 @@ use SURFnet\VPN\Web\Tpl;
 
 session_start();
 
-//echo '<pre>';
-//var_dump($_SESSION);
-//echo '</pre>';
-//exit(0);
-
 try {
     $config = new Config(require sprintf('%s/config/config.php', $baseDir));
     $dataDir = sprintf('%s/data', $baseDir);

@@ -21,6 +21,7 @@
     "name": "eduvpn/vpn-for-web",
     "require": {
         "ext-date": "*",
+        "ext-session": "*",
         "ext-json": "*",
         "ext-mbstring": "*",
         "ext-spl": "*",
