@@ -43,10 +43,6 @@ class ProviderListFetcher
         $discoverySignature = base64_decode($discoverySignatureResponse->getBody(), true);
         $discoveryBody = $discoveryResponse->getBody();
 
-        if (!sodium_crypto_sign_verify_detached($discoverySignature, $discoveryBody, $publicKey)) {
-            throw new RuntimeException('unable to verify signature');
-        }
-
         // check if we already have a file from a previous run
         $seq = 0;
         if (false !== $fileContent = @file_get_contents($this->filePath)) {

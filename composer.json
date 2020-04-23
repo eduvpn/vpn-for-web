@@ -27,9 +27,5 @@
         "fkooman/oauth2-client": "dev-master",
         "php": ">= 5.4.0"
     },
-    "suggest": {
-        "ext-libsodium": "PHP < 7.2 sodium implementation",
-        "ext-sodium": "PHP >= 7.2 sodium implementation"
-    },
     "type": "project"
 }
