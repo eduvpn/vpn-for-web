@@ -7,11 +7,11 @@
  * SPDX-License-Identifier: AGPL-3.0+
  */
 
-namespace SURFnet\VPN\Web;
+namespace LC\Web;
 
 use DateTime;
 use DateTimeZone;
-use SURFnet\VPN\Web\Exception\TplException;
+use LC\Web\Exception\TplException;
 
 class Tpl implements TplInterface
 {

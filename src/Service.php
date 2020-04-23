@@ -7,15 +7,15 @@
  * SPDX-License-Identifier: AGPL-3.0+
  */
 
-namespace SURFnet\VPN\Web;
+namespace LC\Web;
 
 use fkooman\OAuth\Client\Http\HttpClientInterface;
 use fkooman\OAuth\Client\Http\Request as HttpRequest;
 use fkooman\OAuth\Client\OAuthClient;
 use fkooman\OAuth\Client\Provider;
+use LC\Web\Http\Request;
+use LC\Web\Http\Response;
 use RuntimeException;
-use SURFnet\VPN\Web\Http\Request;
-use SURFnet\VPN\Web\Http\Response;
 
 class Service
 {

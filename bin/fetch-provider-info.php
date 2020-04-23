@@ -20,8 +20,8 @@ require_once dirname(__DIR__).'/vendor/autoload.php';
 $baseDir = dirname(__DIR__);
 
 use fkooman\OAuth\Client\Http\CurlHttpClient;
-use SURFnet\VPN\Web\Config;
-use SURFnet\VPN\Web\ProviderListFetcher;
+use LC\Web\Config;
+use LC\Web\ProviderListFetcher;
 
 try {
     $config = new Config(require sprintf('%s/config/config.php', $baseDir));

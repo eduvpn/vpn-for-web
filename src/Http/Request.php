@@ -7,7 +7,7 @@
  * SPDX-License-Identifier: AGPL-3.0+
  */
 
-namespace SURFnet\VPN\Web\Http;
+namespace LC\Web\Http;
 
 class Request
 {

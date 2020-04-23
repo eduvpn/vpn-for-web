@@ -13,10 +13,10 @@ $baseDir = dirname(__DIR__);
 use fkooman\OAuth\Client\Http\CurlHttpClient;
 use fkooman\OAuth\Client\OAuthClient;
 use fkooman\OAuth\Client\SessionTokenStorage;
-use SURFnet\VPN\Web\Config;
-use SURFnet\VPN\Web\Http\Request;
-use SURFnet\VPN\Web\Service;
-use SURFnet\VPN\Web\Tpl;
+use LC\Web\Config;
+use LC\Web\Http\Request;
+use LC\Web\Service;
+use LC\Web\Tpl;
 
 session_start();
 

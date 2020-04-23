@@ -7,9 +7,9 @@
  * SPDX-License-Identifier: AGPL-3.0+
  */
 
-namespace SURFnet\VPN\Web;
+namespace LC\Web;
 
-use SURFnet\VPN\Web\Exception\ConfigException;
+use LC\Web\Exception\ConfigException;
 
 class Config
 {

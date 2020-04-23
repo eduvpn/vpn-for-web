@@ -7,7 +7,7 @@
  * SPDX-License-Identifier: AGPL-3.0+
  */
 
-namespace SURFnet\VPN\Web\Http\Exception;
+namespace LC\Web\Http\Exception;
 
 use Exception;
 
