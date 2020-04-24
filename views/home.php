@@ -1,6 +1,5 @@
 <?php $this->layout('base'); ?>
 <?php $this->start('content'); ?>
-<p><a href="../">Home</a> | <a href="../settings">Settings</a></p>
 <h2>Server List</h2>
 <?php if (0 !== count($myInstituteList)): ?>
 <p>Choose a server to download a VPN configuration.</p>
@@ -24,10 +23,6 @@
     </ul>
 <?php endif; ?>
 <p class="center">
-<?php if (0 === count($myInstituteList)): ?>
-    <a class="small" href="chooseServer">Add Server...</a>
-<?php else: ?>
     <a class="small" href="chooseServer">Add Additional Server...</a>
-<?php endif; ?>
 </p>
 <?php $this->stop('content');

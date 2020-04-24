@@ -13,6 +13,9 @@
     <header>
         <h1>VPN for Web</h1>
     </header>
+    <nav>
+        <a href="../">Home</a> | <a href="../settings">Settings</a>
+    </nav>
     <main>
         <?=$this->section('content'); ?>
     </main>

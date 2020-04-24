@@ -1,6 +1,5 @@
 <?php $this->layout('base'); ?>
 <?php $this->start('content'); ?>
-<p><a href="../">Home</a> | <a href="../settings">Settings</a></p>
 <h2>Choose Institute</h2>
 <p>Choose your Institute from the list below.</p>
 <ul>

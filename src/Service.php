@@ -58,7 +58,7 @@ class Service
             case 'GET':
                 switch ($request->getPathInfo()) {
                     case '/':
-                        return $this->showHome();
+                        return $this->showHome($request);
                     case '/settings':
                         return new Response(
                             200,
@@ -124,7 +124,7 @@ class Service
     /**
      * @return Http\Response
      */
-    private function showHome()
+    private function showHome(Request $request)
     {
         $instituteList = $this->getAvailableServerList();
         $sessionData = $this->getSessionData();
@@ -137,6 +137,10 @@ class Service
                     // TODO: remove the entry from the list to not allow adding the same one twice
                 }
             }
+        }
+
+        if (0 === \count($myInstituteList)) {
+            return new Response(302, ['Location' => $request->getRootUri().'chooseServer']);
         }
 
         return new Response(

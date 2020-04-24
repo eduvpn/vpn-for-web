@@ -1,6 +1,5 @@
 <?php $this->layout('base'); ?>
 <?php $this->start('content'); ?>
-<p><a href="../">Home</a> | <a href="../settings">Settings</a></p>
 <h2>Choose Server</h2>
 <p>Servers with the 🏛️ symbol connect to the institute network. Servers with 🌍 allow you to safely use the Internet from anywhere!</p>
 
