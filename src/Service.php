@@ -13,6 +13,7 @@ use fkooman\OAuth\Client\Http\HttpClientInterface;
 use fkooman\OAuth\Client\Http\Request as HttpRequest;
 use fkooman\OAuth\Client\OAuthClient;
 use fkooman\OAuth\Client\Provider;
+use LC\Web\Http\Exception\HttpException;
 use LC\Web\Http\Request;
 use LC\Web\Http\Response;
 use RuntimeException;
@@ -53,87 +54,111 @@ class Service
      */
     public function run(Request $request)
     {
-        switch ($request->getMethod()) {
-            case 'HEAD':
-            case 'GET':
-                switch ($request->getPathInfo()) {
-                    case '/':
-                        return $this->showHome($request);
-                    case '/settings':
-                        return new Response(
-                            200,
-                            [],
-                            $this->tpl->render(
-                                'settings',
+        try {
+            switch ($request->getMethod()) {
+                case 'HEAD':
+                case 'GET':
+                    switch ($request->getPathInfo()) {
+                        case '/':
+                            return $this->showHome($request);
+                        case '/settings':
+                            return new Response(
+                                200,
+                                [],
+                                $this->tpl->render(
+                                    'settings',
+                                    [
+                                        'forceTcp' => isset($_SESSION['forceTcp']) ? $_SESSION['forceTcp'] : false,
+                                    ]
+                                )
+                            );
+                        case '/chooseServer':
+                            return $this->showChooseServer();
+                        case '/switchLocation':
+                            return $this->showSwitchLocation();
+                        case '/chooseIdP':
+                            return $this->showChooseIdp($request);
+                        case '/getProfileList':
+                            return $this->getProfileList($request);
+                        case '/callback':
+                            // handle OAuth server callback
+                            return $this->handleCallback($request);
+                        default:
+                            throw new HttpException('Not Found', 404);
+                    }
+                    // no break
+                case 'POST':
+                    switch ($request->getPathInfo()) {
+                        case '/addServer':
+                            $baseUri = self::validateBaseUri($request->getPostParameter('baseUri'));
+
+                            return new Response(
+                                302,
                                 [
-                                    'forceTcp' => isset($_SESSION['forceTcp']) ? $_SESSION['forceTcp'] : false,
+                                    'Location' => $request->getRootUri().'getProfileList?baseUri='.$baseUri,
                                 ]
-                            )
-                        );
-                    case '/chooseServer':
-                        return $this->showChooseServer();
-                    case '/switchLocation':
-                        return $this->showSwitchLocation();
-                    case '/chooseIdP':
-                        return $this->showChooseIdp($request);
-                    case '/getProfileList':
-                        return $this->getProfileList($request);
-                    case '/callback':
-                        // handle OAuth server callback
-                        return $this->handleCallback($request);
-                    default:
-                        return new Response(404, [], '[404] Not Found');
-                }
-                // no break
-            case 'POST':
-                switch ($request->getPathInfo()) {
-                    case '/addServer':
-                        $baseUri = $_POST['baseUri'];
+                            );
 
-                        return new Response(
-                            302,
-                            [
-                                'Location' => $request->getRootUri().'getProfileList?baseUri='.$baseUri,
-                            ]
-                        );
+                        case '/addOtherServer':
+                            $baseUri = self::validateBaseUri('https://'.$request->getPostParameter('serverName').'/');
 
-                    case '/selectIdP':
-                        $baseUri = $_POST['baseUri'];
-                        $orgId = $_POST['orgId'];
+                            return new Response(
+                                302,
+                                [
+                                    'Location' => $request->getRootUri().'getProfileList?baseUri='.$baseUri,
+                                ]
+                            );
 
-                        return new Response(
-                            302,
-                            [
-                                'Location' => $request->getRootUri().'getProfileList?orgId='.$orgId,
-                            ]
-                        );
+                        case '/selectIdP':
+                            $baseUri = $_POST['baseUri'];
+                            $orgId = $_POST['orgId'];
 
-                    case '/switchLocation':
-                        $baseUri = $request->getPostParameter('baseUri');
-                        $_SESSION['secure_internet'] = $baseUri;
+                            return new Response(
+                                302,
+                                [
+                                    'Location' => $request->getRootUri().'getProfileList?orgId='.$orgId,
+                                ]
+                            );
 
-                        return new Response(
-                            302,
-                            [
-                                'Location' => $request->getRootUri().'getProfileList?baseUri='.$baseUri,
-                            ]
-                        );
+                        case '/switchLocation':
+                            $baseUri = $request->getPostParameter('baseUri');
+                            $_SESSION['secure_internet'] = $baseUri;
 
-                    case '/saveSettings':
-                        $_SESSION['forceTcp'] = 'on' === $request->getPostParameter('forceTcp');
+                            return new Response(
+                                302,
+                                [
+                                    'Location' => $request->getRootUri().'getProfileList?baseUri='.$baseUri,
+                                ]
+                            );
 
-                        return new Response(302, ['Location' => $request->getRootUri()]);
+                        case '/saveSettings':
+                            $_SESSION['forceTcp'] = 'on' === $request->getPostParameter('forceTcp');
 
-                    case '/resetAppData':
-                        $_SESSION = [];
+                            return new Response(302, ['Location' => $request->getRootUri()]);
 
-                        return new Response(302, ['Location' => $request->getRootUri()]);
-                    default:
-                        return new Response(404, [], '[404] Not Found');
-                }
-                // no break
-            default:
-                return new Response(405, ['Allow' => 'GET,HEAD'], '[405] Method Not Allowed');
+                        case '/resetAppData':
+                            $_SESSION = [];
+
+                            return new Response(302, ['Location' => $request->getRootUri()]);
+                        default:
+                            throw new HttpException('Not Found', 404);
+                    }
+                    // no break
+                default:
+                    throw new HttpException('Method Not Allowed', 405, ['Allow' => 'GET,HEAD,POST']);
+            }
+        } catch (HttpException $e) {
+            return new Response(
+                $e->getCode(),
+                $e->getResponseHeaders(),
+                $this->tpl->render(
+                    'error',
+                    [
+                        'errorCode' => $e->getCode(),
+                        'errorMessage' => $e->getMessage(),
+                    ]
+                )
+            );
         }
     }
 
@@ -143,6 +168,7 @@ class Service
     private function showHome(Request $request)
     {
         $mySessionInstituteAccessList = isset($_SESSION['institute_access']) ? $_SESSION['institute_access'] : [];
+        $myAlienServerList = isset($_SESSION['alien']) ? $_SESSION['alien'] : [];
         $secureInternetBaseUri = isset($_SESSION['secure_internet']) ? $_SESSION['secure_internet'] : null;
 
         $instituteList = $this->getInstituteAccessServerList();
@@ -163,6 +189,7 @@ class Service
                 'home',
                 [
                     'myInstituteServerInfo' => $myInstituteServerInfo,
+                    'myAlienServerList' => $myAlienServerList,
                     'secureInternetServerInfo' => null !== $secureInternetBaseUri ? $this->getServerInfo($secureInternetBaseUri) : null,
                 ]
             )
@@ -252,10 +279,10 @@ class Service
             // if we do NOT get a baseUri, we MUST have an orgId that we then
             // use to figure out *which* baseUri we need to connect to
             if (null === $orgId = $request->getQueryParameter('orgId')) {
-                return new Response(400, [], 'baseUri and orgId query parameter missing');
+                throw new HttpException('baseUri and orgId query parameter missing', 400);
             }
             if (null === $baseUri = $this->getBaseUriFromOrgId($orgId)) {
-                return new Response(400, [], 'Bummer! orgId does not have a "Secure Internet" server available');
+                throw new HttpException('Bummer! orgId does not have a "Secure Internet" server available', 400);
             }
         }
         $userId = $baseUri; // use baseUri as user_id
@@ -406,17 +433,25 @@ class Service
         );
 
         // add baseUri to server list
+        // XXX make sure to never add the same server twice! this will happen
+        // after app is revoked for example...
         $serverInfo = $this->getServerInfo($baseUri);
         if ('secure_internet' === $serverInfo['type']) {
             if (!isset($_SESSION['secure_internet_home'])) {
                 $_SESSION['secure_internet_home'] = $baseUri;
             }
             $_SESSION['secure_internet'] = $baseUri;
-        } else {
+        } elseif ('institute_access' === $serverInfo['type']) {
             if (!\array_key_exists('institute_access', $_SESSION)) {
                 $_SESSION['institute_access'] = [];
             }
             $_SESSION['institute_access'][] = $baseUri;
+        } else {
+            // alien
+            if (!\array_key_exists('alien', $_SESSION)) {
+                $_SESSION['alien'] = [];
+            }
+            $_SESSION['alien'][] = $baseUri;
         }
 
         // redirect back
@@ -426,5 +461,22 @@ class Service
                 'Location' => $request->getRootUri().'getProfileList?baseUri='.$baseUri,
             ]
         );
+    }
+
+    /**
+     * @param mixed $baseUri
+     *
+     * @return string
+     */
+    private static function validateBaseUri($baseUri)
+    {
+        if (!\is_string($baseUri)) {
+            throw new HttpException('invalid baseUri', 400);
+        }
+        if (1 !== preg_match('/^https:\/\/[a-zA-Z0-9-.]+\/$/', $baseUri)) {
+            throw new HttpException('invalid baseUri', 400);
+        }
+
+        return $baseUri;
     }
 }

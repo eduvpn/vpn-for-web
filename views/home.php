@@ -31,4 +31,16 @@
     <div class="add"><a class="small" href="switchLocation">Switch Location...</a></div>
 <?php endif; ?>
 
+<?php if (0 !== count($myAlienServerList)): ?>
+    <h2>Alien</h2>
+    <ul>
+        <form method="get" action="getProfileList">
+<?php  foreach ($myAlienServerList as $baseUri): ?>
+        <li>
+            <button name="baseUri" value="<?=$this->e($baseUri); ?>">👽 <?=$this->e($baseUri); ?></button>
+        </li>
+<?php endforeach; ?>
+        </form>
+    </ul>
+<?php endif; ?>
 <?php $this->stop('content');

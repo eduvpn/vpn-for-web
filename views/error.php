@@ -1,6 +1,6 @@
 <?php $this->layout('base'); ?>
 <?php $this->start('content'); ?>
-    <h2>Error {{ errorCode }}</h2>
+    <h2>Error <?=$this->e($errorCode); ?></h2>
 
     <p>
         <?=$this->e($errorMessage); ?>
