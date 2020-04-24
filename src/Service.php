@@ -77,9 +77,12 @@ class Service
                         case '/switchLocation':
                             return $this->showSwitchLocation();
                         case '/chooseIdP':
-                            return $this->showChooseIdp($request);
+                            return $this->showChooseIdp();
                         case '/getProfileList':
-                            return $this->getProfileList($request);
+                            $baseUri = self::validateBaseUri($request->getQueryParameter('baseUri'));
+                            $orgId = self::validateOrgId($request->getQueryParameter('orgId'));
+
+                            return $this->getProfileList($baseUri, $orgId, $request->getRootUri());
                         case '/callback':
                             // handle OAuth server callback
                             return $this->handleCallback($request);
@@ -110,9 +113,7 @@ class Service
                             );
 
                         case '/selectIdP':
-                            $baseUri = self::validateBaseUri($request->getPostParameter('baseUri'));
-                            // XXX validate orgId
-                            $orgId = $_POST['orgId'];
+                            $orgId = self::validateOrgId($request->getPostParameter('orgId'));
 
                             return new Response(
                                 302,
@@ -234,7 +235,7 @@ class Service
     /**
      * @return Http\Response
      */
-    private function showChooseIdp(Request $request)
+    private function showChooseIdp()
     {
         return new Response(
             200,
@@ -272,14 +273,18 @@ class Service
     }
 
     /**
-     * @return \LC\Web\Http\Response
+     * @param string|null $baseUri
+     * @param string|null $orgId
+     * @param string      $rootUri
+     *
+     * @return Http\Response
      */
-    private function getProfileList(Request $request)
+    private function getProfileList($baseUri, $orgId, $rootUri)
     {
-        if (null === $baseUri = $request->getQueryParameter('baseUri')) {
+        if (null === $baseUri) {
             // if we do NOT get a baseUri, we MUST have an orgId that we then
             // use to figure out *which* baseUri we need to connect to
-            if (null === $orgId = $request->getQueryParameter('orgId')) {
+            if (null === $orgId) {
                 throw new HttpException('baseUri and orgId query parameter missing', 400);
             }
             if (null === $baseUri = $this->getBaseUriFromOrgId($orgId)) {
@@ -324,7 +329,7 @@ class Service
                 $provider,
                 $baseUri, // use baseUri as "user"
                 $this->config->get('OAuth')->get('requestScope'),
-                sprintf('%scallback', $request->getRootUri())
+                sprintf('%scallback', $rootUri)
             );
 
             return new Response(302, ['Location' => $authorizeUri]);
@@ -465,19 +470,34 @@ class Service
     }
 
     /**
-     * @param mixed $baseUri
+     * @param string|null $baseUri
      *
      * @return string
      */
     private static function validateBaseUri($baseUri)
     {
+        if (null === $baseUri) {
+            return null;
+        }
+
         if (!\is_string($baseUri)) {
-            throw new HttpException('invalid baseUri', 400);
+            throw new HttpException(sprintf('invalid baseUri "%s"', $baseUri), 400);
         }
         if (1 !== preg_match('/^https:\/\/[a-zA-Z0-9-.]+\/$/', $baseUri)) {
-            throw new HttpException('invalid baseUri', 400);
+            throw new HttpException(sprintf('invalid baseUri "%s"', $baseUri), 400);
         }
 
         return $baseUri;
+    }
+
+    /**
+     * @param string|null $orgId
+     *
+     * @return string|null
+     */
+    private static function validateOrgId($orgId)
+    {
+        // XXX implement orgId validation!
+        return $orgId;
     }
 }
