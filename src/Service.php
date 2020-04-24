@@ -59,6 +59,16 @@ class Service
                 switch ($request->getPathInfo()) {
                     case '/':
                         return $this->showHome();
+                    case '/settings':
+                        return new Response(
+                            200,
+                            [],
+                            $this->tpl->render(
+                                'settings',
+                                [
+                                ]
+                            )
+                        );
                     case '/chooseServer':
                         return $this->showChooseServer();
                     case '/chooseIdP':
