@@ -108,6 +108,17 @@ class Service
                             ]
                         );
 
+                    case '/switchLocation':
+                        $baseUri = $request->getPostParameter('baseUri');
+                        $_SESSION['secure_internet'] = $baseUri;
+
+                        return new Response(
+                            302,
+                            [
+                                'Location' => $request->getRootUri().'getProfileList?baseUri='.$baseUri,
+                            ]
+                        );
+
                     case '/saveSettings':
                         $_SESSION['forceTcp'] = 'on' === $request->getPostParameter('forceTcp');
 
@@ -209,45 +220,6 @@ class Service
         );
     }
 
-//    /**
-//     * @param mixed $baseUri
-//     *
-//     * @return bool
-//     */
-//    private function isSecureInternetServer($baseUri)
-//    {
-//        $serverList = $this->getAvailableServerList();
-//        foreach ($serverList as $serverEntry) {
-//            if ($baseUri === $serverEntry['base_uri']) {
-//                return 'secure_internet' === $serverEntry['type'];
-//            }
-//        }
-
-//        return false;
-//    }
-
-//    /**
-//     * @return string|null
-//     */
-//    private function hasSecureInternetToken()
-//    {
-//        $serverList = $this->getAvailableServerList();
-//        foreach ($serverList as $serverEntry) {
-//            if ('secure_internet' !== $serverEntry['type']) {
-//                continue;
-//            }
-
-//            // do we have a token for this one?
-//            if (\array_key_exists('_oauth2_token_'.$serverEntry['base_uri'], $_SESSION)) {
-    ////                echo "Home Provider: " . $serverEntry['base_uri'];
-
-//                return $serverEntry['base_uri'];
-//            }
-//        }
-
-//        return null;
-//    }
-
     /**
      * @param string $orgId
      *
@@ -287,10 +259,20 @@ class Service
             }
         }
 
-        // XXX if baseUri points to a secure internet server we have to
-        // update the authz_endpoint and token_endpoint with our "home" server
-
         $providerInfo = $this->getProviderInfo($baseUri);
+        $serverInfo = $this->getServerInfo($baseUri);
+        // are we trying to connect to a secure internet server?
+        if ('secure_internet' === $this->getServerInfo($baseUri)['type']) {
+            if (isset($_SESSION['secure_internet_home'])) {
+                // we already have a home server!
+                $secureInternetHomeBaseUri = $_SESSION['secure_internet_home'];
+                $secureInternetProviderInfo = $this->getProviderInfo($secureInternetHomeBaseUri);
+                // override the OAuth stuff to point to the home server
+                $providerInfo['authorization_endpoint'] = $secureInternetProviderInfo['authorization_endpoint'];
+                $providerInfo['token_endpoint'] = $secureInternetProviderInfo['token_endpoint'];
+            }
+        }
+
         $provider = new Provider(
             $this->config->get('OAuth')->get('clientId'),
             $this->config->get('OAuth')->get('clientSecret'),
@@ -424,6 +406,7 @@ class Service
         // add baseUri to server list
         $serverInfo = $this->getServerInfo($baseUri);
         if ('secure_internet' === $serverInfo['type']) {
+            $_SESSION['secure_internet_home'] = $baseUri;
             $_SESSION['secure_internet'] = $baseUri;
         } else {
             if (!\array_key_exists('institute_access', $_SESSION)) {
