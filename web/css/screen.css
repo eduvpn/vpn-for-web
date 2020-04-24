@@ -9,6 +9,32 @@ a {
     text-decoration: underline;
 }
 
+h2 {
+    margin-top: 1em;
+    text-align: center;
+}
+
+form.home {
+/*    margin-top: 3em;*/
+}
+
+form.home button {
+    width: 100%;
+    text-align: start;
+    padding: 0.75em 1em;
+    margin: 0;
+}
+
+nav {
+    text-align: center;
+    padding-bottom: 1em;
+}
+
+main {
+    text-align: justify;
+    height: 100%;
+}
+
 .mute {
     color: #888;
 }
@@ -41,6 +67,7 @@ button {
 ul {
     list-style: none;
     padding: 0;
+    margin-bottom: 0;
 }
 
 ul li {
@@ -85,6 +112,11 @@ footer {
     margin-top: 2em;
     font-size: 75%;
     text-align: center;
+}
+
+div.add {
+    text-align: center;
+    margin-top: 0.5em;
 }
 
 table.tbl {

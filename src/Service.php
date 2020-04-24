@@ -72,6 +72,8 @@ class Service
                         );
                     case '/chooseServer':
                         return $this->showChooseServer();
+                    case '/switchLocation':
+                        return $this->showSwitchLocation();
                     case '/chooseIdP':
                         return $this->showChooseIdp($request);
                     case '/getProfileList':
@@ -87,9 +89,6 @@ class Service
                 switch ($request->getPathInfo()) {
                     case '/addServer':
                         $baseUri = $_POST['baseUri'];
-                        $sessionData = $this->getSessionData();
-                        $sessionData[$baseUri] = [];
-                        $this->writeSessionData($sessionData);
 
                         return new Response(
                             302,
@@ -105,7 +104,7 @@ class Service
                         return new Response(
                             302,
                             [
-                                'Location' => $request->getRootUri().'getProfileList?baseUri='.$baseUri.'&orgId='.$orgId,
+                                'Location' => $request->getRootUri().'getProfileList?orgId='.$orgId,
                             ]
                         );
 
@@ -132,21 +131,18 @@ class Service
      */
     private function showHome(Request $request)
     {
-        $instituteList = $this->getAvailableServerList();
-        $sessionData = $this->getSessionData();
-        $myInstituteList = [];
+        $mySessionInstituteAccessList = isset($_SESSION['institute_access']) ? $_SESSION['institute_access'] : [];
+        $secureInternetBaseUri = isset($_SESSION['secure_internet']) ? $_SESSION['secure_internet'] : null;
 
-        foreach (array_keys($sessionData) as $baseUri) {
+        $instituteList = $this->getInstituteAccessServerList();
+        $myInstituteServerInfo = [];
+
+        foreach ($mySessionInstituteAccessList as $baseUri) {
             foreach ($instituteList as $instituteEntry) {
                 if ($baseUri === $instituteEntry['base_uri']) {
-                    $myInstituteList[] = $instituteEntry;
-                    // TODO: remove the entry from the list to not allow adding the same one twice
+                    $myInstituteServerInfo[] = $instituteEntry;
                 }
             }
-        }
-
-        if (0 === \count($myInstituteList)) {
-            return new Response(302, ['Location' => $request->getRootUri().'chooseServer']);
         }
 
         return new Response(
@@ -155,7 +151,8 @@ class Service
             $this->tpl->render(
                 'home',
                 [
-                    'myInstituteList' => $myInstituteList,
+                    'myInstituteServerInfo' => $myInstituteServerInfo,
+                    'secureInternetServerInfo' => null !== $secureInternetBaseUri ? $this->getServerInfo($secureInternetBaseUri) : null,
                 ]
             )
         );
@@ -172,7 +169,24 @@ class Service
             $this->tpl->render(
                 'choose_server',
                 [
-                    'instituteList' => $this->getAvailableServerList(),
+                    'instituteList' => $this->getInstituteAccessServerList(),
+                ]
+            )
+        );
+    }
+
+    /**
+     * @return Http\Response
+     */
+    private function showSwitchLocation()
+    {
+        return new Response(
+            200,
+            [],
+            $this->tpl->render(
+                'switch_location',
+                [
+                    'secureInternetServerList' => $this->getSecureInternetServerList(),
                 ]
             )
         );
@@ -190,45 +204,67 @@ class Service
                 'choose_idp',
                 [
                     'idpList' => $this->getIdpList(),
-                    'baseUri' => $request->getQueryParameter('baseUri'),
                 ]
             )
         );
     }
 
+//    /**
+//     * @param mixed $baseUri
+//     *
+//     * @return bool
+//     */
+//    private function isSecureInternetServer($baseUri)
+//    {
+//        $serverList = $this->getAvailableServerList();
+//        foreach ($serverList as $serverEntry) {
+//            if ($baseUri === $serverEntry['base_uri']) {
+//                return 'secure_internet' === $serverEntry['type'];
+//            }
+//        }
+
+//        return false;
+//    }
+
+//    /**
+//     * @return string|null
+//     */
+//    private function hasSecureInternetToken()
+//    {
+//        $serverList = $this->getAvailableServerList();
+//        foreach ($serverList as $serverEntry) {
+//            if ('secure_internet' !== $serverEntry['type']) {
+//                continue;
+//            }
+
+//            // do we have a token for this one?
+//            if (\array_key_exists('_oauth2_token_'.$serverEntry['base_uri'], $_SESSION)) {
+    ////                echo "Home Provider: " . $serverEntry['base_uri'];
+
+//                return $serverEntry['base_uri'];
+//            }
+//        }
+
+//        return null;
+//    }
+
     /**
-     * @param mixed $baseUri
+     * @param string $orgId
      *
-     * @return bool
-     */
-    private function isSecureInternetServer($baseUri)
-    {
-        $serverList = $this->getAvailableServerList();
-        foreach ($serverList as $serverEntry) {
-            if ($baseUri === $serverEntry['base_uri']) {
-                return 'secure_internet' === $serverEntry['type'];
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * @return string|null
      */
-    private function hasSecureInternetToken()
+    private function getBaseUriFromOrgId($orgId)
     {
-        $serverList = $this->getAvailableServerList();
-        foreach ($serverList as $serverEntry) {
-            if ('secure_internet' !== $serverEntry['type']) {
-                continue;
-            }
-
-            // do we have a token for this one?
-            if (\array_key_exists('_oauth2_token_'.$serverEntry['base_uri'], $_SESSION)) {
-//                echo "Home Provider: " . $serverEntry['base_uri'];
-
-                return $serverEntry['base_uri'];
+        $idpList = $this->getIdpList();
+        foreach ($idpList as $idpEntry) {
+            if ($orgId === $idpEntry['org_id']) {
+                // found it
+                $serverList = json_decode(file_get_contents($this->dataDir.'/'.$idpEntry['server_list']), true);
+                foreach ($serverList['server_list'] as $serverEntry) {
+                    if (\array_key_exists('peer_list', $serverEntry)) {
+                        return $serverEntry['base_url'];
+                    }
+                }
             }
         }
 
@@ -241,83 +277,40 @@ class Service
     private function getProfileList(Request $request)
     {
         if (null === $baseUri = $request->getQueryParameter('baseUri')) {
-            return new Response(400, [], 'baseUri query parameter missing');
-        }
-
-        $provider = null;
-        if ($this->isSecureInternetServer($baseUri)) {
-            // do we already have a token for any secure internet server?
-            if (null === $homeProvider = $this->hasSecureInternetToken()) {
-                if (null === $orgId = $request->getQueryParameter('orgId')) {
-                    // show IdP list
-                    return new Response(302, ['Location' => $request->getRootUri().'chooseIdP?baseUri='.$baseUri]);
-                }
-
-                // we know an org_id as well!
-                //echo $baseUri . $orgId;
-                //exit(0);
-                // figure out the home server for this orgId
-                $idpList = $this->getIdpList();
-                foreach ($idpList as $idpEntry) {
-                    if ($orgId === $idpEntry['org_id']) {
-                        // found it
-                        $serverList = json_decode(file_get_contents($this->dataDir.'/'.$idpEntry['server_list']), true);
-                        foreach ($serverList['server_list'] as $serverEntry) {
-                            if (\array_key_exists('peer_list', $serverEntry)) {
-                                // this is the Secure Internet server!
-                                echo $serverEntry['base_url'];
-                                $homeProviderInfo = $this->getProviderInfo($serverEntry['base_url']);
-                                $provider = new Provider(
-                                    $this->config->get('OAuth')->get('clientId'),
-                                    $this->config->get('OAuth')->get('clientSecret'),
-                                    $homeProviderInfo['authorization_endpoint'],
-                                    $homeProviderInfo['token_endpoint']
-                                );
-                                $_SESSION['VpnForWebBaseUri'] = $serverEntry['base_url'];
-                            }
-                        }
-                    }
-                }
-            } else {
-//                echo 'We already have a token';
-//                echo $baseUri;
-                $homeProviderInfo = $this->getProviderInfo($homeProvider);
-                $provider = new Provider(
-                    $this->config->get('OAuth')->get('clientId'),
-                    $this->config->get('OAuth')->get('clientSecret'),
-                    $homeProviderInfo['authorization_endpoint'],
-                    $homeProviderInfo['token_endpoint']
-                );
-                $_SESSION['VpnForWebBaseUri'] = $homeProvider;
+            // if we do NOT get a baseUri, we MUST have an orgId that we then
+            // use to figure out *which* baseUri we need to connect to
+            if (null === $orgId = $request->getQueryParameter('orgId')) {
+                return new Response(400, [], 'baseUri and orgId query parameter missing');
+            }
+            if (null === $baseUri = $this->getBaseUriFromOrgId($orgId)) {
+                return new Response(400, [], 'Bummer! orgId does not have a "Secure Internet" server available');
             }
         }
 
+        // XXX if baseUri points to a secure internet server we have to
+        // update the authz_endpoint and token_endpoint with our "home" server
+
         $providerInfo = $this->getProviderInfo($baseUri);
-        if (null === $provider) {
-//            echo 'provider is null!';
-            $provider = new Provider(
-                $this->config->get('OAuth')->get('clientId'),
-                $this->config->get('OAuth')->get('clientSecret'),
-                $providerInfo['authorization_endpoint'],
-                $providerInfo['token_endpoint']
-            );
-            $_SESSION['VpnForWebBaseUri'] = $baseUri;
-        }
+        $provider = new Provider(
+            $this->config->get('OAuth')->get('clientId'),
+            $this->config->get('OAuth')->get('clientSecret'),
+            $providerInfo['authorization_endpoint'],
+            $providerInfo['token_endpoint']
+        );
         $apiBaseUri = $providerInfo['api_base_uri'];
-
-//    var_dump($provider);
-
         $response = $this->oauthClient->get(
             $provider,
-            $_SESSION['VpnForWebBaseUri'], // use 'baseUri' as user as we don't have 'local' user
+            $baseUri, // use baseUri as "user"
             $this->config->get('OAuth')->get('requestScope'),
             sprintf('%s/profile_list', $apiBaseUri)
         );
+
         if (false === $response) {
+            $_SESSION['_base_uri'] = $baseUri;
             // no valid OAuth token available...
             $authorizeUri = $this->oauthClient->getAuthorizeUri(
                 $provider,
-                $_SESSION['VpnForWebBaseUri'], // use 'baseUri' as user as we don't have 'local' user
+                $baseUri, // use baseUri as "user"
                 $this->config->get('OAuth')->get('requestScope'),
                 sprintf('%scallback', $request->getRootUri())
             );
@@ -326,14 +319,7 @@ class Service
         }
 
         $profileList = $response->json()['profile_list']['data'];
-
-        $instituteList = $this->getAvailableServerList();
-        $serverInfo = null;
-        foreach ($instituteList as $instituteEntry) {
-            if ($baseUri === $instituteEntry['base_uri']) {
-                $serverInfo = $instituteEntry;
-            }
-        }
+        $serverInfo = $this->getServerInfo($baseUri);
 
         return new Response(
             200,
@@ -365,25 +351,44 @@ class Service
     }
 
     /**
-     * @return array
+     * @param string $baseUri
+     *
+     * @return array|null
      */
-    private function getAvailableServerList()
+    private function getServerInfo($baseUri)
     {
-        $serverList = [];
         $fileList = [
-            $this->dataDir.'/institute_access.json',
-            $this->dataDir.'/secure_internet.json',
-            $this->dataDir.'/alien.json',
+            'institute_access' => $this->dataDir.'/institute_access.json',
+            'secure_internet' => $this->dataDir.'/secure_internet.json',
         ];
-        foreach ($fileList as $discoveryFile) {
+        foreach ($fileList as $type => $discoveryFile) {
             $discoveryData = json_decode(file_get_contents($discoveryFile), true);
             foreach ($discoveryData['instances'] as $serverEntry) {
-                $serverEntry['type'] = basename($discoveryFile, '.json');
-                $serverList[] = $serverEntry;
+                if ($baseUri === $serverEntry['base_uri']) {
+                    $serverEntry['type'] = $type;
+
+                    return $serverEntry;
+                }
             }
         }
 
-        return $serverList;
+        return null;
+    }
+
+    /**
+     * @return array
+     */
+    private function getInstituteAccessServerList()
+    {
+        return json_decode(file_get_contents($this->dataDir.'/institute_access.json'), true)['instances'];
+    }
+
+    /**
+     * @return array
+     */
+    private function getSecureInternetServerList()
+    {
+        return json_decode(file_get_contents($this->dataDir.'/secure_internet.json'), true)['instances'];
     }
 
     /**
@@ -395,31 +400,13 @@ class Service
     }
 
     /**
-     * @return array
-     */
-    private function getSessionData()
-    {
-        if (!\array_key_exists('VpnForWeb', $_SESSION)) {
-            return [];
-        }
-
-        return json_decode($_SESSION['VpnForWeb'], true);
-    }
-
-    /**
-     * @return void
-     */
-    private function writeSessionData(array $sessionData)
-    {
-        $_SESSION['VpnForWeb'] = json_encode($sessionData);
-    }
-
-    /**
      * @return Http\Response
      */
     private function handleCallback(Request $request)
     {
-        $baseUri = $_SESSION['VpnForWebBaseUri'];
+        $baseUri = $_SESSION['_base_uri'];
+        unset($_SESSION['_base_uri']);
+
         $providerInfo = $this->getProviderInfo($baseUri);
         $provider = new Provider(
             $this->config->get('OAuth')->get('clientId'),
@@ -433,6 +420,17 @@ class Service
             $baseUri, // misuse baseUri as user_id
             $request->getQueryParameters()
         );
+
+        // add baseUri to server list
+        $serverInfo = $this->getServerInfo($baseUri);
+        if ('secure_internet' === $serverInfo['type']) {
+            $_SESSION['secure_internet'] = $baseUri;
+        } else {
+            if (!\array_key_exists('institute_access', $_SESSION)) {
+                $_SESSION['institute_access'] = [];
+            }
+            $_SESSION['institute_access'][] = $baseUri;
+        }
 
         // redirect back
         return new Response(

@@ -1,28 +1,34 @@
 <?php $this->layout('base'); ?>
 <?php $this->start('content'); ?>
-<h2>Server List</h2>
-<?php if (0 !== count($myInstituteList)): ?>
-<p>Choose a server to download a VPN configuration.</p>
+
+<?php if (0 === count($myInstituteServerInfo)): ?>
+    <form class="home center" method="get" action="chooseServer">
+    <button>🏛️ Connect to your Institute</button>
+    </form>
+<?php else: ?>
+    <h2>Your Institutes</h2>
     <ul>
         <form method="get" action="getProfileList">
-<?php  foreach ($myInstituteList as $instituteEntry): ?>
+<?php  foreach ($myInstituteServerInfo as $instituteEntry): ?>
         <li>
-            <button name="baseUri" value="<?=$this->e($instituteEntry['base_uri']); ?>">
-<?php if ('institute_access' === $instituteEntry['type']): ?>
-🏛️
-<?php elseif ('secure_internet' === $instituteEntry['type']): ?>
-🌍
-<?php else: ?>
-👽
-<?php endif; ?>
-                <?=$this->l($instituteEntry['display_name']); ?>
-            </button>
+            <button name="baseUri" value="<?=$this->e($instituteEntry['base_uri']); ?>">🏛️ <?=$this->l($instituteEntry['display_name']); ?></button>
         </li>
 <?php endforeach; ?>
         </form>
     </ul>
+    <div class="add"><a class="small" href="chooseServer">Add Another Institute...</a></div>
 <?php endif; ?>
-<p class="center">
-    <a class="small" href="chooseServer">Add Additional Server...</a>
-</p>
+
+<?php if (null === $secureInternetServerInfo): ?>
+    <form class="home center" method="get" action="chooseIdP">
+    <button>🌍 Protect Yourself</button>
+    </form>
+<?php else: ?>
+    <h2>Protect Yourself</h2>
+    <form class="home center" method="get" action="getProfileList">
+    <button name="baseUri" value="<?=$this->e($secureInternetServerInfo['base_uri']); ?>">🌍 <?=$this->l($secureInternetServerInfo['display_name']); ?></button>
+    </form>
+    <div class="add"><a class="small" href="switchLocation">Switch Location...</a></div>
+<?php endif; ?>
+
 <?php $this->stop('content');

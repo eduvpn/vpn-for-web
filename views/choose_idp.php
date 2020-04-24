@@ -1,7 +1,6 @@
 <?php $this->layout('base'); ?>
 <?php $this->start('content'); ?>
-<h2>Choose Institute</h2>
-<p>Choose your Institute from the list below.</p>
+<h2>Select your Institute</h2>
 <ul>
     <form method="post" action="selectIdP">
         <input type="hidden" name="baseUri" value="<?=$this->e($baseUri); ?>">
