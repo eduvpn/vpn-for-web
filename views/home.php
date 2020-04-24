@@ -28,7 +28,6 @@
     <a class="small" href="chooseServer">Add Server...</a>
 <?php else: ?>
     <a class="small" href="chooseServer">Add Additional Server...</a>
-    <form class="center small" method="post" action="clearList"><button type="submit">Reset Data (DEBUG)</button></form>
 <?php endif; ?>
 </p>
 <?php $this->stop('content');
