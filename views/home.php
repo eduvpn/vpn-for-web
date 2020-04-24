@@ -6,7 +6,7 @@
     <button>🏛️ Connect to your Institute</button>
     </form>
 <?php else: ?>
-    <h2>Your Institutes</h2>
+    <h2>Connect to your Institute</h2>
     <ul>
         <form method="get" action="getProfileList">
 <?php  foreach ($myInstituteServerInfo as $instituteEntry): ?>
@@ -21,10 +21,10 @@
 
 <?php if (null === $secureInternetServerInfo): ?>
     <form class="home center" method="get" action="chooseIdP">
-    <button>🌍 Protect Yourself</button>
+    <button>🌍 Protect Yourself Online</button>
     </form>
 <?php else: ?>
-    <h2>Protect Yourself</h2>
+    <h2>Protect Yourself Online</h2>
     <form class="home center" method="get" action="getProfileList">
     <button name="baseUri" value="<?=$this->e($secureInternetServerInfo['base_uri']); ?>">🌍 <?=$this->l($secureInternetServerInfo['display_name']); ?></button>
     </form>

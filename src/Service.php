@@ -258,6 +258,7 @@ class Service
                 return new Response(400, [], 'Bummer! orgId does not have a "Secure Internet" server available');
             }
         }
+        $userId = $baseUri; // use baseUri as user_id
 
         $providerInfo = $this->getProviderInfo($baseUri);
         $serverInfo = $this->getServerInfo($baseUri);
@@ -270,6 +271,7 @@ class Service
                 // override the OAuth stuff to point to the home server
                 $providerInfo['authorization_endpoint'] = $secureInternetProviderInfo['authorization_endpoint'];
                 $providerInfo['token_endpoint'] = $secureInternetProviderInfo['token_endpoint'];
+                $userId = $secureInternetHomeBaseUri;
             }
         }
 
@@ -282,7 +284,7 @@ class Service
         $apiBaseUri = $providerInfo['api_base_uri'];
         $response = $this->oauthClient->get(
             $provider,
-            $baseUri, // use baseUri as "user"
+            $userId,
             $this->config->get('OAuth')->get('requestScope'),
             sprintf('%s/profile_list', $apiBaseUri)
         );
@@ -406,7 +408,9 @@ class Service
         // add baseUri to server list
         $serverInfo = $this->getServerInfo($baseUri);
         if ('secure_internet' === $serverInfo['type']) {
-            $_SESSION['secure_internet_home'] = $baseUri;
+            if (!isset($_SESSION['secure_internet_home'])) {
+                $_SESSION['secure_internet_home'] = $baseUri;
+            }
             $_SESSION['secure_internet'] = $baseUri;
         } else {
             if (!\array_key_exists('institute_access', $_SESSION)) {

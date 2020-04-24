@@ -13,7 +13,7 @@
     <hr>
     <form method="post" action="resetAppData">
         <fieldset>
-            <button value="reset" type="submit">Reset App Data</button>
+            <button value="reset" type="submit">Logout</button>
         </fieldset>
     </form>
 <?php $this->stop('content');
