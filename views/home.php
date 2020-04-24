@@ -20,13 +20,13 @@
 <?php endif; ?>
 
 <h2>Protect Yourself Online</h2>
-<?php if (null === $secureInternetServerEntry): ?>
+<?php if (null === $secureInternetServerInfo): ?>
     <form class="home center" method="get" action="chooseIdP">
     <button>🌍 Add a Location...</button>
     </form>
 <?php else: ?>
     <form class="home center" method="get" action="getProfileList">
-    <button name="baseUri" value="<?=$this->e($secureInternetServerEntry['base_uri']); ?>">🌍 <?=$this->l($secureInternetServerEntry['display_name']); ?></button>
+    <button name="baseUri" value="<?=$this->e($secureInternetServerInfo['base_uri']); ?>">🌍 <?=$this->l($secureInternetServerInfo['display_name']); ?></button>
     </form>
     <div class="add"><a class="small" href="switchLocation">Change Location...</a></div>
 <?php endif; ?>
@@ -35,9 +35,9 @@
     <h2>Other Servers</h2>
     <ul>
         <form method="get" action="getProfileList">
-<?php  foreach ($myAlienServerList as $baseUri): ?>
+<?php  foreach ($myAlienServerList as $serverEntry): ?>
         <li>
-            <button name="baseUri" value="<?=$this->e($baseUri); ?>">👽 <?=$this->e($baseUri); ?></button>
+            <button name="baseUri" value="<?=$this->e($serverEntry['base_uri']); ?>">👽 <?=$this->l($serverEntry['display_name']); ?></button>
         </li>
 <?php endforeach; ?>
         </form>

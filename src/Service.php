@@ -169,20 +169,20 @@ class Service
      */
     private function showHome()
     {
-        $mySessionInstituteAccessServerList = isset($_SESSION['institute_access']) ? $_SESSION['institute_access'] : [];
-        $myAlienServerList = isset($_SESSION['alien']) ? $_SESSION['alien'] : [];
-        $secureInternetBaseUri = isset($_SESSION['secure_internet']) ? $_SESSION['secure_internet'] : null;
-
-        $instituteAccessServerList = $this->getInstituteAccessServerList();
+        $myInstituteAccessBaseUriList = isset($_SESSION['institute_access']) ? $_SESSION['institute_access'] : [];
         $myInstituteAccessServerList = [];
-
-        foreach ($mySessionInstituteAccessServerList as $baseUri) {
-            foreach ($instituteAccessServerList as $serverEntry) {
-                if ($baseUri === $serverEntry['base_uri']) {
-                    $myInstituteAccessServerList[] = $serverEntry;
-                }
-            }
+        foreach ($myInstituteAccessBaseUriList as $baseUri) {
+            $myInstituteAccessServerList[] = $this->getServerInfo($baseUri);
         }
+
+        $myAlienBaseUriList = isset($_SESSION['alien']) ? $_SESSION['alien'] : [];
+        $myAlienServerList = [];
+        foreach ($myAlienBaseUriList as $baseUri) {
+            $myAlienServerList[] = $this->getServerInfo($baseUri);
+        }
+
+        $secureInternetBaseUri = isset($_SESSION['secure_internet']) ? $_SESSION['secure_internet'] : null;
+        $secureInternetServerInfo = null !== $secureInternetBaseUri ? $this->getServerInfo($secureInternetBaseUri) : null;
 
         return new Response(
             200,
@@ -192,7 +192,7 @@ class Service
                 [
                     'myInstituteAccessServerList' => $myInstituteAccessServerList,
                     'myAlienServerList' => $myAlienServerList,
-                    'secureInternetServerEntry' => null !== $secureInternetBaseUri ? $this->getServerInfo($secureInternetBaseUri) : null,
+                    'secureInternetServerInfo' => $secureInternetServerInfo,
                 ]
             )
         );
@@ -361,8 +361,6 @@ class Service
 
         $systemMessages = $response->json()['system_messages']['data'];
 
-        $serverInfo = $this->getServerInfo($baseUri);
-
         return new Response(
             200,
             [],
@@ -396,7 +394,7 @@ class Service
     /**
      * @param string $baseUri
      *
-     * @return array|null
+     * @return array
      */
     private function getServerInfo($baseUri)
     {
@@ -415,7 +413,11 @@ class Service
             }
         }
 
-        return null;
+        return [
+            'base_uri' => $baseUri,
+            'display_name' => $baseUri,
+            'type' => 'alien',
+        ];
     }
 
     /**
