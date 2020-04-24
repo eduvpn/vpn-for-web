@@ -9,7 +9,7 @@ a {
     text-decoration: underline;
 }
 
-h2 {
+h2, h3 {
     margin-top: 1em;
     text-align: center;
 }
@@ -67,7 +67,7 @@ button {
 ul {
     list-style: none;
     padding: 0;
-    margin-bottom: 0;
+    margin-bottom: 0.5em;
 }
 
 ul li {
