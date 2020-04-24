@@ -82,6 +82,14 @@ ul li button {
     margin: 0;
 }
 
+p.plain {
+    border: 1px solid gray;
+    padding: 1em;
+    width: 100%;
+    color: #777;
+    background-color: #f8f8f8;
+}
+
 p.warning {
     border: 1px solid orange;
     padding: 1em;

@@ -315,6 +315,8 @@ class Service
             $providerInfo['token_endpoint']
         );
         $apiBaseUri = $providerInfo['api_base_uri'];
+
+        // get profile list
         $response = $this->oauthClient->get(
             $provider,
             $userId,
@@ -334,8 +336,31 @@ class Service
 
             return new Response(302, ['Location' => $authorizeUri]);
         }
-
         $profileList = $response->json()['profile_list']['data'];
+
+        // get MOTD (XXX lots of code duplication...)
+        $response = $this->oauthClient->get(
+            $provider,
+            $userId,
+            $this->config->get('OAuth')->get('requestScope'),
+            sprintf('%s/system_messages', $apiBaseUri)
+        );
+
+        if (false === $response) {
+            $_SESSION['_base_uri'] = $baseUri;
+            // no valid OAuth token available...
+            $authorizeUri = $this->oauthClient->getAuthorizeUri(
+                $provider,
+                $baseUri, // use baseUri as "user"
+                $this->config->get('OAuth')->get('requestScope'),
+                sprintf('%scallback', $rootUri)
+            );
+
+            return new Response(302, ['Location' => $authorizeUri]);
+        }
+
+        $systemMessages = $response->json()['system_messages']['data'];
+
         $serverInfo = $this->getServerInfo($baseUri);
 
         return new Response(
@@ -345,6 +370,7 @@ class Service
                 'profile_list',
                 [
                     'profileList' => $profileList,
+                    'systemMessages' => $systemMessages,
                     'serverInfo' => $serverInfo,
                 ]
             )

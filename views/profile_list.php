@@ -1,7 +1,10 @@
 <?php $this->layout('base'); ?>
 <?php $this->start('content'); ?>
-<h2>Download Profile</h2>
-<h3><?=$this->l($serverInfo['display_name']); ?></h3>
+<h2><?=$this->l($serverInfo['display_name']); ?></h2>
+<?php foreach ($systemMessages as $systemMessage): ?>
+<p class="plain"><?=$this->e($systemMessage['message']); ?></p>
+<?php endforeach; ?>
+<h3>Download Profile</h3>
 <ul>
     <form method="post" action="downloadProfile">
 <?php  foreach ($profileList as $profile): ?>
