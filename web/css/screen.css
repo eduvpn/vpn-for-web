@@ -120,6 +120,9 @@ table.tbl button, table.tbl form {
     margin: 0;
 }
 
+fieldset {
+}
+
 .right {
     text-align: right;
 }

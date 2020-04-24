@@ -66,6 +66,7 @@ class Service
                             $this->tpl->render(
                                 'settings',
                                 [
+                                    'forceTcp' => isset($_SESSION['forceTcp']) ? $_SESSION['forceTcp'] : false,
                                 ]
                             )
                         );
@@ -108,7 +109,12 @@ class Service
                             ]
                         );
 
-                    case '/clearList':
+                    case '/saveSettings':
+                        $_SESSION['forceTcp'] = 'on' === $request->getPostParameter('forceTcp');
+
+                        return new Response(302, ['Location' => $request->getRootUri()]);
+
+                    case '/resetAppData':
                         $_SESSION = [];
 
                         return new Response(302, ['Location' => $request->getRootUri()]);
