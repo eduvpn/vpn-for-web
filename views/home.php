@@ -28,11 +28,11 @@
     <form class="home center" method="get" action="getProfileList">
     <button name="baseUri" value="<?=$this->e($secureInternetServerInfo['base_uri']); ?>">🌍 <?=$this->l($secureInternetServerInfo['display_name']); ?></button>
     </form>
-    <div class="add"><a class="small" href="switchLocation">Switch Location...</a></div>
+    <div class="add"><a class="small" href="switchLocation">Change Location...</a></div>
 <?php endif; ?>
 
 <?php if (0 !== count($myAlienServerList)): ?>
-    <h2>Alien</h2>
+    <h2>Other Servers</h2>
     <ul>
         <form method="get" action="getProfileList">
 <?php  foreach ($myAlienServerList as $baseUri): ?>

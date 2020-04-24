@@ -10,7 +10,7 @@
     <hr>
     <form method="post" action="saveSettings">
         <fieldset>
-            <label><input type="checkbox" name="forceTcp" <?=$forceTcp ? 'checked' : ''; ?>> Connect only using TCP</label> 
+            <label><input type="checkbox" name="forceTcp" <?=$forceTcp ? 'checked' : ''; ?>> Connect using TCP only</label> 
         </fieldset>
         <fieldset>
             <button value="apply" type="submit">Apply</button>
