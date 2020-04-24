@@ -60,7 +60,7 @@ class Service
                 case 'GET':
                     switch ($request->getPathInfo()) {
                         case '/':
-                            return $this->showHome($request);
+                            return $this->showHome();
                         case '/settings':
                             return new Response(
                                 200,
@@ -110,7 +110,8 @@ class Service
                             );
 
                         case '/selectIdP':
-                            $baseUri = $_POST['baseUri'];
+                            $baseUri = self::validateBaseUri($request->getPostParameter('baseUri'));
+                            // XXX validate orgId
                             $orgId = $_POST['orgId'];
 
                             return new Response(
@@ -121,7 +122,7 @@ class Service
                             );
 
                         case '/switchLocation':
-                            $baseUri = $request->getPostParameter('baseUri');
+                            $baseUri = self::validateBaseUri($request->getPostParameter('baseUri'));
                             $_SESSION['secure_internet'] = $baseUri;
 
                             return new Response(
@@ -165,19 +166,19 @@ class Service
     /**
      * @return Http\Response
      */
-    private function showHome(Request $request)
+    private function showHome()
     {
-        $mySessionInstituteAccessList = isset($_SESSION['institute_access']) ? $_SESSION['institute_access'] : [];
+        $mySessionInstituteAccessServerList = isset($_SESSION['institute_access']) ? $_SESSION['institute_access'] : [];
         $myAlienServerList = isset($_SESSION['alien']) ? $_SESSION['alien'] : [];
         $secureInternetBaseUri = isset($_SESSION['secure_internet']) ? $_SESSION['secure_internet'] : null;
 
-        $instituteList = $this->getInstituteAccessServerList();
-        $myInstituteServerInfo = [];
+        $instituteAccessServerList = $this->getInstituteAccessServerList();
+        $myInstituteAccessServerList = [];
 
-        foreach ($mySessionInstituteAccessList as $baseUri) {
-            foreach ($instituteList as $instituteEntry) {
-                if ($baseUri === $instituteEntry['base_uri']) {
-                    $myInstituteServerInfo[] = $instituteEntry;
+        foreach ($mySessionInstituteAccessServerList as $baseUri) {
+            foreach ($instituteAccessServerList as $serverEntry) {
+                if ($baseUri === $serverEntry['base_uri']) {
+                    $myInstituteAccessServerList[] = $serverEntry;
                 }
             }
         }
@@ -188,9 +189,9 @@ class Service
             $this->tpl->render(
                 'home',
                 [
-                    'myInstituteServerInfo' => $myInstituteServerInfo,
+                    'myInstituteAccessServerList' => $myInstituteAccessServerList,
                     'myAlienServerList' => $myAlienServerList,
-                    'secureInternetServerInfo' => null !== $secureInternetBaseUri ? $this->getServerInfo($secureInternetBaseUri) : null,
+                    'secureInternetServerEntry' => null !== $secureInternetBaseUri ? $this->getServerInfo($secureInternetBaseUri) : null,
                 ]
             )
         );
