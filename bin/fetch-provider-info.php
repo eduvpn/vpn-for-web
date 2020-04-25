@@ -15,7 +15,7 @@ use LC\Web\Config;
 use LC\Web\ProviderListFetcher;
 
 try {
-    $config = new Config(require sprintf('%s/config/config.php', $baseDir));
+    $config = new Config(require $baseDir.'/config/config.php');
     $discoveryUrlList = $config->get('Discovery')->keys();
     foreach ($discoveryUrlList as $discoveryUrl) {
         $encodedDiscoveryUrl = preg_replace('/[^A-Za-z.]/', '_', $discoveryUrl);

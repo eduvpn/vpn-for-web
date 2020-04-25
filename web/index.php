@@ -21,12 +21,18 @@ use LC\Web\Tpl;
 session_start();
 
 try {
-    $config = new Config(require sprintf('%s/config/config.php', $baseDir));
-    $dataDir = sprintf('%s/data', $baseDir);
+    $request = new Request($_SERVER, $_GET, $_POST);
+    $config = new Config(require $baseDir.'/config/config.php');
+    $dataDir = $baseDir.'/data';
     $tpl = new Tpl(
         [
-            sprintf('%s/views', $baseDir),
-            sprintf('%s/config/views', $baseDir),
+            $baseDir.'/views',
+            $baseDir.'/config/views',
+        ]
+    );
+    $tpl->addDefault(
+        [
+            'rootUri' => $request->getRootUri(),
         ]
     );
 
@@ -44,10 +50,7 @@ try {
         $httpClient,
         $dataDir
     );
-    $response = $service->run(
-        new Request($_SERVER, $_GET, $_POST)
-    );
-    $response->send();
+    $service->run($request)->send();
 } catch (Exception $e) {
     echo sprintf('ERROR (%s): %s %s', get_class($e), $e->getMessage(), $e->getTraceAsString());
     exit(1);
