@@ -1,16 +1,6 @@
 <?php
 
 return [
-    // Discovery URLs for VPN providers
-    'Discovery' => [
-        'https://static.eduvpn.nl/disco/institute_access.json' => [
-            'displayName' => 'Institute Access',
-        ],
-        'https://static.eduvpn.nl/disco/secure_internet.json' => [
-            'displayName' => 'Secure Internet',
-        ],
-    ],
-
     // OAuth Client Configuration
     'OAuth' => [
         'clientId' => 'org.eduvpn.web',

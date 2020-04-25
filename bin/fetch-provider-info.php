@@ -16,10 +16,12 @@ use LC\Web\ProviderListFetcher;
 
 try {
     $config = new Config(require $baseDir.'/config/config.php');
-    $discoveryUrlList = $config->get('Discovery')->keys();
+    $discoveryUrlList = [
+        'https://static.eduvpn.nl/disco/secure_internet.json',
+        'https://static.eduvpn.nl/disco/institute_access.json',
+    ];
+    $providerListFetcher = new ProviderListFetcher($baseDir.'/data');
     foreach ($discoveryUrlList as $discoveryUrl) {
-        $encodedDiscoveryUrl = preg_replace('/[^A-Za-z.]/', '_', $discoveryUrl);
-        $providerListFetcher = new ProviderListFetcher(sprintf('%s/data/%s', $baseDir, $encodedDiscoveryUrl));
         $providerListFetcher->update(new CurlHttpClient(), $discoveryUrl);
     }
 } catch (Exception $e) {

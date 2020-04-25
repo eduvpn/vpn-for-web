@@ -16,14 +16,14 @@ use RuntimeException;
 class ProviderListFetcher
 {
     /** @var string */
-    private $filePath;
+    private $dataDir;
 
     /**
-     * @param string $filePath
+     * @param string $dataDir
      */
-    public function __construct($filePath)
+    public function __construct($dataDir)
     {
-        $this->filePath = $filePath;
+        $this->dataDir = $dataDir;
     }
 
     /**
@@ -36,9 +36,11 @@ class ProviderListFetcher
         $discoveryResponse = $this->httpGet($httpClient, $discoveryUrl);
         $discoveryBody = $discoveryResponse->getBody();
 
+        $localFile = $this->dataDir.'/'.basename($discoveryUrl);
+
         // check if we already have a file from a previous run
         $seq = 0;
-        if (false !== $fileContent = @file_get_contents($this->filePath)) {
+        if (false !== $fileContent = @file_get_contents($localFile)) {
             // extract the "seq" field to see if we got a newer version
             $jsonData = self::jsonDecode($fileContent);
             $seq = (int) $jsonData['seq'];
@@ -50,8 +52,8 @@ class ProviderListFetcher
         }
 
         // all fine, write file
-        if (false === @file_put_contents($this->filePath, $discoveryBody)) {
-            throw new RuntimeException(sprintf('unable to write file "%s"', $this->filePath));
+        if (false === @file_put_contents($localFile, $discoveryBody)) {
+            throw new RuntimeException(sprintf('unable to write file "%s"', $localFile));
         }
 
         return $discoveryData;

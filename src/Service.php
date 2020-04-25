@@ -310,7 +310,7 @@ class Service
 
         $provider = new Provider(
             $this->config->get('OAuth')->get('clientId'),
-            $this->config->get('OAuth')->get('clientSecret'),
+            null,
             $providerInfo['authorization_endpoint'],
             $providerInfo['token_endpoint']
         );
@@ -455,7 +455,7 @@ class Service
         $providerInfo = $this->getProviderInfo($baseUri);
         $provider = new Provider(
             $this->config->get('OAuth')->get('clientId'),
-            $this->config->get('OAuth')->get('clientSecret'),
+            null,
             $providerInfo['authorization_endpoint'],
             $providerInfo['token_endpoint']
         );
