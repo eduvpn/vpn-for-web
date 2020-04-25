@@ -1,8 +1,8 @@
-%global git 9f6575bad002a46e5aff1fdcacd386f565848b04
+%global git a7574e1fe38f59abb80de1238fe44b3f749d03b4
 
 Name:       vpn-for-web
 Version:    0.1.0
-Release:    0.3%{?dist}
+Release:    0.4%{?dist}
 Summary:    VPN for Web
 Group:      Applications/Internet
 License:    AGPLv3+
@@ -28,7 +28,7 @@ BuildRequires:  %{_bindir}/phpab
 #        "ext-json": "*",
 #        "ext-mbstring": "*",
 #        "ext-spl": "*",
-#        "fkooman/oauth2-client": "dev-master",
+#        "fkooman/oauth2-client": "^7.2",
 #        "php": ">= 5.4.0"
 #    },
 BuildRequires:  php(language) >= 5.4.0
@@ -51,7 +51,7 @@ Requires:   httpd
 #        "ext-json": "*",
 #        "ext-mbstring": "*",
 #        "ext-spl": "*",
-#        "fkooman/oauth2-client": "dev-master",
+#        "fkooman/oauth2-client": "^7.2",
 #        "php": ">= 5.4.0"
 #    },
 Requires:   php(language) >= 5.4.0
@@ -88,8 +88,13 @@ AUTOLOAD
 mkdir -p %{buildroot}%{_datadir}/vpn-for-web
 mkdir -p %{buildroot}%{_datadir}/php/LC/Web
 cp -pr src/* %{buildroot}%{_datadir}/php/LC/Web
-# fix #!/usr/bin/php !!!
-install -m 0755 -D -p bin/fetch-provider-info.php %{buildroot}%{_bindir}/vpn-for-web-fetch-provider-info
+
+for i in fetch-provider-info
+do
+    install -m 0755 -D -p bin/${i}.php %{buildroot}%{_bindir}/vpn-for-web-${i}
+    sed -i '1s/^/#!\/usr\/bin\/php\n/' %{buildroot}%{_bindir}/vpn-for-web-${i}
+done
+
 cp -pr web views %{buildroot}%{_datadir}/vpn-for-web
 
 mkdir -p %{buildroot}%{_sysconfdir}/vpn-for-web
@@ -131,6 +136,9 @@ fi
 %license LICENSE LICENSE.spdx
 
 %changelog
+* Sat Apr 25 2020 François Kooman <fkooman@tuxed.net> - 0.1.0-0.4
+- rebuilt
+
 * Thu Apr 23 2020 François Kooman <fkooman@tuxed.net> - 0.1.0-0.3
 - rebuilt
 
