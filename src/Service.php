@@ -75,7 +75,7 @@ class Service
                         case '/chooseServer':
                             return $this->showChooseServer();
                         case '/addOtherServer':
-                            return new Response(200, [], $this->tpl->render('add_other_server'));
+                            return new Response(200, [], $this->tpl->render('add_other_server', []));
                         case '/switchLocation':
                             return $this->showSwitchLocation();
                         case '/chooseIdP':
@@ -140,6 +140,11 @@ class Service
 
                             return new Response(302, ['Location' => $request->getRootUri()]);
 
+                        case '/downloadProfile':
+                            $profileId = self::validateProfileId($request->getPostParameter('profileId'));
+                            $baseUri = self::validateBaseUri($request->getPostParameter('baseUri'));
+
+                            return $this->handleDownloadProfile($request->getRootUri(), $profileId, $baseUri);
                         case '/resetAppData':
                             $_SESSION = [];
 
@@ -293,8 +298,45 @@ class Service
                 throw new HttpException('Bummer! orgId does not have a "Secure Internet" server available', 400);
             }
         }
-        $userId = $baseUri; // use baseUri as user_id
 
+        $response = $this->doOAuthCall('GET', $rootUri, $baseUri, 'profile_list');
+        if (\is_string($response)) {
+            return new Response(302, ['Location' => $response]);
+        }
+        $profileList = $response->json()['profile_list']['data'];
+
+        $response = $this->doOAuthCall('GET', $rootUri, $baseUri, 'system_messages');
+        if (\is_string($response)) {
+            return new Response(302, ['Location' => $response]);
+        }
+        $systemMessages = $response->json()['system_messages']['data'];
+
+        return new Response(
+            200,
+            [],
+            $this->tpl->render(
+                'profile_list',
+                [
+                    'profileList' => $profileList,
+                    'systemMessages' => $systemMessages,
+                    'serverInfo' => $this->getServerInfo($baseUri),
+                    'baseUri' => $baseUri,
+                ]
+            )
+        );
+    }
+
+    /**
+     * @param string $requestMethod
+     * @param string $appRootUri
+     * @param string $baseUri
+     * @param string $apiMethod     the RELATIVE request call, e.g. "profile_list"
+     *
+     * @return \fkooman\OAuth\Client\Http\Response|string
+     */
+    private function doOAuthCall($requestMethod, $appRootUri, $baseUri, $apiMethod, array $queryPostParameters = [])
+    {
+        $userId = $baseUri; // use baseUri as user_id
         $providerInfo = $this->getProviderInfo($baseUri);
         $serverInfo = $this->getServerInfo($baseUri);
         // are we trying to connect to a secure internet server?
@@ -318,12 +360,22 @@ class Service
         );
         $apiBaseUri = $providerInfo['api_base_uri'];
 
-        // get profile list
-        $response = $this->oauthClient->get(
+        if ('GET' === $requestMethod) {
+            $qP = '';
+            if (0 !== \count($queryPostParameters)) {
+                $qP = '?'.http_build_query($queryPostParameters);
+            }
+            $request = HttpRequest::get(sprintf('%s/%s'.$qP, $apiBaseUri, $apiMethod), []);
+        } else {
+            // MUST be POST for now
+            $request = HttpRequest::post(sprintf('%s/%s', $apiBaseUri, $apiMethod), $queryPostParameters);
+        }
+
+        $response = $this->oauthClient->send(
             $provider,
             $userId,
             $this->config->get('OAuth')->get('requestScope'),
-            sprintf('%s/profile_list', $apiBaseUri)
+            $request
         );
 
         if (false === $response) {
@@ -331,49 +383,55 @@ class Service
             // no valid OAuth token available...
             $authorizeUri = $this->oauthClient->getAuthorizeUri(
                 $provider,
-                $baseUri, // use baseUri as "user"
+                $userId,
                 $this->config->get('OAuth')->get('requestScope'),
-                sprintf('%scallback', $rootUri)
+                sprintf('%scallback', $appRootUri)
             );
 
-            return new Response(302, ['Location' => $authorizeUri]);
-        }
-        $profileList = $response->json()['profile_list']['data'];
-
-        // get MOTD (XXX lots of code duplication...)
-        $response = $this->oauthClient->get(
-            $provider,
-            $userId,
-            $this->config->get('OAuth')->get('requestScope'),
-            sprintf('%s/system_messages', $apiBaseUri)
-        );
-
-        if (false === $response) {
-            $_SESSION['_base_uri'] = $baseUri;
-            // no valid OAuth token available...
-            $authorizeUri = $this->oauthClient->getAuthorizeUri(
-                $provider,
-                $baseUri, // use baseUri as "user"
-                $this->config->get('OAuth')->get('requestScope'),
-                sprintf('%scallback', $rootUri)
-            );
-
-            return new Response(302, ['Location' => $authorizeUri]);
+            return $authorizeUri;
         }
 
-        $systemMessages = $response->json()['system_messages']['data'];
+        return $response;
+    }
+
+    /**
+     * @param string      $rootUri
+     * @param string|null $profileId
+     * @param string|null $baseUri
+     *
+     * @return Http\Response
+     */
+    private function handleDownloadProfile($rootUri, $profileId, $baseUri)
+    {
+        if (null === $profileId) {
+            throw new HttpException('missing "profileId"', 400);
+        }
+        if (null === $baseUri) {
+            throw new HttpException('missing "baseUri"', 400);
+        }
+
+        // get keypair
+        $response = $this->doOAuthCall('POST', $rootUri, $baseUri, 'create_keypair');
+        if (\is_string($response)) {
+            return new Response(302, ['Location' => $response]);
+        }
+        $keyPair = $response->json()['create_keypair']['data'];
+
+        $response = $this->doOAuthCall('GET', $rootUri, $baseUri, 'profile_config', ['profile_id' => $profileId]);
+        if (\is_string($response)) {
+            return new Response(302, ['Location' => $response]);
+        }
+        $vpnConfig = $response->getBody();
+        $vpnConfig .= "\r\n<cert>\r\n".$keyPair['certificate']."\r\n</cert>\r\n";
+        $vpnConfig .= "<key>\r\n".$keyPair['private_key']."\r\n</key>\r\n";
 
         return new Response(
             200,
-            [],
-            $this->tpl->render(
-                'profile_list',
-                [
-                    'profileList' => $profileList,
-                    'systemMessages' => $systemMessages,
-                    'serverInfo' => $serverInfo,
-                ]
-            )
+            [
+                'Content-Type' => 'application/x-openvpn-profile',
+                'Content-Disposition' => sprintf('attachment; filename="%s.ovpn"', $profileId),
+            ],
+            $vpnConfig
         );
     }
 
@@ -502,19 +560,14 @@ class Service
     /**
      * @param string|null $baseUri
      *
-     * @return string
+     * @return string|null
      */
     private static function validateBaseUri($baseUri)
     {
-        if (null === $baseUri) {
-            return null;
-        }
-
-        if (!\is_string($baseUri)) {
-            throw new HttpException(sprintf('invalid baseUri "%s"', $baseUri), 400);
-        }
-        if (1 !== preg_match('/^https:\/\/[a-zA-Z0-9-.]+\/$/', $baseUri)) {
-            throw new HttpException(sprintf('invalid baseUri "%s"', $baseUri), 400);
+        if (null !== $baseUri) {
+            if (1 !== preg_match('/^https:\/\/[a-zA-Z0-9-.]+\/$/', $baseUri)) {
+                throw new HttpException(sprintf('invalid baseUri "%s"', $baseUri), 400);
+            }
         }
 
         return $baseUri;
@@ -529,5 +582,21 @@ class Service
     {
         // XXX implement orgId validation!
         return $orgId;
+    }
+
+    /**
+     * @param string|null $profileId
+     *
+     * @return string|null
+     */
+    private static function validateProfileId($profileId)
+    {
+        if (null !== $profileId) {
+            if (1 !== preg_match('/^[a-zA-Z0-9-.]+$/', $profileId)) {
+                throw new HttpException(sprintf('invalid profileId "%s"', $profileId), 400);
+            }
+        }
+
+        return $profileId;
     }
 }

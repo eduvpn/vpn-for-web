@@ -32,6 +32,14 @@ class Response
     }
 
     /**
+     * @return int
+     */
+    public function getStatusCode()
+    {
+        return $this->statusCode;
+    }
+
+    /**
      * @return array
      */
     public function getHeaders()
