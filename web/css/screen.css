@@ -90,6 +90,10 @@ p.plain {
     background-color: #f8f8f8;
 }
 
+p {
+    margin-top: 1em;
+}
+
 p.warning {
     border: 1px solid orange;
     padding: 1em;

@@ -43,4 +43,5 @@
         </form>
     </ul>
 <?php endif; ?>
+<p class="center small"><a href="<?=$this->e($rootUri); ?>addOtherServer">Add Other Server...</a></p>
 <?php $this->stop('content');
