@@ -421,7 +421,20 @@ class Service
         if (\is_string($response)) {
             return new Response(302, ['Location' => $response]);
         }
+
         $vpnConfig = $response->getBody();
+
+        if ($_SESSION['forceTcp']) {
+            // remove all lines from the config that start with "remote" and have UDP in them
+            $vpnConfigRows = explode("\r\n", $vpnConfig);
+            foreach ($vpnConfigRows as $k => $vpnConfigRow) {
+                if (0 === strpos($vpnConfigRow, 'remote ') && false !== strpos($vpnConfigRow, 'udp')) {
+                    unset($vpnConfigRows[$k]);
+                }
+            }
+            $vpnConfig = implode("\r\n", $vpnConfigRows);
+        }
+
         $vpnConfig .= "\r\n<cert>\r\n".$keyPair['certificate']."\r\n</cert>\r\n";
         $vpnConfig .= "<key>\r\n".$keyPair['private_key']."\r\n</key>\r\n";
 
