@@ -18,10 +18,9 @@ try {
     $config = new Config(require sprintf('%s/config/config.php', $baseDir));
     $discoveryUrlList = $config->get('Discovery')->keys();
     foreach ($discoveryUrlList as $discoveryUrl) {
-        $publicKey = $config->get('Discovery')->get($discoveryUrl)->get('publicKey');
         $encodedDiscoveryUrl = preg_replace('/[^A-Za-z.]/', '_', $discoveryUrl);
         $providerListFetcher = new ProviderListFetcher(sprintf('%s/data/%s', $baseDir, $encodedDiscoveryUrl));
-        $providerListFetcher->update(new CurlHttpClient(), $discoveryUrl, $publicKey);
+        $providerListFetcher->update(new CurlHttpClient(), $discoveryUrl);
     }
 } catch (Exception $e) {
     echo sprintf('ERROR: %s', $e->getMessage()).PHP_EOL;

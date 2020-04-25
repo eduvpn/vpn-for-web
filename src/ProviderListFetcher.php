@@ -28,19 +28,12 @@ class ProviderListFetcher
 
     /**
      * @param string $discoveryUrl
-     * @param string $encodedPublicKey
      *
      * @return array
      */
-    public function update(HttpClientInterface $httpClient, $discoveryUrl, $encodedPublicKey)
+    public function update(HttpClientInterface $httpClient, $discoveryUrl)
     {
-        $publicKey = base64_decode($encodedPublicKey, true);
-        $discoverySignatureUrl = sprintf('%s.sig', $discoveryUrl);
-
         $discoveryResponse = $this->httpGet($httpClient, $discoveryUrl);
-        $discoverySignatureResponse = $this->httpGet($httpClient, $discoverySignatureUrl);
-
-        $discoverySignature = base64_decode($discoverySignatureResponse->getBody(), true);
         $discoveryBody = $discoveryResponse->getBody();
 
         // check if we already have a file from a previous run
@@ -62,30 +55,6 @@ class ProviderListFetcher
         }
 
         return $discoveryData;
-    }
-
-    /**
-     * @return array
-     */
-    public function extract()
-    {
-        if (false === $fileContent = @file_get_contents($this->filePath)) {
-            return [];
-        }
-
-        $jsonData = self::jsonDecode($fileContent);
-
-        $entryList = [];
-        foreach ($jsonData['instances'] as $instance) {
-            // convert base_uri to FQDN
-            $baseUri = $instance['base_uri'];
-            if (null === $hostName = parse_url($baseUri, PHP_URL_HOST)) {
-                throw new RuntimeException('unable to extract host name from base_uri');
-            }
-            $entryList[$hostName] = $instance['public_key'];
-        }
-
-        return $entryList;
     }
 
     /**
