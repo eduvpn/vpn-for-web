@@ -1,5 +1,5 @@
 diff --git a/bin/fetch-provider-info.php b/bin/fetch-provider-info.php
-index d6a4dbf..17690bd 100644
+index 509b68a..aaa099a 100644
 --- a/bin/fetch-provider-info.php
 +++ b/bin/fetch-provider-info.php
 @@ -7,8 +7,8 @@
@@ -14,7 +14,7 @@ index d6a4dbf..17690bd 100644
  use fkooman\OAuth\Client\Http\CurlHttpClient;
  use LC\Web\Config;
 diff --git a/web/index.php b/web/index.php
-index 5256909..789f587 100644
+index 7e324e4..d8424b6 100644
 --- a/web/index.php
 +++ b/web/index.php
 @@ -7,8 +7,8 @@
