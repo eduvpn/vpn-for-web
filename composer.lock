@@ -4,15 +4,15 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "101953d19f1575d59e55573689ba2552",
+    "content-hash": "0ab5af92de058ff1a9ecd34b6b0a7029",
     "packages": [
         {
             "name": "fkooman/oauth2-client",
-            "version": "dev-master",
+            "version": "7.2.0",
             "source": {
                 "type": "git",
                 "url": "https://git.tuxed.net/fkooman/php-oauth2-client",
-                "reference": "ad5031cc5534d1f238693b095e4dfe9f2bcc2cbd"
+                "reference": "e97fd6d5868a1ca9af715ae83d1991b4f880745f"
             },
             "require": {
                 "ext-curl": "*",
@@ -57,7 +57,7 @@
                 "email": "fkooman@tuxed.net",
                 "source": "https://git.tuxed.net/fkooman/php-oauth2-client"
             },
-            "time": "2020-04-18T11:06:45+00:00"
+            "time": "2020-04-25T09:56:27+00:00"
         },
         {
             "name": "paragonie/constant_time_encoding",
@@ -353,9 +353,7 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "fkooman/oauth2-client": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
