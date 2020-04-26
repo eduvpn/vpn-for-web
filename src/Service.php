@@ -64,7 +64,7 @@ class Service
                 case 'GET':
                     switch ($request->getPathInfo()) {
                         case '/':
-                            return $this->showHome($this->session->getFlowId());
+                            return $this->showHome($request->getRootUri(), $this->session->getFlowId());
                         case '/settings':
                             return new Response(
                                 200,
@@ -204,11 +204,12 @@ class Service
     }
 
     /**
+     * @param string $rootUri
      * @param string $flowId
      *
      * @return Http\Response
      */
-    private function showHome($flowId)
+    private function showHome($rootUri, $flowId)
     {
         $myInstituteAccessBaseUriList = $this->session->getMyInstituteAccessBaseUriList();
         $myInstituteAccessServerList = [];
@@ -224,6 +225,12 @@ class Service
 
         $secureInternetBaseUri = $this->session->getSecureInternetBaseUri();
         $secureInternetServerInfo = null !== $secureInternetBaseUri ? $this->getServerInfo($secureInternetBaseUri) : null;
+
+        if ('merged_server_idp' === $flowId) {
+            if (0 === \count($myInstituteAccessServerList) && 0 === \count($myAlienBaseUriList) && null === $secureInternetServerInfo) {
+                return new Response(302, ['Location' => $rootUri.'chooseServerIdp']);
+            }
+        }
 
         if ('modern_two_buttons' === $flowId) {
             return new Response(
