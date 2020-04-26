@@ -319,6 +319,7 @@ class Service
             $this->tpl->render(
                 'choose_server',
                 [
+                    'hasInstituteAccess' => 0 !== \count($this->session->getMyInstituteAccessBaseUriList()),
                     'hasSecureInternetHome' => null !== $this->session->getSecureInternetHomeBaseUri(),
                     'instituteList' => $this->getInstituteAccessServerList(),
                     'showSecureInternetHint' => 'focus_on_institute_access' === $this->session->getFlowId(),

@@ -1,5 +1,14 @@
 <?php $this->layout('base'); ?>
 <?php $this->start('content'); ?>
+
+<?php if ($showSecureInternetHint): ?>
+<?php if (!$hasSecureInternetHome && $hasInstituteAccess): ?>
+<form class="home center" method="get" action="chooseIdP">
+    <button>🌍 Protect yourself Online...</button>
+</form>
+<?php endif; ?>
+<?php endif; ?>
+
 <h2>Select your Institute</h2>
 <ul>
     <form method="post" action="addServer">
@@ -13,7 +22,7 @@
     </form>
 </ul>
 <?php if ($showSecureInternetHint): ?>
-<?php if (!$hasSecureInternetHome): ?>
+<?php if (!$hasSecureInternetHome && !$hasInstituteAccess): ?>
 <form class="home center" method="get" action="chooseIdP">
     <button>🌍 Protect yourself Online...</button>
 </form>
