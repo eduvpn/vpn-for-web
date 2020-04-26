@@ -646,8 +646,6 @@ class Service
         );
 
         // add baseUri to server list
-        // XXX make sure to never add the same server twice! this will happen
-        // after app is revoked for example...
         $serverInfo = $this->getServerInfo($baseUri);
         if ('secure_internet' === $serverInfo['type']) {
             if (null === $this->session->getSecureInternetHomeBaseUri()) {
@@ -655,9 +653,15 @@ class Service
             }
             $this->session->setSecureInternetBaseUri($baseUri);
         } elseif ('institute_access' === $serverInfo['type']) {
-            $this->session->addInstituteAccessBaseUri($baseUri);
+            // never add the same baseUri twice
+            if (!\in_array($baseUri, $this->session->getMyInstituteAccessBaseUriList(), true)) {
+                $this->session->addInstituteAccessBaseUri($baseUri);
+            }
         } else {
-            $this->session->addAlienBaseUri($baseUri);
+            // never add the same baseUri twice
+            if (!\in_array($baseUri, $this->session->getMyAlienBaseUriList(), true)) {
+                $this->session->addAlienBaseUri($baseUri);
+            }
         }
 
         // redirect back
