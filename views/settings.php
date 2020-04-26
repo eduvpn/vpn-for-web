@@ -9,7 +9,8 @@
         <fieldset>
             <label>Flow <select name="flowId">
                 <option value="modern_two_buttons" <?='modern_two_buttons' === $flowId ? 'selected' : ''; ?>>Modern Two Buttons (Tangui 2)</option>
-                <option value="merged_server_idp" <?='merged_server_idp' === $flowId ? 'selected' : ''; ?>>Merged Idp &amp; Server (Tangui 3)</option>
+                <option value="merged_server_idp" <?='merged_server_idp' === $flowId ? 'selected' : ''; ?>>Merged Idp &amp; Server (Tangui 3)</option>  
+                <option value="focus_on_institute_access" <?='focus_on_institute_access' === $flowId ? 'selected' : ''; ?>>Focus on Institute Access (FrKo 2)</option>  
             </select></label>
         </fieldset>
 

@@ -81,6 +81,8 @@ class Service
                             return $this->showChooseServer();
                         case '/chooseServerIdp':
                             return $this->showChooseServerIdp();
+                        case '/chooseInstituteServer':
+                            return $this->showChooseInstituteServer();
                         case '/addOtherServer':
                             return new Response(200, [], $this->tpl->render('add_other_server', []));
                         case '/switchLocation':
@@ -232,6 +234,12 @@ class Service
             }
         }
 
+        if ('focus_on_institute_access' === $flowId) {
+            if (0 === \count($myInstituteAccessServerList) && 0 === \count($myAlienBaseUriList) && null === $secureInternetServerInfo) {
+                return new Response(302, ['Location' => $rootUri.'chooseServer']);
+            }
+        }
+
         if ('modern_two_buttons' === $flowId) {
             return new Response(
                 200,
@@ -253,6 +261,21 @@ class Service
                 [],
                 $this->tpl->render(
                     'home_merged_server_idp',
+                    [
+                        'myInstituteAccessServerList' => $myInstituteAccessServerList,
+                        'myAlienServerList' => $myAlienServerList,
+                        'secureInternetServerInfo' => $secureInternetServerInfo,
+                    ]
+                )
+            );
+        }
+
+        if ('focus_on_institute_access' === $flowId) {
+            return new Response(
+                200,
+                [],
+                $this->tpl->render(
+                    'home_focus',
                     [
                         'myInstituteAccessServerList' => $myInstituteAccessServerList,
                         'myAlienServerList' => $myAlienServerList,
@@ -296,7 +319,9 @@ class Service
             $this->tpl->render(
                 'choose_server',
                 [
+                    'hasSecureInternetHome' => null !== $this->session->getSecureInternetHomeBaseUri(),
                     'instituteList' => $this->getInstituteAccessServerList(),
+                    'showSecureInternetHint' => 'focus_on_institute_access' === $this->session->getFlowId(),
                 ]
             )
         );
@@ -697,7 +722,7 @@ class Service
             return 'modern_two_buttons';
         }
 
-        if (!\in_array($flowId, ['modern_two_buttons', 'merged_server_idp'], true)) {
+        if (!\in_array($flowId, ['modern_two_buttons', 'merged_server_idp', 'focus_on_institute_access'], true)) {
             return 'modern_two_buttons';
         }
 

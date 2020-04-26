@@ -12,4 +12,14 @@
 <?php endforeach; ?>
     </form>
 </ul>
+<?php if ($showSecureInternetHint): ?>
+<?php if (!$hasSecureInternetHome): ?>
+<form class="home center" method="get" action="chooseIdP">
+    <button>🌍 Protect yourself Online...</button>
+</form>
+<?php endif; ?>
+<form class="home center" method="get" action="addOtherServer">
+    <button>👽 Add Other Server...</button>
+</form> 
+<?php endif; ?>
 <?php $this->stop('content');
