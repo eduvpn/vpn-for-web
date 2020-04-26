@@ -15,6 +15,7 @@ use fkooman\OAuth\Client\OAuthClient;
 use fkooman\OAuth\Client\SessionTokenStorage;
 use LC\Web\Config;
 use LC\Web\Http\Request;
+use LC\Web\PhpSession;
 use LC\Web\Service;
 use LC\Web\Tpl;
 
@@ -44,6 +45,7 @@ try {
     );
 
     $service = new Service(
+        new PhpSession(),
         $config,
         $tpl,
         $oauthClient,

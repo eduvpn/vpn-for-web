@@ -20,6 +20,9 @@ use RuntimeException;
 
 class Service
 {
+    /** @var SessionInterface */
+    private $session;
+
     /** @var Config */
     private $config;
 
@@ -38,8 +41,9 @@ class Service
     /**
      * @param string $dataDir
      */
-    public function __construct(Config $config, TplInterface $tpl, OAuthClient $oauthClient, HttpClientInterface $httpClient, $dataDir)
+    public function __construct(SessionInterface $session, Config $config, TplInterface $tpl, OAuthClient $oauthClient, HttpClientInterface $httpClient, $dataDir)
     {
+        $this->session = $session;
         $this->config = $config;
         $this->tpl = $tpl;
         $this->httpClient = $httpClient;
@@ -68,7 +72,7 @@ class Service
                                 $this->tpl->render(
                                     'settings',
                                     [
-                                        'forceTcp' => isset($_SESSION['forceTcp']) ? $_SESSION['forceTcp'] : false,
+                                        'forceTcp' => $this->session->getForceTcp(),
                                     ]
                                 )
                             );
@@ -125,8 +129,10 @@ class Service
                             );
 
                         case '/switchLocation':
-                            $baseUri = self::validateBaseUri($request->getPostParameter('baseUri'));
-                            $_SESSION['secure_internet'] = $baseUri;
+                            if (null === $baseUri = self::validateBaseUri($request->getPostParameter('baseUri'))) {
+                                throw new HttpException('missing "baseUri"', 400);
+                            }
+                            $this->session->setSecureInternetBaseUri($baseUri);
 
                             return new Response(
                                 302,
@@ -136,7 +142,7 @@ class Service
                             );
 
                         case '/saveSettings':
-                            $_SESSION['forceTcp'] = 'on' === $request->getPostParameter('forceTcp');
+                            $this->session->setForceTcp('on' === $request->getPostParameter('forceTcp'));
 
                             return new Response(302, ['Location' => $request->getRootUri()]);
 
@@ -146,7 +152,7 @@ class Service
 
                             return $this->handleDownloadProfile($request->getRootUri(), $profileId, $baseUri);
                         case '/resetAppData':
-                            $_SESSION = [];
+                            $this->session->destroy();
 
                             return new Response(302, ['Location' => $request->getRootUri()]);
                         default:
@@ -176,19 +182,19 @@ class Service
      */
     private function showHome()
     {
-        $myInstituteAccessBaseUriList = isset($_SESSION['institute_access']) ? $_SESSION['institute_access'] : [];
+        $myInstituteAccessBaseUriList = $this->session->getMyInstituteAccessBaseUriList();
         $myInstituteAccessServerList = [];
         foreach ($myInstituteAccessBaseUriList as $baseUri) {
             $myInstituteAccessServerList[] = $this->getServerInfo($baseUri);
         }
 
-        $myAlienBaseUriList = isset($_SESSION['alien']) ? $_SESSION['alien'] : [];
+        $myAlienBaseUriList = $this->session->getMyAlienBaseUriList();
         $myAlienServerList = [];
         foreach ($myAlienBaseUriList as $baseUri) {
             $myAlienServerList[] = $this->getServerInfo($baseUri);
         }
 
-        $secureInternetBaseUri = isset($_SESSION['secure_internet']) ? $_SESSION['secure_internet'] : null;
+        $secureInternetBaseUri = $this->session->getSecureInternetBaseUri();
         $secureInternetServerInfo = null !== $secureInternetBaseUri ? $this->getServerInfo($secureInternetBaseUri) : null;
 
         return new Response(
@@ -341,9 +347,8 @@ class Service
         $serverInfo = $this->getServerInfo($baseUri);
         // are we trying to connect to a secure internet server?
         if ('secure_internet' === $this->getServerInfo($baseUri)['type']) {
-            if (isset($_SESSION['secure_internet_home'])) {
+            if (null !== $secureInternetHomeBaseUri = $this->session->getSecureInternetHomeBaseUri()) {
                 // we already have a home server!
-                $secureInternetHomeBaseUri = $_SESSION['secure_internet_home'];
                 $secureInternetProviderInfo = $this->getProviderInfo($secureInternetHomeBaseUri);
                 // override the OAuth stuff to point to the home server
                 $providerInfo['authorization_endpoint'] = $secureInternetProviderInfo['authorization_endpoint'];
@@ -379,7 +384,7 @@ class Service
         );
 
         if (false === $response) {
-            $_SESSION['_base_uri'] = $baseUri;
+            $this->session->setBaseUri($baseUri);
             // no valid OAuth token available...
             $authorizeUri = $this->oauthClient->getAuthorizeUri(
                 $provider,
@@ -424,7 +429,7 @@ class Service
 
         $vpnConfig = $response->getBody();
 
-        if ($_SESSION['forceTcp']) {
+        if ($this->session->getForceTcp()) {
             // remove all lines from the config that start with "remote" and have UDP in them
             $vpnConfigRows = explode("\r\n", $vpnConfig);
             foreach ($vpnConfigRows as $k => $vpnConfigRow) {
@@ -522,9 +527,10 @@ class Service
      */
     private function handleCallback(Request $request)
     {
-        $baseUri = $_SESSION['_base_uri'];
-        unset($_SESSION['_base_uri']);
-
+        if (null === $baseUri = $this->session->getBaseUri()) {
+            throw new HttpException('missing "baseUri"', 400);
+        }
+        $this->session->removeBaseUri();
         $providerInfo = $this->getProviderInfo($baseUri);
         $provider = new Provider(
             $this->config->get('OAuth')->get('clientId'),
@@ -544,21 +550,14 @@ class Service
         // after app is revoked for example...
         $serverInfo = $this->getServerInfo($baseUri);
         if ('secure_internet' === $serverInfo['type']) {
-            if (!isset($_SESSION['secure_internet_home'])) {
-                $_SESSION['secure_internet_home'] = $baseUri;
+            if (null === $this->session->getSecureInternetHomeBaseUri()) {
+                $this->session->setSecureInternetHomeBaseUri($baseUri);
             }
-            $_SESSION['secure_internet'] = $baseUri;
+            $this->session->setSecureInternetBaseUri($baseUri);
         } elseif ('institute_access' === $serverInfo['type']) {
-            if (!\array_key_exists('institute_access', $_SESSION)) {
-                $_SESSION['institute_access'] = [];
-            }
-            $_SESSION['institute_access'][] = $baseUri;
+            $this->session->addInstituteAccessBaseUri($baseUri);
         } else {
-            // alien
-            if (!\array_key_exists('alien', $_SESSION)) {
-                $_SESSION['alien'] = [];
-            }
-            $_SESSION['alien'][] = $baseUri;
+            $this->session->addAlienBaseUri($baseUri);
         }
 
         // redirect back
