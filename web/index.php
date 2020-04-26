@@ -21,16 +21,17 @@ use LC\Web\Tpl;
 
 session_start();
 
+$tpl = new Tpl(
+    [
+        $baseDir.'/views',
+        $baseDir.'/config/views',
+    ]
+);
+
 try {
     $request = new Request($_SERVER, $_GET, $_POST);
     $config = new Config(require $baseDir.'/config/config.php');
     $dataDir = $baseDir.'/data';
-    $tpl = new Tpl(
-        [
-            $baseDir.'/views',
-            $baseDir.'/config/views',
-        ]
-    );
     $tpl->addDefault(
         [
             'rootUri' => $request->getRootUri(),
@@ -54,6 +55,5 @@ try {
     );
     $service->run($request)->send();
 } catch (Exception $e) {
-    echo sprintf('ERROR (%s): %s %s', get_class($e), $e->getMessage(), $e->getTraceAsString());
-    exit(1);
+    $tpl->render('error', ['errorCode' => 500, 'errorMessage' => $e->getMessage()]);
 }
