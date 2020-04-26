@@ -55,5 +55,5 @@ try {
     );
     $service->run($request)->send();
 } catch (Exception $e) {
-    $tpl->render('error', ['errorCode' => 500, 'errorMessage' => $e->getMessage()]);
+    echo $tpl->render('error', ['errorCode' => 500, 'errorMessage' => $e->getMessage()]);
 }
