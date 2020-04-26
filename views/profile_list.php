@@ -4,6 +4,20 @@
 <?php foreach ($systemMessages as $systemMessage): ?>
 <p class="plain"><?=$this->e($systemMessage['message']); ?></p>
 <?php endforeach; ?>
+<?php if (array_key_exists('support_contact', $serverInfo)): ?>
+<p>Contact Support via
+<?php foreach ($serverInfo['support_contact'] as $contactInfo): ?>
+<?php if (0 === strpos($contactInfo, 'mailto:')): ?>
+<a href="<?=$this->e($contactInfo); ?>">📧 (Mail)</a>
+<?php elseif (0 === strpos($contactInfo, 'tel:')): ?>
+<a href="<?=$this->e($contactInfo); ?>">☎️ (Phone)</a>
+<?php else: ?>
+<a href="<?=$this->e($contactInfo); ?>">🌐 (Web)</a>
+<?php endif; ?>
+<?php endforeach; ?>
+</p>
+<?php endif; ?>
+
 <h3>Download Profile</h3>
 <ul>
     <form method="post" action="downloadProfile">
