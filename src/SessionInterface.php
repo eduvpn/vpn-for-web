@@ -92,4 +92,16 @@ interface SessionInterface
      * @return void
      */
     public function addAlienBaseUri($baseUri);
+
+    /**
+     * @return string
+     */
+    public function getFlowId();
+
+    /**
+     * @param string $flowId
+     *
+     * @return void
+     */
+    public function setFlowId($flowId);
 }

@@ -64,7 +64,7 @@ class Service
                 case 'GET':
                     switch ($request->getPathInfo()) {
                         case '/':
-                            return $this->showHome();
+                            return $this->showHome($this->session->getFlowId());
                         case '/settings':
                             return new Response(
                                 200,
@@ -73,11 +73,14 @@ class Service
                                     'settings',
                                     [
                                         'forceTcp' => $this->session->getForceTcp(),
+                                        'flowId' => $this->session->getFlowId(),
                                     ]
                                 )
                             );
                         case '/chooseServer':
                             return $this->showChooseServer();
+                        case '/chooseServerIdp':
+                            return $this->showChooseServerIdp();
                         case '/addOtherServer':
                             return new Response(200, [], $this->tpl->render('add_other_server', []));
                         case '/switchLocation':
@@ -118,7 +121,7 @@ class Service
                                 ]
                             );
 
-                        case '/selectIdP':
+                        case '/selectIdP':  // XXX IdP -> Idp
                             $orgId = self::validateOrgId($request->getPostParameter('orgId'));
 
                             return new Response(
@@ -128,6 +131,28 @@ class Service
                                 ]
                             );
 
+                        case '/selectIdpOrServer':
+                            $baseUri = self::validateBaseUri($request->getPostParameter('baseUri'));
+                            $orgId = self::validateOrgId($request->getPostParameter('orgId'));
+
+                            if (null !== $orgId) {
+                                return new Response(
+                                    302,
+                                    [
+                                        'Location' => $request->getRootUri().'getProfileList?orgId='.$orgId,
+                                    ]
+                                );
+                            }
+                            if (null !== $baseUri) {
+                                return new Response(
+                                    302,
+                                    [
+                                        'Location' => $request->getRootUri().'getProfileList?baseUri='.$baseUri,
+                                    ]
+                                );
+                            }
+
+                            throw new HttpException('need either "baseUri" or "orgId"', 400);
                         case '/switchLocation':
                             if (null === $baseUri = self::validateBaseUri($request->getPostParameter('baseUri'))) {
                                 throw new HttpException('missing "baseUri"', 400);
@@ -143,6 +168,7 @@ class Service
 
                         case '/saveSettings':
                             $this->session->setForceTcp('on' === $request->getPostParameter('forceTcp'));
+                            $this->session->setFlowId(self::validateFlowId($request->getPostParameter('flowId')));
 
                             return new Response(302, ['Location' => $request->getRootUri()]);
 
@@ -178,9 +204,11 @@ class Service
     }
 
     /**
+     * @param string $flowId
+     *
      * @return Http\Response
      */
-    private function showHome()
+    private function showHome($flowId)
     {
         $myInstituteAccessBaseUriList = $this->session->getMyInstituteAccessBaseUriList();
         $myInstituteAccessServerList = [];
@@ -197,15 +225,54 @@ class Service
         $secureInternetBaseUri = $this->session->getSecureInternetBaseUri();
         $secureInternetServerInfo = null !== $secureInternetBaseUri ? $this->getServerInfo($secureInternetBaseUri) : null;
 
+        if ('modern_two_buttons' === $flowId) {
+            return new Response(
+                200,
+                [],
+                $this->tpl->render(
+                    'home',
+                    [
+                        'myInstituteAccessServerList' => $myInstituteAccessServerList,
+                        'myAlienServerList' => $myAlienServerList,
+                        'secureInternetServerInfo' => $secureInternetServerInfo,
+                    ]
+                )
+            );
+        }
+
+        if ('merged_server_idp' === $flowId) {
+            return new Response(
+                200,
+                [],
+                $this->tpl->render(
+                    'home_merged_server_idp',
+                    [
+                        'myInstituteAccessServerList' => $myInstituteAccessServerList,
+                        'myAlienServerList' => $myAlienServerList,
+                        'secureInternetServerInfo' => $secureInternetServerInfo,
+                    ]
+                )
+            );
+        }
+
+        throw new HttpException('unsupported "flowId"', 400);
+    }
+
+    /**
+     * @return Http\Response
+     */
+    private function showChooseServerIdp()
+    {
+        $idpServerList = array_merge($this->getInstituteAccessServerList(), $this->getIdpList());
+        $this->sortByDisplayName($idpServerList);
+
         return new Response(
             200,
             [],
             $this->tpl->render(
-                'home',
+                'choose_idp_or_server',
                 [
-                    'myInstituteAccessServerList' => $myInstituteAccessServerList,
-                    'myAlienServerList' => $myAlienServerList,
-                    'secureInternetServerInfo' => $secureInternetServerInfo,
+                    'idpServerList' => $idpServerList,
                 ]
             )
         );
@@ -610,5 +677,45 @@ class Service
         }
 
         return $profileId;
+    }
+
+    /**
+     * @param string|null $flowId
+     *
+     * @return string
+     */
+    private static function validateFlowId($flowId)
+    {
+        if (null === $flowId) {
+            return 'modern_two_buttons';
+        }
+
+        if (!\in_array($flowId, ['modern_two_buttons', 'merged_server_idp'], true)) {
+            return 'modern_two_buttons';
+        }
+
+        return $flowId;
+    }
+
+    /**
+     * @return void
+     */
+    private static function sortByDisplayName(array &$entryList)
+    {
+        usort(
+            $entryList,
+            function (array $a, array $b) {
+                $dnA = $a['display_name'];
+                $dnB = $b['display_name'];
+                if (\is_array($dnA)) {
+                    $dnA = array_values($dnA)[0];
+                }
+                if (\is_array($dnB)) {
+                    $dnB = array_values($dnB)[0];
+                }
+
+                return strcasecmp($dnA, $dnB);
+            }
+        );
     }
 }

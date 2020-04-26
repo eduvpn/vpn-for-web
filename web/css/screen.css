@@ -167,6 +167,16 @@ table.tbl button, table.tbl form {
 }
 
 fieldset {
+    margin: 1em 0;
+}
+
+label {
+    font-weight: bold;
+}
+
+select {
+    display: block;
+    margin-top: 0.5em;
 }
 
 .right {
