@@ -25,7 +25,7 @@
         "ext-json": "*",
         "ext-mbstring": "*",
         "ext-spl": "*",
-        "fkooman/oauth2-client": "^7.2",
+        "fkooman/oauth2-client": "dev-master",
         "php": ">= 5.4.0"
     },
     "type": "project"

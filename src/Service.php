@@ -81,8 +81,6 @@ class Service
                             return $this->showChooseServer();
                         case '/chooseServerIdp':
                             return $this->showChooseServerIdp();
-                        case '/chooseInstituteServer':
-                            return $this->showChooseInstituteServer();
                         case '/addOtherServer':
                             return new Response(200, [], $this->tpl->render('add_other_server', []));
                         case '/switchLocation':
