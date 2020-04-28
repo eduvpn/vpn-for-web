@@ -8,6 +8,7 @@
     <link href="css/bootstrap-reboot.min.css" media="screen" rel="stylesheet">
     <link href="css/screen.css" media="screen" rel="stylesheet">
     <link href="css/eduVPN/screen.css" media="screen" rel="stylesheet">
+    <script type="text/javascript" src="js/search.js"></script>
 </head>
 <body>
     <header>

@@ -18,6 +18,17 @@ form.home {
     margin-top: 2em;
 }
 
+form.search input {
+    padding: 0.5em;
+    border: 1px solid #d8d8d8;
+    outline: none;
+    background-color: #f8f8f8;
+    color: #777;
+
+
+    width: 100%;
+}
+
 form.home button {
     width: 100%;
     text-align: start;

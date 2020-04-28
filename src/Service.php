@@ -321,6 +321,7 @@ class Service
                     'hasSecureInternetHome' => null !== $this->session->getSecureInternetHomeBaseUri(),
                     'instituteList' => $this->getInstituteAccessServerList(),
                     'showSecureInternetHint' => 'focus_on_institute_access' === $this->session->getFlowId(),
+                    'idpList' => $this->getIdpList(),
                 ]
             )
         );
