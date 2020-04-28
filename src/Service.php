@@ -464,11 +464,7 @@ class Service
         $apiBaseUri = $providerInfo['api_base_uri'];
 
         if ('GET' === $requestMethod) {
-            $qP = '';
-            if (0 !== \count($queryPostParameters)) {
-                $qP = '?'.http_build_query($queryPostParameters);
-            }
-            $request = HttpRequest::get(sprintf('%s/%s'.$qP, $apiBaseUri, $apiMethod), []);
+            $request = HttpRequest::get(sprintf('%s/%s', $apiBaseUri, $apiMethod), $queryPostParameters);
         } else {
             // MUST be POST for now
             $request = HttpRequest::post(sprintf('%s/%s', $apiBaseUri, $apiMethod), $queryPostParameters);
