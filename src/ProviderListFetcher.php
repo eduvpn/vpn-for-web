@@ -43,13 +43,14 @@ class ProviderListFetcher
         if (false !== $fileContent = @file_get_contents($localFile)) {
             // extract the "seq" field to see if we got a newer version
             $jsonData = self::jsonDecode($fileContent);
-            $seq = (int) $jsonData['seq'];
+//            $seq = (int) $jsonData['seq'];
         }
 
         $discoveryData = $discoveryResponse->json();
-        if ($discoveryData['seq'] < $seq) {
-            throw new RuntimeException('rollback, this is really unexpected!');
-        }
+        // XXX
+//        if ($discoveryData['g'] < $seq) {
+//            throw new RuntimeException('rollback, this is really unexpected!');
+//        }
 
         // all fine, write file
         if (false === @file_put_contents($localFile, $discoveryBody)) {
