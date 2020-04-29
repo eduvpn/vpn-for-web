@@ -7,7 +7,7 @@
     <title>VPN for Web</title>
     <link href="css/bootstrap-reboot.min.css" media="screen" rel="stylesheet">
     <link href="css/screen.css" media="screen" rel="stylesheet">
-    <link href="css/eduVPN/screen.css" media="screen" rel="stylesheet">
+     <link href="css/eduVPN/screen.css" media="screen" rel="stylesheet">
     <script type="text/javascript" src="js/search.js"></script>
 </head>
 <body>
@@ -15,7 +15,7 @@
         <h1>VPN for Web</h1>
     </header>
     <nav>
-        <a href="<?=$this->e($rootUri); ?>">Home</a> | <a href="<?=$this->e($rootUri); ?>settings">Settings</a>
+        <a href="<?=$this->e($rootUri); ?>">Home</a> | <a href="<?=$this->e($rootUri); ?>settings">Advanced</a>
     </nav>
     <main>
         <?=$this->section('content'); ?>

@@ -5,21 +5,22 @@
 <p class="plain"><?=$this->e($systemMessage['message']); ?></p>
 <?php endforeach; ?>
 <?php if (array_key_exists('support_contact', $serverInfo)): ?>
-<p>Contact Support via
+<div class="supportContact">
+Contact Support via
 <?php foreach ($serverInfo['support_contact'] as $contactInfo): ?>
 <?php if (0 === strpos($contactInfo, 'mailto:')): ?>
-<a href="<?=$this->e($contactInfo); ?>">📧 (Mail)</a>
+<a href="<?=$this->e($contactInfo); ?>">✉️ (Mail)</a>
 <?php elseif (0 === strpos($contactInfo, 'tel:')): ?>
 <a href="<?=$this->e($contactInfo); ?>">☎️ (Phone)</a>
 <?php else: ?>
 <a href="<?=$this->e($contactInfo); ?>">🌐 (Web)</a>
 <?php endif; ?>
 <?php endforeach; ?>
-</p>
+</div>
 <?php endif; ?>
 
 <h3>Download Profile</h3>
-<ul>
+<ul class="profileList">
     <form method="post" action="downloadProfile">
         <input type="hidden" name="baseUri" value="<?=$this->e($baseUri); ?>">
 <?php  foreach ($profileList as $profile): ?>

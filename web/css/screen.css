@@ -1,195 +1,72 @@
-body {
+header, nav, main {
     max-width: 30em;
     margin: 0 auto;
-    padding: 0.5em;
-    text-align: inherit;    /* override for bootstrap-reboot */
 }
 
 a {
     text-decoration: underline;
 }
 
-h1, h2, h3 {
-    margin-top: 1em;
-    text-align: center;
-}
-
-form.home {
-    margin-top: 2em;
-}
-
-form.search input {
-    padding: 0.5em;
-    border: 1px solid #d8d8d8;
-    outline: none;
-    background-color: #f8f8f8;
-    color: #777;
-
-
-    width: 100%;
-}
-
-form.home button {
-    width: 100%;
-    text-align: start;
-    padding: 0.75em 1em;
+main {
+    margin: 1em auto;
 }
 
 nav {
     text-align: center;
-    padding-bottom: 1em;
 }
 
-main {
-    text-align: justify;
-    height: 100%;
-}
-
-.mute {
-    color: #888;
-}
-
-.small {
-    font-size: 85%;
-}
-
-.center {
+h1, h2, h3 {
     text-align: center;
-}
-
-hr {
-    margin: 1.5em 0;
-}
-
-summary {
-    margin: 1em 0;
-}
-
-header {
-    text-align: end;
-}
-
-button {
-    padding: 0.3em;
-    border: 1px solid #d8d8d8;
-    outline: none;
-/*    margin: 0.5em 0;*/
-    background-color: #f8f8f8;
-    color: #777;
+    margin-top: 0.5em;
 }
 
 ul {
-    list-style: none;
     padding: 0;
     margin: 0;
 }
 
-ul li {
-    margin: 0;
-    padding: 0.1em 0;
+li {
+    list-style: none;
 }
 
-ul li button {
-    width: 100%;
-    text-align: start;
-    padding: 0.75em 1em;
-    margin: 0;
+form {
+    margin-top: 1em;
 }
 
-p.plain {
-    border: 1px solid gray;
+form input[type="text"], form button {
+    margin: 0.3em 0;
+    border: 1px solid #aaa;
     padding: 1em;
+    background-color: #fff;
+    line-height: 1;
+}
+
+form input[type="text"], ul form button, form.home button {
     width: 100%;
-    color: #777;
-    background-color: #f8f8f8;
-}
-
-p {
-    margin-top: 0;
-}
-
-p.warning {
-    border: 1px solid orange;
-    padding: 1em;
-    width: 100%;
-    color: orange;
-}
-
-p.warning::before {
-    content: "⚠️"
-}
-
-p.success {
-    border: 1px solid darkgreen;
-    padding: 1em;
-    width: 100%;
-    color: darkgreen;
-}
-
-p.success::before {
-    content: "✔️"
-}
-
-summary {
-    margin-bottom: 1em;
-}
-
-footer {
-    margin-top: 2em;
-    font-size: 75%;
-    text-align: center;
 }
 
 div.add {
     text-align: center;
 }
 
-table.tbl {
-    border: 1px solid #ccc;
-    width: 100%;
-    border-collapse: collapse;
+form button {
+    text-align: start;
+}
+
+p.plain {
+    background-color: #f0f0f0;
+    border: 1px solid #e0e0e0;
+    padding: 1em;
+}
+
+ul.profileList {
     margin-bottom: 1em;
 }
 
-table.tbl ul {
-    margin: 0;
-    padding: 0 0 0 1em;
+div.supportContact a {
+    text-decoration: none;
 }
 
-table.tbl thead tr {
-    background-color: #f8f8f8;
-    color: #555;
-}
-
-table.tbl tbody th {
-    vertical-align: top;
-}
-
-table.tbl td, table.tbl th {
-    padding: 0.8em 0.5em;
-}
-
-table.tbl tbody tr:nth-child(even) {
-    background-color: #f8f8f8;
-}
-
-table.tbl button, table.tbl form {
-    margin: 0;
-}
-
-fieldset {
-    margin: 1em 0;
-}
-
-label {
-    font-weight: bold;
-}
-
-select {
-    display: block;
-    margin-top: 0.5em;
-}
-
-.right {
-    text-align: right;
+hr {
+    border: 1px solid #aaa;
 }

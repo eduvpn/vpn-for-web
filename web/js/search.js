@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         document.querySelector("form.search input").addEventListener("keyup", function () {
             var search = this.value.toUpperCase();
-            var instituteList = document.querySelectorAll("form.instituteList li button");
+            var instituteList = document.querySelectorAll("form.searchList li button");
             var visibleCount = 0;
             instituteList.forEach(function(entry) {
                 var instituteName = entry.innerHTML;
@@ -26,26 +26,5 @@ document.addEventListener("DOMContentLoaded", function () {
                 document.getElementById("instituteAccess").style.display = "block";
             }
         });
-
-        document.querySelector("form.search input").addEventListener("keyup", function () {
-            var search = this.value.toUpperCase();
-            var idpList = document.querySelectorAll("form.idpList li button");
-            var visibleCount = 0;
-            idpList.forEach(function(entry) {
-                var idpName = entry.innerHTML;
-                if(idpName.toUpperCase().indexOf(search) !== -1) {
-                    entry.parentElement.style.display = "block";
-                    visibleCount++;
-                } else {
-                    entry.parentElement.style.display = "none";
-                }
-            });
-            if(0 === visibleCount) {
-                document.getElementById("secureInternet").style.display = "none";
-            } else {
-                document.getElementById("secureInternet").style.display = "block";
-            }
-        });
-
     }
 });

@@ -64,7 +64,7 @@ class Service
                 case 'GET':
                     switch ($request->getPathInfo()) {
                         case '/':
-                            return $this->showHome($request->getRootUri(), $this->session->getFlowId());
+                            return $this->showHome($request->getRootUri());
                         case '/settings':
                             return new Response(
                                 200,
@@ -73,25 +73,21 @@ class Service
                                     'settings',
                                     [
                                         'forceTcp' => $this->session->getForceTcp(),
-                                        'flowId' => $this->session->getFlowId(),
                                     ]
                                 )
                             );
                         case '/chooseServer':
                             return $this->showChooseServer();
-                        case '/chooseServerIdp':
-                            return $this->showChooseServerIdp();
                         case '/addOtherServer':
                             return new Response(200, [], $this->tpl->render('add_other_server', []));
                         case '/switchLocation':
                             return $this->showSwitchLocation();
-                        case '/chooseIdP':
-                            return $this->showChooseIdp();
+                        case '/chooseOrganization':
+                            return $this->showChooseOrganization();
                         case '/getProfileList':
                             $baseUri = self::validateBaseUri($request->getQueryParameter('baseUri'));
-                            $orgId = self::validateOrgId($request->getQueryParameter('orgId'));
 
-                            return $this->getProfileList($baseUri, $orgId, $request->getRootUri());
+                            return $this->getProfileList($baseUri, $request->getRootUri());
                         case '/callback':
                             // handle OAuth server callback
                             return $this->handleCallback($request);
@@ -121,38 +117,19 @@ class Service
                                 ]
                             );
 
-                        case '/selectIdP':  // XXX IdP -> Idp
-                            $orgId = self::validateOrgId($request->getPostParameter('orgId'));
+                        case '/selectOrganization':
+                            // validation of h getBaseUriFromOrgId as that is a whitelist...
+                            if (null === $baseUri = $this->getBaseUriFromOrgId($request->getPostParameter('orgId'))) {
+                                throw new HttpException('invalid "orgId"', 400);
+                            }
 
                             return new Response(
                                 302,
                                 [
-                                    'Location' => $request->getRootUri().'getProfileList?orgId='.$orgId,
+                                    'Location' => $request->getRootUri().'getProfileList?baseUri='.$baseUri,
                                 ]
                             );
 
-                        case '/selectIdpOrServer':
-                            $baseUri = self::validateBaseUri($request->getPostParameter('baseUri'));
-                            $orgId = self::validateOrgId($request->getPostParameter('orgId'));
-
-                            if (null !== $orgId) {
-                                return new Response(
-                                    302,
-                                    [
-                                        'Location' => $request->getRootUri().'getProfileList?orgId='.$orgId,
-                                    ]
-                                );
-                            }
-                            if (null !== $baseUri) {
-                                return new Response(
-                                    302,
-                                    [
-                                        'Location' => $request->getRootUri().'getProfileList?baseUri='.$baseUri,
-                                    ]
-                                );
-                            }
-
-                            throw new HttpException('need either "baseUri" or "orgId"', 400);
                         case '/switchLocation':
                             if (null === $baseUri = self::validateBaseUri($request->getPostParameter('baseUri'))) {
                                 throw new HttpException('missing "baseUri"', 400);
@@ -168,7 +145,6 @@ class Service
 
                         case '/saveSettings':
                             $this->session->setForceTcp('on' === $request->getPostParameter('forceTcp'));
-                            $this->session->setFlowId(self::validateFlowId($request->getPostParameter('flowId')));
 
                             return new Response(302, ['Location' => $request->getRootUri()]);
 
@@ -205,11 +181,10 @@ class Service
 
     /**
      * @param string $rootUri
-     * @param string $flowId
      *
      * @return Http\Response
      */
-    private function showHome($rootUri, $flowId)
+    private function showHome($rootUri)
     {
         $myInstituteAccessBaseUriList = $this->session->getMyInstituteAccessBaseUriList();
         $myInstituteAccessServerList = [];
@@ -226,81 +201,19 @@ class Service
         $secureInternetBaseUri = $this->session->getSecureInternetBaseUri();
         $secureInternetServerInfo = null !== $secureInternetBaseUri ? $this->getServerInfo($secureInternetBaseUri) : null;
 
-        if ('merged_server_idp' === $flowId) {
-            if (0 === \count($myInstituteAccessServerList) && 0 === \count($myAlienBaseUriList) && null === $secureInternetServerInfo) {
-                return new Response(302, ['Location' => $rootUri.'chooseServerIdp']);
-            }
+        if (0 === \count($myInstituteAccessServerList) && 0 === \count($myAlienBaseUriList) && null === $secureInternetServerInfo) {
+            return new Response(302, ['Location' => $rootUri.'chooseServer']);
         }
-
-        if ('focus_on_institute_access' === $flowId) {
-            if (0 === \count($myInstituteAccessServerList) && 0 === \count($myAlienBaseUriList) && null === $secureInternetServerInfo) {
-                return new Response(302, ['Location' => $rootUri.'chooseServer']);
-            }
-        }
-
-        if ('modern_two_buttons' === $flowId) {
-            return new Response(
-                200,
-                [],
-                $this->tpl->render(
-                    'home',
-                    [
-                        'myInstituteAccessServerList' => $myInstituteAccessServerList,
-                        'myAlienServerList' => $myAlienServerList,
-                        'secureInternetServerInfo' => $secureInternetServerInfo,
-                    ]
-                )
-            );
-        }
-
-        if ('merged_server_idp' === $flowId) {
-            return new Response(
-                200,
-                [],
-                $this->tpl->render(
-                    'home_merged_server_idp',
-                    [
-                        'myInstituteAccessServerList' => $myInstituteAccessServerList,
-                        'myAlienServerList' => $myAlienServerList,
-                        'secureInternetServerInfo' => $secureInternetServerInfo,
-                    ]
-                )
-            );
-        }
-
-        if ('focus_on_institute_access' === $flowId) {
-            return new Response(
-                200,
-                [],
-                $this->tpl->render(
-                    'home_focus',
-                    [
-                        'myInstituteAccessServerList' => $myInstituteAccessServerList,
-                        'myAlienServerList' => $myAlienServerList,
-                        'secureInternetServerInfo' => $secureInternetServerInfo,
-                    ]
-                )
-            );
-        }
-
-        throw new HttpException('unsupported "flowId"', 400);
-    }
-
-    /**
-     * @return Http\Response
-     */
-    private function showChooseServerIdp()
-    {
-        $idpServerList = array_merge($this->getInstituteAccessServerList(), $this->getIdpList());
-        $this->sortByDisplayName($idpServerList);
 
         return new Response(
             200,
             [],
             $this->tpl->render(
-                'choose_idp_or_server',
+                'home',
                 [
-                    'idpServerList' => $idpServerList,
+                    'myInstituteAccessServerList' => $myInstituteAccessServerList,
+                    'myAlienServerList' => $myAlienServerList,
+                    'secureInternetServerInfo' => $secureInternetServerInfo,
                 ]
             )
         );
@@ -317,11 +230,7 @@ class Service
             $this->tpl->render(
                 'choose_server',
                 [
-                    'hasInstituteAccess' => 0 !== \count($this->session->getMyInstituteAccessBaseUriList()),
-                    'hasSecureInternetHome' => null !== $this->session->getSecureInternetHomeBaseUri(),
                     'instituteList' => $this->getInstituteAccessServerList(),
-                    'showSecureInternetHint' => 'focus_on_institute_access' === $this->session->getFlowId(),
-                    'idpList' => $this->getIdpList(),
                 ]
             )
         );
@@ -347,15 +256,15 @@ class Service
     /**
      * @return Http\Response
      */
-    private function showChooseIdp()
+    private function showChooseOrganization()
     {
         return new Response(
             200,
             [],
             $this->tpl->render(
-                'choose_idp',
+                'choose_organization',
                 [
-                    'idpList' => $this->getIdpList(),
+                    'organizationList' => $this->getOrganizationList(),
                 ]
             )
         );
@@ -368,16 +277,10 @@ class Service
      */
     private function getBaseUriFromOrgId($orgId)
     {
-        $idpList = $this->getIdpList();
+        $idpList = $this->getOrganizationList();
         foreach ($idpList as $idpEntry) {
             if ($orgId === $idpEntry['org_id']) {
-                // found it
-                $serverList = json_decode(file_get_contents($this->dataDir.'/'.$idpEntry['server_list']), true);
-                foreach ($serverList['server_list'] as $serverEntry) {
-                    if (\array_key_exists('peer_list', $serverEntry)) {
-                        return $serverEntry['base_url'];
-                    }
-                }
+                return $idpEntry['secure_internet_home'];
             }
         }
 
@@ -386,22 +289,14 @@ class Service
 
     /**
      * @param string|null $baseUri
-     * @param string|null $orgId
      * @param string      $rootUri
      *
      * @return Http\Response
      */
-    private function getProfileList($baseUri, $orgId, $rootUri)
+    private function getProfileList($baseUri, $rootUri)
     {
         if (null === $baseUri) {
-            // if we do NOT get a baseUri, we MUST have an orgId that we then
-            // use to figure out *which* baseUri we need to connect to
-            if (null === $orgId) {
-                throw new HttpException('baseUri and orgId query parameter missing', 400);
-            }
-            if (null === $baseUri = $this->getBaseUriFromOrgId($orgId)) {
-                throw new HttpException('Bummer! orgId does not have a "Secure Internet" server available', 400);
-            }
+            throw new HttpException('baseUri parameter missing', 400);
         }
 
         $response = $this->doOAuthCall('GET', $rootUri, $baseUri, 'profile_list');
@@ -555,7 +450,7 @@ class Service
      */
     private function getProviderInfo($baseUri)
     {
-        $infoUrl = sprintf('%s/info.json', $baseUri);
+        $infoUrl = sprintf('%sinfo.json', $baseUri);
         $infoResponse = $this->httpClient->send(HttpRequest::get($infoUrl));
         if (!$infoResponse->isOkay()) {
             throw new RuntimeException(sprintf('unable to fetch "%s"', $infoUrl));
@@ -598,7 +493,10 @@ class Service
      */
     private function getInstituteAccessServerList()
     {
-        return json_decode(file_get_contents($this->dataDir.'/institute_access.json'), true)['instances'];
+        $x = json_decode(file_get_contents($this->dataDir.'/institute_access.json'), true)['instances'];
+        self::sortByDisplayName($x);
+
+        return $x;
     }
 
     /**
@@ -606,15 +504,21 @@ class Service
      */
     private function getSecureInternetServerList()
     {
-        return json_decode(file_get_contents($this->dataDir.'/secure_internet.json'), true)['instances'];
+        $x = json_decode(file_get_contents($this->dataDir.'/secure_internet.json'), true)['instances'];
+        self::sortByDisplayName($x);
+
+        return $x;
     }
 
     /**
      * @return array
      */
-    private function getIdpList()
+    private function getOrganizationList()
     {
-        return json_decode(file_get_contents($this->dataDir.'/organization_list.json'), true)['organization_list'];
+        $x = json_decode(file_get_contents($this->dataDir.'/organization_list_2.json'), true)['organization_list'];
+        self::sortByDisplayName($x);
+
+        return $x;
     }
 
     /**
@@ -685,17 +589,6 @@ class Service
     }
 
     /**
-     * @param string|null $orgId
-     *
-     * @return string|null
-     */
-    private static function validateOrgId($orgId)
-    {
-        // XXX implement orgId validation!
-        return $orgId;
-    }
-
-    /**
      * @param string|null $profileId
      *
      * @return string|null
@@ -709,24 +602,6 @@ class Service
         }
 
         return $profileId;
-    }
-
-    /**
-     * @param string|null $flowId
-     *
-     * @return string
-     */
-    private static function validateFlowId($flowId)
-    {
-        if (null === $flowId) {
-            return 'modern_two_buttons';
-        }
-
-        if (!\in_array($flowId, ['modern_two_buttons', 'merged_server_idp', 'focus_on_institute_access'], true)) {
-            return 'modern_two_buttons';
-        }
-
-        return $flowId;
     }
 
     /**

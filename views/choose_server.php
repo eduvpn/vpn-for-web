@@ -2,12 +2,12 @@
 <?php $this->start('content'); ?>
 
 <form class="search" method="get">
-<input type="text" name="searchFor" placeholder="Search..." autofocus>
+    <input type="text" name="searchFor" placeholder="Search..." autofocus>
 </form>
 
-<h2 id="instituteAccess">Connect to your Institute</h2>
+<h2>Connect to your Institute</h2>
 <ul>
-    <form class="instituteList" method="post" action="addServer">
+    <form class="searchList" method="post" action="addServer">
 <?php  foreach ($instituteList as $instituteEntry): ?>
     <li>
         <button name="baseUri" value="<?=$this->e($instituteEntry['base_uri']); ?>"><?=$this->l($instituteEntry['display_name']); ?></button>
@@ -16,6 +16,7 @@
     </form>
 </ul>
 
+<!--
 <h2 id="secureInternet">Protect Yourself Online</h2>
 
 <ul>
@@ -27,11 +28,6 @@
 <?php endforeach; ?>
     </form>
 </ul>
-
-<!--
-<form class="home center" method="get" action="addOtherServer">
-    <button>👽 Add Other Server...</button>
-</form> 
-
--->
+ -->
+ 
 <?php $this->stop('content');
