@@ -14,6 +14,7 @@ use fkooman\OAuth\Client\Http\Request as HttpRequest;
 use fkooman\OAuth\Client\OAuthClient;
 use fkooman\OAuth\Client\Provider;
 use LC\Web\Http\Exception\HttpException;
+use LC\Web\Http\RedirectResponse;
 use LC\Web\Http\Request;
 use LC\Web\Http\Response;
 use RuntimeException;
@@ -100,54 +101,29 @@ class Service
                         case '/addServer':
                             $baseUri = self::validateBaseUri($request->getPostParameter('baseUri'));
 
-                            return new Response(
-                                302,
-                                [
-                                    'Location' => $request->getRootUri().'getProfileList?baseUri='.$baseUri,
-                                ]
-                            );
-
+                            return new RedirectResponse($request->getRootUri().'getProfileList?baseUri='.$baseUri);
                         case '/addOtherServer':
                             $baseUri = self::validateBaseUri('https://'.$request->getPostParameter('serverName').'/');
 
-                            return new Response(
-                                302,
-                                [
-                                    'Location' => $request->getRootUri().'getProfileList?baseUri='.$baseUri,
-                                ]
-                            );
-
+                            return new RedirectResponse($request->getRootUri().'getProfileList?baseUri='.$baseUri);
                         case '/selectOrganization':
                             // validation of h getBaseUriFromOrgId as that is a whitelist...
                             if (null === $baseUri = $this->getBaseUriFromOrgId($request->getPostParameter('orgId'))) {
                                 throw new HttpException('invalid "orgId"', 400);
                             }
 
-                            return new Response(
-                                302,
-                                [
-                                    'Location' => $request->getRootUri().'getProfileList?baseUri='.$baseUri,
-                                ]
-                            );
-
+                            return new RedirectResponse($request->getRootUri().'getProfileList?baseUri='.$baseUri);
                         case '/switchLocation':
                             if (null === $baseUri = self::validateBaseUri($request->getPostParameter('baseUri'))) {
                                 throw new HttpException('missing "baseUri"', 400);
                             }
                             $this->session->setSecureInternetBaseUri($baseUri);
 
-                            return new Response(
-                                302,
-                                [
-//                                    'Location' => $request->getRootUri().'getProfileList?baseUri='.$baseUri,
-                                        'Location' => $request->getRootUri(),
-                                ]
-                            );
-
+                            return new RedirectResponse($request->getRootUri());
                         case '/saveSettings':
                             $this->session->setForceTcp('on' === $request->getPostParameter('forceTcp'));
 
-                            return new Response(302, ['Location' => $request->getRootUri()]);
+                            return new RedirectResponse($request->getRootUri());
 
                         case '/downloadProfile':
                             $profileId = self::validateProfileId($request->getPostParameter('profileId'));
@@ -157,7 +133,7 @@ class Service
                         case '/resetAppData':
                             $this->session->destroy();
 
-                            return new Response(302, ['Location' => $request->getRootUri()]);
+                            return new RedirectResponse($request->getRootUri());
                         default:
                             throw new HttpException('Not Found', 404);
                     }
@@ -203,7 +179,7 @@ class Service
         $secureInternetServerInfo = null !== $secureInternetBaseUri ? $this->getServerInfo($secureInternetBaseUri) : null;
 
         if (0 === \count($myInstituteAccessServerList) && 0 === \count($myAlienBaseUriList) && null === $secureInternetServerInfo) {
-            return new Response(302, ['Location' => $rootUri.'chooseServer']);
+            return new RedirectResponse($rootUri.'chooseServer');
         }
 
         return new Response(
@@ -303,13 +279,13 @@ class Service
 
         $response = $this->doOAuthCall('GET', $rootUri, $baseUri, 'profile_list');
         if (\is_string($response)) {
-            return new Response(302, ['Location' => $response]);
+            return new RedirectResponse($response);
         }
         $profileList = $response->json()['profile_list']['data'];
 
         $response = $this->doOAuthCall('GET', $rootUri, $baseUri, 'system_messages');
         if (\is_string($response)) {
-            return new Response(302, ['Location' => $response]);
+            return new RedirectResponse($response);
         }
         $systemMessages = $response->json()['system_messages']['data'];
 
@@ -410,13 +386,13 @@ class Service
         // get keypair
         $response = $this->doOAuthCall('POST', $rootUri, $baseUri, 'create_keypair');
         if (\is_string($response)) {
-            return new Response(302, ['Location' => $response]);
+            return new RedirectResponse($response);
         }
         $keyPair = $response->json()['create_keypair']['data'];
 
         $response = $this->doOAuthCall('GET', $rootUri, $baseUri, 'profile_config', ['profile_id' => $profileId]);
         if (\is_string($response)) {
-            return new Response(302, ['Location' => $response]);
+            return new RedirectResponse($response);
         }
 
         $vpnConfig = $response->getBody();
@@ -566,13 +542,7 @@ class Service
         }
 
         // redirect back
-        return new Response(
-            302,
-            [
-//                'Location' => $request->getRootUri().'getProfileList?baseUri='.$baseUri,
-                'Location' => $request->getRootUri(),
-            ]
-        );
+        return new RedirectResponse($request->getRootUri());
     }
 
     /**

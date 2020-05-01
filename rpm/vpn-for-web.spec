@@ -1,8 +1,8 @@
-%global git 57e6f1d2bc9199e29aaec66d1b58f99bb5036a81
+%global git f12c3b6076b1f1d8dc02959d4b00b73da132571f
 
 Name:       vpn-for-web
 Version:    0.1.0
-Release:    0.18%{?dist}
+Release:    0.19%{?dist}
 Summary:    VPN for Web
 Group:      Applications/Internet
 License:    AGPLv3+
@@ -136,6 +136,9 @@ fi
 %license LICENSE LICENSE.spdx
 
 %changelog
+* Fri May 01 2020 François Kooman <fkooman@tuxed.net> - 0.1.0-0.19
+- rebuilt
+
 * Mon Apr 27 2020 François Kooman <fkooman@tuxed.net> - 0.1.0-0.18
 - rebuilt
 

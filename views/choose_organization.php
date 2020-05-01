@@ -1,7 +1,7 @@
 <?php $this->layout('base'); ?>
 <?php $this->start('content'); ?>
 
-<h2>Secure Internet</h2>
+<h2>🌍 Secure Internet</h2>
 <h3>Choose your Institute</h3>
 <form class="search" method="get">
     <input type="text" name="searchFor" placeholder="Search..." autofocus>
@@ -18,4 +18,7 @@
 <?php endforeach; ?>
     </form>
 </ul>
+
+<div class="noResults">No results...</div>
+
 <?php $this->stop('content');

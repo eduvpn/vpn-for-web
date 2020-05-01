@@ -1,7 +1,7 @@
 <?php $this->layout('base'); ?>
 <?php $this->start('content'); ?>
 
-<h2>Institute Access</h2>
+<h2>🏛️ Institute Access</h2>
 <h3>Choose your Institute</h3>
 <form class="search" method="get">
     <input type="text" name="searchFor" placeholder="Search..." autofocus>
