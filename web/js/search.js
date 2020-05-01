@@ -21,9 +21,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             });
             if(0 === visibleCount) {
-                document.getElementById("instituteAccess").style.display = "none";
+                document.querySelector("div.noResults").style.display = "block";
             } else {
-                document.getElementById("instituteAccess").style.display = "block";
+                document.querySelector("div.noResults").style.display = "none";
             }
         });
     }

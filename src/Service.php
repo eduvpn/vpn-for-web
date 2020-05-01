@@ -139,7 +139,8 @@ class Service
                             return new Response(
                                 302,
                                 [
-                                    'Location' => $request->getRootUri().'getProfileList?baseUri='.$baseUri,
+//                                    'Location' => $request->getRootUri().'getProfileList?baseUri='.$baseUri,
+                                        'Location' => $request->getRootUri(),
                                 ]
                             );
 
@@ -230,6 +231,7 @@ class Service
             $this->tpl->render(
                 'choose_server',
                 [
+                    'hasSecureInternet' => null !== $this->session->getSecureInternetHomeBaseUri(),
                     'instituteList' => $this->getInstituteAccessServerList(),
                 ]
             )
@@ -567,7 +569,8 @@ class Service
         return new Response(
             302,
             [
-                'Location' => $request->getRootUri().'getProfileList?baseUri='.$baseUri,
+//                'Location' => $request->getRootUri().'getProfileList?baseUri='.$baseUri,
+                'Location' => $request->getRootUri(),
             ]
         );
     }

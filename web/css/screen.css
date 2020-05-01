@@ -1,6 +1,7 @@
 header, nav, main {
     max-width: 30em;
     margin: 0 auto;
+    padding: 0.5em;
 }
 
 a {
@@ -41,7 +42,7 @@ form input[type="text"], form button {
     line-height: 1;
 }
 
-form input[type="text"], ul form button, form.home button {
+form input[type="text"], ul form button, form.home button, form.searchList button {
     width: 100%;
 }
 
@@ -68,5 +69,13 @@ div.supportContact a {
 }
 
 hr {
-    border: 1px solid #aaa;
+    border: 0;
+    margin: 4em 0;
 }
+
+div.noResults {
+    text-align: center;
+    color: #888;
+    display: none;
+}
+

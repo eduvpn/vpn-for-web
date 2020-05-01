@@ -1,11 +1,12 @@
 <?php $this->layout('base'); ?>
 <?php $this->start('content'); ?>
 
+<h2>Secure Internet</h2>
+<h3>Choose your Institute</h3>
 <form class="search" method="get">
     <input type="text" name="searchFor" placeholder="Search..." autofocus>
 </form>
 
-<h2>Select your Organization</h2>
 <ul>
     <form class="searchList" method="post" action="selectOrganization">
 <?php  foreach ($organizationList as $organizationEntry): ?>

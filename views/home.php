@@ -15,7 +15,7 @@
     <form class="home" method="get" action="getProfileList">
         <button name="baseUri" value="<?=$this->e($secureInternetServerInfo['base_uri']); ?>">🌍 <?=$this->l($secureInternetServerInfo['display_name']); ?></button>
     </form>
-    <div class="add"><a class="small" href="switchLocation">🔗 Change Location...</a></div>
+    <div class="add"><a class="small" href="switchLocation">Change Location...</a></div>
 <?php endif; ?>
 
 <ul>
@@ -28,6 +28,6 @@
     </form>
 </ul>
 <form class="add" method="get" action="chooseServer">
-<button>➕</button>
+<button>➕ Add</button>
 </form>
 <?php $this->stop('content');
