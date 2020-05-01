@@ -11,7 +11,11 @@
     <form class="searchList" method="post" action="selectOrganization">
 <?php  foreach ($organizationList as $organizationEntry): ?>
     <li>
-        <button name="orgId" value="<?=$this->e($organizationEntry['org_id']); ?>">
+<?php if (array_key_exists('keyword_list', $organizationEntry)): ?>
+        <button name="orgId" data-keywords="<?=$this->l($organizationEntry['keyword_list']); ?>" value="<?=$this->e($organizationEntry['org_id']); ?>">
+<?php else: ?>
+        <button name="orgId" data-keywords="" value="<?=$this->e($organizationEntry['org_id']); ?>">
+<?php endif; ?>
             <?=$this->l($organizationEntry['display_name']); ?>
         </button>
     </li>

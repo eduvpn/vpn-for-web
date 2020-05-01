@@ -12,8 +12,8 @@ document.addEventListener("DOMContentLoaded", function () {
             var instituteList = document.querySelectorAll("form.searchList li button");
             var visibleCount = 0;
             instituteList.forEach(function(entry) {
-                var instituteName = entry.innerHTML;
-                if(instituteName.toUpperCase().indexOf(search) !== -1) {
+                var searchIn = entry.innerHTML + " " + entry.dataset.keywords + " " + entry.value;
+                if(searchIn.toUpperCase().indexOf(search) !== -1) {
                     entry.parentElement.style.display = "block";
                     visibleCount++;
                 } else {
