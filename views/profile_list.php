@@ -6,7 +6,7 @@
 <?php endforeach; ?>
 <?php if (array_key_exists('support_contact', $serverInfo)): ?>
 <div class="supportContact">
-Contact Support via
+💁 Contact Support via
 <?php foreach ($serverInfo['support_contact'] as $contactInfo): ?>
 <?php if (0 === strpos($contactInfo, 'mailto:')): ?>
 <a href="<?=$this->e($contactInfo); ?>">✉️ (Mail)</a>

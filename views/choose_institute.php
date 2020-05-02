@@ -6,7 +6,14 @@
     <input type="text" name="searchFor" placeholder="Search..." autofocus>
 </form>
 
-<h3 id="instituteAccess">🏛️ Work from Home</h3>
+<div id="instituteAccess">
+    <h3>🏛️ Institute Access</h3>
+    <p class="info">
+Connect to your Institute's network, for example when working from home and needing access
+to data or websites located on campus.
+    </p>
+</div>
+
 <ul>
     <form id="instituteAccessList" class="searchList" method="post" action="selectServer">
 <?php  foreach ($instituteList as $instituteEntry): ?>
@@ -22,7 +29,13 @@
 </ul>
 
 <?php if (!$hasSecureInternet): ?>
-<h3 id="secureInternet">🌍 Protect yourself Online</h3>
+<div id="secureInternet">
+    <h3>🌍 Secure Internet</h3>
+    <p class="info">
+    Secure your Internet connection, for example when traveling abroad or working from a coffeehouse.
+    </p>
+</div>
+
 <ul>
     <form id="secureInternetList" class="searchList" method="post" action="selectOrganization">
 <?php  foreach ($organizationList as $organizationEntry): ?>

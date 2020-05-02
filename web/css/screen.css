@@ -62,10 +62,25 @@ form button {
     text-align: start;
 }
 
+p {
+    text-align: justify;
+}
+
+form.add {
+    margin-top: 3em;
+    font-size: 80%;
+    text-align: center;
+}
+
 p.plain {
     background-color: #f0f0f0;
     border: 1px solid #e0e0e0;
     padding: 1em;
+    font-style: italic;
+}
+
+p.info {
+    font-style: italic;
 }
 
 ul.profileList {
@@ -74,11 +89,6 @@ ul.profileList {
 
 div.supportContact a {
     text-decoration: none;
-}
-
-hr {
-    border: 0;
-    margin: 4em 0;
 }
 
 div.noResults {

@@ -1,7 +1,7 @@
 <?php $this->layout('base'); ?>
 <?php $this->start('content'); ?>
 <?php if (0 !== count($myInstituteAccessServerList)): ?>
-<h2>🏛️ Work from Home</h2>
+<h2>🏛️ Institute Access</h2>
 <ul>
     <form class="home" method="get" action="getProfileList">
 <?php  foreach ($myInstituteAccessServerList as $serverEntry): ?>
@@ -14,7 +14,7 @@
 <?php endif; ?>
 
 <?php if (null !== $secureInternetServerInfo): ?>
-<h2>🌍 Protect yourself Online</h2>
+<h2>🌍 Secure Internet</h2>
     <form class="home" method="get" action="getProfileList">
         <button name="baseUri" value="<?=$this->e($secureInternetServerInfo['base_uri']); ?>"><?=$this->l($secureInternetServerInfo['display_name']); ?></button>
     </form>
