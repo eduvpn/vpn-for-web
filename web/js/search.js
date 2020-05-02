@@ -9,21 +9,49 @@ document.addEventListener("DOMContentLoaded", function () {
 
         document.querySelector("form.search input").addEventListener("keyup", function () {
             var search = this.value.toUpperCase();
-            var instituteList = document.querySelectorAll("form.searchList li button");
-            var visibleCount = 0;
-            instituteList.forEach(function(entry) {
+            var serverList = document.querySelectorAll("form#instituteAccessList li button");
+            var instituteList = document.querySelectorAll("form#secureInternetList li button");
+            var visibleServerCount = 0;
+            var visibleInstituteCount = 0;
+
+            serverList.forEach(function(entry) {
                 var searchIn = entry.innerHTML + " " + entry.dataset.keywords + " " + entry.value;
                 if(searchIn.toUpperCase().indexOf(search) !== -1) {
                     entry.parentElement.style.display = "block";
-                    visibleCount++;
+                    visibleServerCount++;
                 } else {
                     entry.parentElement.style.display = "none";
                 }
             });
-            if(0 === visibleCount) {
-                document.querySelector("div.noResults").style.display = "block";
+
+            instituteList.forEach(function(entry) {
+                var searchIn = entry.innerHTML + " " + entry.dataset.keywords + " " + entry.value;
+                if(searchIn.toUpperCase().indexOf(search) !== -1) {
+                    entry.parentElement.style.display = "block";
+                    visibleInstituteCount++;
+                } else {
+                    entry.parentElement.style.display = "none";
+                }
+            });
+
+            if(0 === visibleServerCount) {
+                document.getElementById("instituteAccess").style.display = "none";
             } else {
-                document.querySelector("div.noResults").style.display = "none";
+                document.getElementById("instituteAccess").style.display = "block";
+            }
+
+            if(null !== document.getElementById("secureInternet")) {
+                if(0 === visibleInstituteCount) {
+                    document.getElementById("secureInternet").style.display = "none";
+                } else {
+                    document.getElementById("secureInternet").style.display = "block";
+                }
+            }
+
+            if(0 === visibleServerCount && 0 === visibleInstituteCount) {
+                document.getElementById("noResults").style.display = "block";
+            } else {
+                document.getElementById("noResults").style.display = "none";
             }
         });
     }

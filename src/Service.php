@@ -66,25 +66,23 @@ class Service
                     switch ($request->getPathInfo()) {
                         case '/':
                             return $this->showHome($request->getRootUri());
-                        case '/settings':
+                        case '/advanced':
                             return new Response(
                                 200,
                                 [],
                                 $this->tpl->render(
-                                    'settings',
+                                    'advanced',
                                     [
                                         'forceTcp' => $this->session->getForceTcp(),
                                     ]
                                 )
                             );
-                        case '/chooseServer':
-                            return $this->showChooseServer();
+                        case '/chooseInstitute':
+                            return $this->showChooseInstitute();
                         case '/addOtherServer':
                             return new Response(200, [], $this->tpl->render('add_other_server', []));
                         case '/switchLocation':
                             return $this->showSwitchLocation();
-                        case '/chooseOrganization':
-                            return $this->showChooseOrganization();
                         case '/getProfileList':
                             $baseUri = self::validateBaseUri($request->getQueryParameter('baseUri'));
 
@@ -98,7 +96,7 @@ class Service
                     // no break
                 case 'POST':
                     switch ($request->getPathInfo()) {
-                        case '/addServer':
+                        case '/selectServer':
                             $baseUri = self::validateBaseUri($request->getPostParameter('baseUri'));
 
                             return new RedirectResponse($request->getRootUri().'getProfileList?baseUri='.$baseUri);
@@ -179,7 +177,7 @@ class Service
         $secureInternetServerInfo = null !== $secureInternetBaseUri ? $this->getServerInfo($secureInternetBaseUri) : null;
 
         if (0 === \count($myInstituteAccessServerList) && 0 === \count($myAlienBaseUriList) && null === $secureInternetServerInfo) {
-            return new RedirectResponse($rootUri.'chooseServer');
+            return new RedirectResponse($rootUri.'chooseInstitute');
         }
 
         return new Response(
@@ -199,16 +197,17 @@ class Service
     /**
      * @return Http\Response
      */
-    private function showChooseServer()
+    private function showChooseInstitute()
     {
         return new Response(
             200,
             [],
             $this->tpl->render(
-                'choose_server',
+                'choose_institute',
                 [
                     'hasSecureInternet' => null !== $this->session->getSecureInternetHomeBaseUri(),
                     'instituteList' => $this->getInstituteAccessServerList(),
+                    'organizationList' => $this->getOrganizationList(),
                 ]
             )
         );
@@ -226,23 +225,6 @@ class Service
                 'switch_location',
                 [
                     'secureInternetServerList' => $this->getSecureInternetServerList(),
-                ]
-            )
-        );
-    }
-
-    /**
-     * @return Http\Response
-     */
-    private function showChooseOrganization()
-    {
-        return new Response(
-            200,
-            [],
-            $this->tpl->render(
-                'choose_organization',
-                [
-                    'organizationList' => $this->getOrganizationList(),
                 ]
             )
         );

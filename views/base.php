@@ -15,7 +15,7 @@
         <h1>VPN for Web</h1>
     </header>
     <nav>
-        <a href="<?=$this->e($rootUri); ?>">Home</a> | <a href="<?=$this->e($rootUri); ?>settings">Advanced</a>
+        <a href="<?=$this->e($rootUri); ?>">Home</a> | <a href="<?=$this->e($rootUri); ?>advanced">Advanced</a>
     </nav>
     <main>
         <?=$this->section('content'); ?>
