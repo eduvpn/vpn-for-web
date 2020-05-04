@@ -347,7 +347,14 @@ class Service
         }
 
         if (!$response->isOkay()) {
-            throw new HttpException('OAuth API Error Response: '.$response->getBody(), $response->getStatusCode());
+            throw new RuntimeException('OAuth API Error Response: '.$response->getBody());
+        }
+
+        if ($response->isJson()) {
+            $jsonData = $response->json();
+            if (!$jsonData[$apiMethod]['ok']) {
+                throw new RuntimeException('OAuth API Error Response: '.$response->json()[$apiMethod]['error']);
+            }
         }
 
         return $response;
