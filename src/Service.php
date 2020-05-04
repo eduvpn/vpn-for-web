@@ -346,6 +346,10 @@ class Service
             return $authorizeUri;
         }
 
+        if (!$response->isOkay()) {
+            throw new HttpException('OAuth API Error Response: '.$response->getBody(), $response->getStatusCode());
+        }
+
         return $response;
     }
 
