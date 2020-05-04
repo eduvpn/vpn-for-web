@@ -19,9 +19,9 @@ to data or websites located on campus.
 <?php  foreach ($instituteList as $instituteEntry): ?>
     <li>
 <?php if (array_key_exists('keyword_list', $instituteEntry)): ?>
-        <button name="baseUri" data-keywords="<?=$this->l($instituteEntry['keyword_list']); ?>" value="<?=$this->e($instituteEntry['base_uri']); ?>"><?=$this->l($instituteEntry['display_name']); ?></button>
+        <button name="baseUri" data-keywords="<?=$this->l($instituteEntry['keyword_list']); ?>" value="<?=$this->e($instituteEntry['base_url']); ?>"><?=$this->l($instituteEntry['display_name']); ?></button>
 <?php else: ?>
-        <button name="baseUri" data-keywords="" value="<?=$this->e($instituteEntry['base_uri']); ?>"><?=$this->l($instituteEntry['display_name']); ?></button>
+        <button name="baseUri" data-keywords="" value="<?=$this->e($instituteEntry['base_url']); ?>"><?=$this->l($instituteEntry['display_name']); ?></button>
 <?php endif; ?>
     </li>
 <?php endforeach; ?>

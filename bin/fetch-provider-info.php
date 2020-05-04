@@ -17,8 +17,8 @@ use LC\Web\ProviderListFetcher;
 try {
     $config = new Config(require $baseDir.'/config/config.php');
     $discoveryUrlList = [
-        'https://static.eduvpn.nl/disco/secure_internet.json',
-        'https://static.eduvpn.nl/disco/institute_access.json',
+        'https://disco.eduvpn.org/server_list_institute_access.json',
+        'https://disco.eduvpn.org/server_list_secure_internet.json',
         'https://disco.eduvpn.org/organization_list_2.json',
     ];
     $providerListFetcher = new ProviderListFetcher($baseDir.'/data');

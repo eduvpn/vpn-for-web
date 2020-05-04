@@ -10,7 +10,7 @@ home country when traveling abroad.
     <form method="post" action="switchLocation">
 <?php  foreach ($secureInternetServerList as $serverEntry): ?>
     <li>
-        <button name="baseUri" value="<?=$this->e($serverEntry['base_uri']); ?>">
+        <button name="baseUri" value="<?=$this->e($serverEntry['base_url']); ?>">
             <?=$this->l($serverEntry['display_name']); ?>
         </button>
     </li>

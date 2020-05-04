@@ -427,13 +427,13 @@ class Service
     private function getServerInfo($baseUri)
     {
         $fileList = [
-            'institute_access' => $this->dataDir.'/institute_access.json',
-            'secure_internet' => $this->dataDir.'/secure_internet.json',
+            'institute_access' => $this->dataDir.'/server_list_institute_access.json',
+            'secure_internet' => $this->dataDir.'/server_list_secure_internet.json',
         ];
         foreach ($fileList as $type => $discoveryFile) {
             $discoveryData = json_decode(file_get_contents($discoveryFile), true);
-            foreach ($discoveryData['instances'] as $serverEntry) {
-                if ($baseUri === $serverEntry['base_uri']) {
+            foreach ($discoveryData['server_list'] as $serverEntry) {
+                if ($baseUri === $serverEntry['base_url']) {
                     $serverEntry['type'] = $type;
 
                     return $serverEntry;
@@ -442,7 +442,7 @@ class Service
         }
 
         return [
-            'base_uri' => $baseUri,
+            'base_url' => $baseUri,
             'display_name' => $baseUri,
             'type' => 'alien',
         ];
@@ -453,7 +453,7 @@ class Service
      */
     private function getInstituteAccessServerList()
     {
-        $x = json_decode(file_get_contents($this->dataDir.'/institute_access.json'), true)['instances'];
+        $x = json_decode(file_get_contents($this->dataDir.'/server_list_institute_access.json'), true)['server_list'];
         self::sortByDisplayName($x);
 
         return $x;
@@ -464,7 +464,7 @@ class Service
      */
     private function getSecureInternetServerList()
     {
-        $x = json_decode(file_get_contents($this->dataDir.'/secure_internet.json'), true)['instances'];
+        $x = json_decode(file_get_contents($this->dataDir.'/server_list_secure_internet.json'), true)['server_list'];
         self::sortByDisplayName($x);
 
         return $x;
