@@ -140,22 +140,4 @@ class PhpSession implements SessionInterface
         }
         $_SESSION['alien'][] = $baseUri;
     }
-
-    /**
-     * @param string $flowId
-     *
-     * @return void
-     */
-    public function setFlowId($flowId)
-    {
-        $_SESSION['flowId'] = $flowId;
-    }
-
-    /**
-     * @return string
-     */
-    public function getFlowId()
-    {
-        return isset($_SESSION['flowId']) ? $_SESSION['flowId'] : 'modern_two_buttons';
-    }
 }
