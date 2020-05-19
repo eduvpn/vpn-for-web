@@ -300,7 +300,7 @@ class Service
         $providerInfo = $this->getProviderInfo($baseUri);
         $serverInfo = $this->getServerInfo($baseUri);
         // are we trying to connect to a secure internet server?
-        if ('secure_internet' === $this->getServerInfo($baseUri)['type']) {
+        if ('secure_internet' === $this->getServerInfo($baseUri)['server_type']) {
             if (null !== $secureInternetHomeBaseUri = $this->session->getSecureInternetHomeBaseUri()) {
                 // we already have a home server!
                 $secureInternetProviderInfo = $this->getProviderInfo($secureInternetHomeBaseUri);
@@ -437,25 +437,17 @@ class Service
      */
     private function getServerInfo($baseUri)
     {
-        $fileList = [
-            'institute_access' => $this->dataDir.'/server_list_institute_access.json',
-            'secure_internet' => $this->dataDir.'/server_list_secure_internet.json',
-        ];
-        foreach ($fileList as $type => $discoveryFile) {
-            $discoveryData = json_decode(file_get_contents($discoveryFile), true);
-            foreach ($discoveryData['server_list'] as $serverEntry) {
-                if ($baseUri === $serverEntry['base_url']) {
-                    $serverEntry['type'] = $type;
-
-                    return $serverEntry;
-                }
+        $discoveryData = json_decode(file_get_contents($this->dataDir.'/server_list.json'), true);
+        foreach ($discoveryData['server_list'] as $serverEntry) {
+            if ($baseUri === $serverEntry['base_url']) {
+                return $serverEntry;
             }
         }
 
         return [
             'base_url' => $baseUri,
             'display_name' => $baseUri,
-            'type' => 'alien',
+            'server_type' => 'alien',
         ];
     }
 
@@ -533,12 +525,12 @@ class Service
 
         // add baseUri to server list
         $serverInfo = $this->getServerInfo($baseUri);
-        if ('secure_internet' === $serverInfo['type']) {
+        if ('secure_internet' === $serverInfo['server_type']) {
             if (null === $this->session->getSecureInternetHomeBaseUri()) {
                 $this->session->setSecureInternetHomeBaseUri($baseUri);
             }
             $this->session->setSecureInternetBaseUri($baseUri);
-        } elseif ('institute_access' === $serverInfo['type']) {
+        } elseif ('institute_access' === $serverInfo['server_type']) {
             // never add the same baseUri twice
             if (!\in_array($baseUri, $this->session->getMyInstituteAccessBaseUriList(), true)) {
                 $this->session->addInstituteAccessBaseUri($baseUri);
