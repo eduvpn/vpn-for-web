@@ -464,10 +464,18 @@ class Service
      */
     private function getInstituteAccessServerList()
     {
-        $x = json_decode(file_get_contents($this->dataDir.'/server_list_institute_access.json'), true)['server_list'];
-        self::sortByDisplayName($x);
+        $serverList = json_decode(file_get_contents($this->dataDir.'/server_list.json'), true)['server_list'];
+        $instituteAccessList = [];
+        foreach ($serverList as $server) {
+            if ('institute_access' !== $server['server_type']) {
+                continue;
+            }
+            $instituteAccessList[] = $server;
+        }
 
-        return $x;
+        self::sortByDisplayName($instituteAccessList);
+
+        return $instituteAccessList;
     }
 
     /**
@@ -475,10 +483,18 @@ class Service
      */
     private function getSecureInternetServerList()
     {
-        $x = json_decode(file_get_contents($this->dataDir.'/server_list_secure_internet.json'), true)['server_list'];
-        self::sortByDisplayName($x);
+        $serverList = json_decode(file_get_contents($this->dataDir.'/server_list.json'), true)['server_list'];
+        $secureInternetList = [];
+        foreach ($serverList as $server) {
+            if ('secure_internet' !== $server['server_type']) {
+                continue;
+            }
+            $secureInternetList[] = $server;
+        }
 
-        return $x;
+        self::sortByDisplayName($secureInternetList);
+
+        return $secureInternetList;
     }
 
     /**
@@ -486,7 +502,7 @@ class Service
      */
     private function getOrganizationList()
     {
-        $x = json_decode(file_get_contents($this->dataDir.'/organization_list_2.json'), true)['organization_list'];
+        $x = json_decode(file_get_contents($this->dataDir.'/organization_list.json'), true)['organization_list'];
         self::sortByDisplayName($x);
 
         return $x;
