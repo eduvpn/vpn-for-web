@@ -140,4 +140,26 @@ class PhpSession implements SessionInterface
         }
         $_SESSION['alien'][] = $baseUri;
     }
+
+    /**
+     * @param string $orgId
+     *
+     * @return void
+     */
+    public function setOrgId($orgId)
+    {
+        $_SESSION['org_id'] = $orgId;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getOrgId()
+    {
+        if (\array_key_exists('org_id', $_SESSION)) {
+            return $_SESSION['org_id'];
+        }
+
+        return null;
+    }
 }

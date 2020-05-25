@@ -106,9 +106,11 @@ class Service
                             return new RedirectResponse($request->getRootUri().'getProfileList?baseUri='.$baseUri);
                         case '/selectOrganization':
                             // validation of h getBaseUriFromOrgId as that is a whitelist...
-                            if (null === $baseUri = $this->getBaseUriFromOrgId($request->getPostParameter('orgId'))) {
+                            $orgId = $request->getPostParameter('orgId');
+                            if (null === $baseUri = $this->getBaseUriFromOrgId($orgId)) {
                                 throw new HttpException('invalid "orgId"', 400);
                             }
+                            $this->session->setOrgId($orgId);
 
                             return new RedirectResponse($request->getRootUri().'getProfileList?baseUri='.$baseUri);
                         case '/switchLocation':
@@ -298,15 +300,16 @@ class Service
     {
         $userId = $baseUri; // use baseUri as user_id
         $providerInfo = $this->getProviderInfo($baseUri);
+        $providerApiInfo = $providerInfo['api']['http://eduvpn.org/api#2'];
         $serverInfo = $this->getServerInfo($baseUri);
         // are we trying to connect to a secure internet server?
         if ('secure_internet' === $this->getServerInfo($baseUri)['server_type']) {
             if (null !== $secureInternetHomeBaseUri = $this->session->getSecureInternetHomeBaseUri()) {
                 // we already have a home server!
-                $secureInternetProviderInfo = $this->getProviderInfo($secureInternetHomeBaseUri);
+                $secureInternetProviderApiInfo = $this->getProviderInfo($secureInternetHomeBaseUri)['api']['http://eduvpn.org/api#2'];
                 // override the OAuth stuff to point to the home server
-                $providerInfo['authorization_endpoint'] = $secureInternetProviderInfo['authorization_endpoint'];
-                $providerInfo['token_endpoint'] = $secureInternetProviderInfo['token_endpoint'];
+                $providerApiInfo['authorization_endpoint'] = $secureInternetProviderApiInfo['authorization_endpoint'];
+                $providerApiInfo['token_endpoint'] = $secureInternetProviderApiInfo['token_endpoint'];
                 $userId = $secureInternetHomeBaseUri;
             }
         }
@@ -314,10 +317,10 @@ class Service
         $provider = new Provider(
             $this->config->get('OAuth')->get('clientId'),
             null,
-            $providerInfo['authorization_endpoint'],
-            $providerInfo['token_endpoint']
+            $providerApiInfo['authorization_endpoint'],
+            $providerApiInfo['token_endpoint']
         );
-        $apiBaseUri = $providerInfo['api_base_uri'];
+        $apiBaseUri = $providerApiInfo['api_base_uri'];
 
         if ('GET' === $requestMethod) {
             $request = HttpRequest::get(sprintf('%s/%s', $apiBaseUri, $apiMethod), $queryPostParameters);
@@ -343,7 +346,30 @@ class Service
                 sprintf('%scallback', $appRootUri)
             );
 
-            return $authorizeUri;
+            // XXX maybe we should check if it is a secure_internet server or not?!
+            // XXX also delete orgId from session?
+            if (null === $orgId = $this->session->getOrgId()) {
+                return $authorizeUri;
+            }
+
+            if (!\array_key_exists('authentication_url_template', $providerInfo)) {
+                // no authentication template available
+                return $authorizeUri;
+            }
+
+            $authenticationUrlTemplate = $providerInfo['authentication_url_template'];
+
+            return str_replace(
+                [
+                    '@RETURN_TO@',
+                    '@ORG_ID@',
+                ],
+                [
+                    urlencode($authorizeUri),
+                    urlencode($orgId),
+                ],
+                $authenticationUrlTemplate
+            );
         }
 
         if (!$response->isOkay()) {
@@ -427,7 +453,7 @@ class Service
             throw new RuntimeException(sprintf('unable to fetch "%s"', $infoUrl));
         }
 
-        return $infoResponse->json()['api']['http://eduvpn.org/api#2'];
+        return $infoResponse->json();
     }
 
     /**
@@ -509,12 +535,12 @@ class Service
             throw new HttpException('missing "baseUri"', 400);
         }
         $this->session->removeBaseUri();
-        $providerInfo = $this->getProviderInfo($baseUri);
+        $providerApiInfo = $this->getProviderInfo($baseUri)['api']['http://eduvpn.org/api#2'];
         $provider = new Provider(
             $this->config->get('OAuth')->get('clientId'),
             null,
-            $providerInfo['authorization_endpoint'],
-            $providerInfo['token_endpoint']
+            $providerApiInfo['authorization_endpoint'],
+            $providerApiInfo['token_endpoint']
         );
 
         $this->oauthClient->handleCallback(

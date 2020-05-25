@@ -92,4 +92,16 @@ interface SessionInterface
      * @return void
      */
     public function addAlienBaseUri($baseUri);
+
+    /**
+     * @param string $orgId
+     *
+     * @return void
+     */
+    public function setOrgId($orgId);
+
+    /**
+     * @return string|null
+     */
+    public function getOrgId();
 }
