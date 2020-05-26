@@ -347,17 +347,15 @@ class Service
             );
 
             // XXX maybe we should check if it is a secure_internet server or not?!
+
             // XXX also delete orgId from session?
             if (null === $orgId = $this->session->getOrgId()) {
                 return $authorizeUri;
             }
 
-            if (!\array_key_exists('authentication_url_template', $providerInfo)) {
-                // no authentication template available
+            if (null === $authTemplate = self::getAuthTemplate($baseUri)) {
                 return $authorizeUri;
             }
-
-            $authenticationUrlTemplate = $providerInfo['authentication_url_template'];
 
             return str_replace(
                 [
@@ -368,7 +366,7 @@ class Service
                     urlencode($authorizeUri),
                     urlencode($orgId),
                 ],
-                $authenticationUrlTemplate
+                $authTemplate
             );
         }
 
@@ -624,5 +622,20 @@ class Service
                 return strcasecmp($dnA, $dnB);
             }
         );
+    }
+
+    /**
+     * @param string $baseUri
+     *
+     * @return string|null
+     */
+    private static function getAuthTemplate($baseUri)
+    {
+        switch ($baseUri) {
+            case 'https://nl.eduvpn.org/':
+                return 'https://nl.eduvpn.org/php-saml-sp/login?ReturnTo=@RETURN_TO@&IdP=@ORG_ID@';
+            default:
+                return null;
+        }
     }
 }
