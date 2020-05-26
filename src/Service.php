@@ -634,6 +634,8 @@ class Service
         switch ($baseUri) {
             case 'https://nl.eduvpn.org/':
                 return 'https://nl.eduvpn.org/php-saml-sp/login?ReturnTo=@RETURN_TO@&IdP=@ORG_ID@';
+            case 'https://eduvpn1.eduvpn.de/':
+                return 'https://eduvpn1.eduvpn.de/saml/login?ReturnTo=@RETURN_TO@&IdP=@ORG_ID@';
             default:
                 return null;
         }
