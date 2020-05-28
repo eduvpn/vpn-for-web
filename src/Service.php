@@ -642,6 +642,10 @@ class Service
                 return 'https://eduvpn.renu.ac.ug/Shibboleth.sso/Login?entityID=@ORG_ID@&target=@RETURN_TO@';
             case 'https://eduvpn.marwan.ma/':
                 return 'https://eduvpn.marwan.ma/saml/login?ReturnTo=@RETURN_TO@&IdP=@ORG_ID@';
+            case 'https://vpn.pern.edu.pk/':
+                return 'https://vpn.pern.edu.pk/Shibboleth.sso/Login?entityID=@ORG_ID@&target=@RETURN_TO@';
+            case 'https://eduvpn.ac.lk/':
+                return 'https://eduvpn.ac.lk/Shibboleth.sso/Login?entityID=@ORG_ID@&target=@RETURN_TO@';
             default:
                 return null;
         }
