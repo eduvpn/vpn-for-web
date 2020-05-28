@@ -640,6 +640,8 @@ class Service
                 return 'https://eduvpn1.funet.fi/Shibboleth.sso/Login?entityID=@ORG_ID@&target=@RETURN_TO@';
             case 'https://eduvpn.renu.ac.ug/':
                 return 'https://eduvpn.renu.ac.ug/Shibboleth.sso/Login?entityID=@ORG_ID@&target=@RETURN_TO@';
+            case 'https://eduvpn.marwan.ma/':
+                return 'https://eduvpn.marwan.ma/saml/login?ReturnTo=@RETURN_TO@&IdP=@ORG_ID@';
             default:
                 return null;
         }
