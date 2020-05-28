@@ -636,6 +636,8 @@ class Service
                 return 'https://nl.eduvpn.org/php-saml-sp/login?ReturnTo=@RETURN_TO@&IdP=@ORG_ID@';
             case 'https://eduvpn1.eduvpn.de/':
                 return 'https://eduvpn1.eduvpn.de/saml/login?ReturnTo=@RETURN_TO@&IdP=@ORG_ID@';
+            case 'https://eduvpn1.funet.fi/':
+                return 'https://eduvpn1.funet.fi/Shibboleth.sso/Login?entityID=@ORG_ID@&target=@RETURN_TO@';
             default:
                 return null;
         }
