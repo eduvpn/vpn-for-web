@@ -353,7 +353,7 @@ class Service
                 return $authorizeUri;
             }
 
-            if (null === $authTemplate = self::getAuthTemplate($baseUri)) {
+            if (null === $authTemplate = $this->getAuthTemplate($baseUri)) {
                 return $authorizeUri;
             }
 
@@ -629,25 +629,16 @@ class Service
      *
      * @return string|null
      */
-    private static function getAuthTemplate($baseUri)
+    private function getAuthTemplate($baseUri)
     {
-        switch ($baseUri) {
-            case 'https://nl.eduvpn.org/':
-                return 'https://nl.eduvpn.org/php-saml-sp/login?ReturnTo=@RETURN_TO@&IdP=@ORG_ID@';
-            case 'https://eduvpn1.eduvpn.de/':
-                return 'https://eduvpn1.eduvpn.de/saml/login?ReturnTo=@RETURN_TO@&IdP=@ORG_ID@';
-            case 'https://eduvpn1.funet.fi/':
-                return 'https://eduvpn1.funet.fi/Shibboleth.sso/Login?entityID=@ORG_ID@&target=@RETURN_TO@';
-            case 'https://eduvpn.renu.ac.ug/':
-                return 'https://eduvpn.renu.ac.ug/Shibboleth.sso/Login?entityID=@ORG_ID@&target=@RETURN_TO@';
-            case 'https://eduvpn.marwan.ma/':
-                return 'https://eduvpn.marwan.ma/saml/login?ReturnTo=@RETURN_TO@&IdP=@ORG_ID@';
-            case 'https://vpn.pern.edu.pk/':
-                return 'https://vpn.pern.edu.pk/Shibboleth.sso/Login?entityID=@ORG_ID@&target=@RETURN_TO@';
-            case 'https://eduvpn.ac.lk/':
-                return 'https://eduvpn.ac.lk/Shibboleth.sso/Login?entityID=@ORG_ID@&target=@RETURN_TO@';
-            default:
-                return null;
+        $serverInfo = $this->getServerInfo($baseUri);
+        if ('secure_internet' !== $serverInfo['server_type']) {
+            return null;
         }
+        if (!\array_key_exists('authentication_url_template', $serverInfo)) {
+            return null;
+        }
+
+        return $serverInfo['authentication_url_template'];
     }
 }
