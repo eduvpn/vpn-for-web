@@ -464,6 +464,11 @@ class Service
         $discoveryData = json_decode(file_get_contents($this->dataDir.'/server_list.json'), true);
         foreach ($discoveryData['server_list'] as $serverEntry) {
             if ($baseUri === $serverEntry['base_url']) {
+                if (\array_key_exists('country_code', $serverEntry)) {
+                    // add the displaynames
+                    $serverEntry['display_name'] = $this->getDisplayNameFromCountryCode($serverEntry['country_code']);
+                }
+
                 return $serverEntry;
             }
         }
@@ -505,6 +510,10 @@ class Service
             if ('secure_internet' !== $server['server_type']) {
                 continue;
             }
+            if (\array_key_exists('country_code', $server)) {
+                $server['display_name'] = $this->getDisplayNameFromCountryCode($server['country_code']);
+            }
+
             $secureInternetList[] = $server;
         }
 
@@ -522,6 +531,21 @@ class Service
         self::sortByDisplayName($x);
 
         return $x;
+    }
+
+    /**
+     * @param string $countryCode
+     *
+     * @return array<string,string>|string
+     */
+    private function getDisplayNameFromCountryCode($countryCode)
+    {
+        $x = json_decode(file_get_contents(__DIR__.'/country_code_to_country_mapping.json'), true);
+        if (!\array_key_exists($countryCode, $x)) {
+            return $countryCode;
+        }
+
+        return $x[$countryCode];
     }
 
     /**
