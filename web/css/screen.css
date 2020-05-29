@@ -97,3 +97,6 @@ div.noResults {
     display: none;
 }
 
+form.search button {
+    display: none;
+}

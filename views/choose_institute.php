@@ -2,9 +2,11 @@
 <?php $this->start('content'); ?>
 
 <h2>Choose your Institute</h2>
-<form class="search" method="get">
+<form class="search" method="post" action="addOtherServer">
     <input type="text" name="searchFor" placeholder="Search..." autofocus>
+    <button type="submit">Add by Domain</button>
 </form>
+
 
 <div id="instituteAccess">
     <h3>🏛️ Institute Access</h3>

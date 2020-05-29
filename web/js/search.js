@@ -1,11 +1,12 @@
 "use strict";
 
 document.addEventListener("DOMContentLoaded", function () {
+    var f = function(e) {
+        e.preventDefault();
+    };
+
     if(null !== document.querySelector("form.search")) {
-        document.querySelector("form.search").addEventListener("submit", function (e) {
-            // disable standard form submit when JS is enabled for the search box
-            e.preventDefault();
-        });
+        document.querySelector("form.search").addEventListener("submit", f);
 
         document.querySelector("form.search input").addEventListener("keyup", function () {
             var search = this.value.toUpperCase();
@@ -52,6 +53,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 document.getElementById("noResults").style.display = "block";
             } else {
                 document.getElementById("noResults").style.display = "none";
+            }
+
+            // show "Add Manual" when search contains two dots and some text
+            // between
+            if(3 <= this.value.split(".").length) {
+                document.querySelector("form.search button").style.display = "block";
+                document.querySelector("form.search").removeEventListener("submit", f);
+            } else {
+                document.querySelector("form.search button").style.display = "none";
+                document.querySelector("form.search").addEventListener("submit", f);
             }
         });
     }
