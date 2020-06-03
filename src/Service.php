@@ -101,7 +101,7 @@ class Service
 
                             return new RedirectResponse($request->getRootUri().'getProfileList?baseUri='.$baseUri);
                         case '/addOtherServer':
-                            $baseUri = self::validateBaseUri('https://'.$request->getPostParameter('searchFor').'/');
+                            $baseUri = self::validateBaseUri('https://'.$request->getPostParameter('baseUri').'/');
 
                             return new RedirectResponse($request->getRootUri().'getProfileList?baseUri='.$baseUri);
                         case '/selectOrganization':

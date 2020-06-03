@@ -2,11 +2,23 @@
 <?php $this->start('content'); ?>
 
 <h2>Choose your Institute</h2>
-<form class="search" method="post" action="addOtherServer">
-    <input type="text" name="searchFor" placeholder="Search..." autofocus>
-    <button type="submit">Add by Domain</button>
+<form class="search">
+    <input type="text" placeholder="Search..." autofocus>
 </form>
 
+<div id="otherServer">
+    <h3>👽️ Other Server</h3>
+    <p class="info">
+Connect to your own server by hostname when it is not yet listed.
+    </p>
+    <ul>
+        <form id="otherServerList" class="searchList" method="post" action="addOtherServer">
+        <li>
+            <button name="baseUri" value="vpn.tuxed.net">vpn.tuxed.net</button>
+        </li>
+        </form>
+    </ul>
+</div>
 
 <div id="instituteAccess">
     <h3>🏛️ Institute Access</h3>

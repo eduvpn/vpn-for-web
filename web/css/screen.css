@@ -97,6 +97,6 @@ div.noResults {
     display: none;
 }
 
-form.search button {
+div#otherServer {
     display: none;
 }
