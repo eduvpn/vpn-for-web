@@ -54,6 +54,8 @@ document.addEventListener("DOMContentLoaded", function () {
             // between
             if(3 <= this.value.split(".").length) {
                 // show "Other Server"
+                document.querySelector("form#otherServerList button").value = this.value;
+                document.querySelector("form#otherServerList button").innerHTML = this.value;
                 document.getElementById("otherServer").style.display = "block";
                 showOtherServer = true;
             } else {
